@@ -25,19 +25,19 @@ author:
     name: John Preuß Mattsson
     org: Ericsson
     email: john.mattsson@ericsson.com
-    
+
 -
     ins: M. Tiloca
     name: Marco Tiloca
     org: RISE
     email: marco.tiloca@ri.se
-    
+
 -
     ins: R. Höglund
     name: Rikard Höglund
     org: RISE
     email: rikard.hoglund@ri.se
-    
+
 normative:
   RFC2119:
   RFC8174:
@@ -64,14 +64,14 @@ informative:
   RFC8446:
   RFC8610:
   I-D.ietf-ace-oscore-profile:
- 
+
 entity:
         SELF: "[RFC-XXXX]"
 
 --- abstract
 
-This document specifies a profile for the Authentication and Authorization for Constrained Environments (ACE) framework. 
-It utilizes Ephemeral Diffie-Hellman Over COSE (EDHOC) for proof-of-possession of a public key owned by a client and bound to an OAuth 2.0 access token. 
+This document specifies a profile for the Authentication and Authorization for Constrained Environments (ACE) framework.
+It utilizes Ephemeral Diffie-Hellman Over COSE (EDHOC) for proof-of-possession of a public key owned by a client and bound to an OAuth 2.0 access token.
 EDHOC also establishes an OSCORE security context used to secure communication with protected resources according to the authorization information indicated in the access token.
 A resource-constrained server can use this protocol to delegate management of authorization information to a trusted host with less severe limitations regarding processing power and memory.
 
@@ -83,7 +83,7 @@ A resource-constrained server can use this protocol to delegate management of au
 This specification defines the `coap_edhoc_oscore` profile of the ACE framework {{I-D.ietf-ace-oauth-authz}}.
 In this profile the client (C) can access protected resources hosted at the resource server (RS) with the use of an access token issued by a trusted authorization server (AS) which associates access rights to a public key of C.
 
-C and RS use the Constrained Application Protocol (CoAP) {{RFC7252}} to communicate, and Object Security for Constrained RESTful Environments (OSCORE) {{RFC8613}} to protect the communication, like in the `coap_oscore` profile of ACE {{I-D.ietf-ace-oscore-profile}}. 
+C and RS use the Constrained Application Protocol (CoAP) {{RFC7252}} to communicate, and Object Security for Constrained RESTful Environments (OSCORE) {{RFC8613}} to protect the communication, like in the `coap_oscore` profile of ACE {{I-D.ietf-ace-oscore-profile}}.
 But the access rights in this profile are associated to a public key of C, instead of a symmetric key, and uses Ephemeral Diffie-Hellman Over COSE (EDHOC) to prove possession of the corresponding private key.
 
 C provides the access token to RS (different options are possible) and they run the EDHOC protocol. The RS needs to match the public key associated to the access token against the public key of the credential used by the other endpoint.
@@ -121,7 +121,7 @@ The focus of this profile is a "zero-touch" setting where authentication is base
 Another focus is on reducing message overhead
 
 
-NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-authorize. The mode of writing has been to compare the text below with draft-ietf-ace-oscore-profile (for which there is no Markdown document) and selected relevant parts from respective drafts. 
+NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-authorize. The mode of writing has been to compare the text below with draft-ietf-ace-oscore-profile (for which there is no Markdown document) and selected relevant parts from respective drafts.
 
 
 
@@ -199,7 +199,7 @@ client and the resource server with sufficient information to
 establish a secure channel, and convey authorization information
 specific for this communication relationship to the resource server.
 
-{{C-AS-comm}} describes how the communication between the client (C) and 
+{{C-AS-comm}} describes how the communication between the client (C) and
 the authorization server (AS) must be secured.
 Depending on the used CoAP security mode (see also
 Section 9 of {{RFC7252}},
@@ -375,7 +375,7 @@ an implementation that supports the RPK mode of this profile MUST at
 least support the cipher suite
 TLS\_ECDHE\_ECDSA\_WITH\_AES\_128\_CCM\_8 {{RFC7251}}.
 As discussed in {{RFC7748}}, new ECC
-  curves have been defined recently that are considered superior to 
+  curves have been defined recently that are considered superior to
   the so-called NIST curves. Implementations of this profile therefore
   MUST implement support for curve25519 (cf. {{RFC8032}}, {{RFC8422}})
   as this curve said to be efficient and less dangerous
@@ -432,7 +432,7 @@ the access token (see Section 5.9.4 of {{I-D.ietf-ace-oauth-authz}}) to
 employ a strict order.
 
 Any request that the resource server receives on a DTLS channel that
-is tied to an access token via its keying material 
+is tied to an access token via its keying material
 MUST be checked against the authorization rules that can be determined
 with the access token. The resource server
 MUST check for every request if the access token is still valid.
@@ -499,7 +499,7 @@ can be used with updated permissions.
 The client can therefore update the authorization information stored at the
 resource server at any time without changing an established DTLS
 session. To do so, the client requests a
-new access token from the authorization server 
+new access token from the authorization server
 for the intended action on the respective resource
 and uploads this access token to the authz-info resource on the
 resource server.

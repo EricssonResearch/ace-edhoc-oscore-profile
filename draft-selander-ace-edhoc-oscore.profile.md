@@ -55,6 +55,7 @@ normative:
   RFC8949:
   I-D.ietf-ace-oauth-authz:
   I-D.ietf-ace-oauth-params:
+  I-D.ietf-lake-edhoc:
 
 informative:
   RFC5869:
@@ -64,6 +65,7 @@ informative:
   RFC8446:
   RFC8610:
   I-D.ietf-ace-oscore-profile:
+  I-D.ietf-cose-cbor-encoded-cert:
 
 entity:
         SELF: "[RFC-XXXX]"
@@ -71,9 +73,9 @@ entity:
 --- abstract
 
 This document specifies a profile for the Authentication and Authorization for Constrained Environments (ACE) framework.
-It utilizes Ephemeral Diffie-Hellman Over COSE (EDHOC) for proof-of-possession of a public key owned by a client and bound to an OAuth 2.0 access token.
+It utilizes Ephemeral Diffie-Hellman Over COSE (EDHOC) for mutual authentication between OAuth 2.0 Client and Resource Server and binds an authentication credential of the Client to an OAuth 2.0 Access Token.
 EDHOC also establishes an OSCORE security context used to secure communication with protected resources according to the authorization information indicated in the access token.
-A resource-constrained server can use this protocol to delegate management of authorization information to a trusted host with less severe limitations regarding processing power and memory.
+A resource-constrained server can use this profile to delegate management of authorization information to a trusted host with less severe limitations regarding processing power and memory.
 
 --- middle
 
@@ -81,19 +83,31 @@ A resource-constrained server can use this protocol to delegate management of au
 # Introduction
 
 This specification defines the `coap_edhoc_oscore` profile of the ACE framework {{I-D.ietf-ace-oauth-authz}}.
-In this profile the client (C) can access protected resources hosted at the resource server (RS) with the use of an access token issued by a trusted authorization server (AS) which associates access rights to a public key of C.
+In this profile the client (C) can access protected resources hosted at the resource server (RS) with the use of an access token issued by a trusted authorization server (AS) which associates access rights to a authentication credential of C.
+The authentication credential can be a raw public key of C, e.g., encoded as a CWT Claims Set (CCS, {{RFC8392}}), or a public key certificate, e.g. encoded as an X.509 certificate or CBOR encoded X.509 certificate (C509, {{draft-ietf-cose-cbor-encoded-cert}}), or other data structure containing or uniquely referencing the public key of C.
 
 C and RS use the Constrained Application Protocol (CoAP) {{RFC7252}} to communicate, and Object Security for Constrained RESTful Environments (OSCORE) {{RFC8613}} to protect the communication, like in the `coap_oscore` profile of ACE {{I-D.ietf-ace-oscore-profile}}.
-But the access rights in this profile are associated to a public key of C, instead of a symmetric key, and uses Ephemeral Diffie-Hellman Over COSE (EDHOC) to prove possession of the corresponding private key.
+But instead of associating the access rights to a symmetric key of C, as in the `coap_oscore` profile, the access rights in this profile are associated to an authentication credential of C, and uses Ephemeral Diffie-Hellman Over COSE (EDHOC) to prove possession of the corresponding private key, and derive a symmetric key.
 
-C provides the access token to RS (different options are possible) and they run the EDHOC protocol. The RS needs to match the public key associated to the access token against the public key of the credential used by the other endpoint.
-If relevant verifications are successful, the RS concludes that the other endpoint has the associated access rights, and derives the corresponding OSCORE security context.
-The processing of requests for specific protected resources is identical to the OSCORE profile {{I-D.ietf-ace-oscore-profile}}.
-
+C provides the access token to RS (different options are possible) and they run the EDHOC protocol for mutual authentication.
+In this process C and RS need to access each other's credentials, which may be provided through EDHOC or by other means.
+RS further needs to match the authentication credential associated to the access token against the authentication credential used by the other endpoint.
+If relevant verifications are successful, RS concludes that the other endpoint has the associated access rights, and derives the corresponding OSCORE security context.
+The processing of requests for specific protected resources is identical to the `coap_oscore` profile.
 
 As recommended in Section 5.8 of {{I-D.ietf-ace-oauth-authz}}, this
 specification uses CBOR Web Tokens (CWT) to convey claims within an access
-token issued by the server.
+token issued by the AS.
+
+Marco's comments:
+
+   * New "CWT Confirmation Methods" are registered (e.g., "x5t", "xchain", ..."), basically to cover the types of ID_CRED_X supported in EDHOC.
+
+   * The Client receives the Token Response from the AS, and takes the value of 'rs_cnf' as ID_CRED_R.
+   Depending on the specific type of 'rs_cnf', the RS' authentication credential here can be pointed by reference or transported by value (what is possible and most efficient to do).
+
+   * The RS receives the Token from the Client, and takes the value of the 'cnf' claim as ID_CRED_I.
+   Depending on the specific type of 'cnf', the Client's authentication credential here can be pointed by reference or transported by value (what is possible and most efficient to do).
 
 ## Terminology
 
@@ -103,7 +117,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 14 {{RFC2119}} {{RFC8174}} when, and only when, they appear in all
 capitals, as shown here.
 
-Readers are expected to be familiar with the terms and concepts
+Readers are expected to be familiar with security for CoAP {{RFC7252}} based on OSCORE {{RFC8613}} and EDHOC {{I-D.ietf-lake-edhoc}}.
+Readers are also expected to be familiar with the terms and concepts of the ACE framework
 described in {{I-D.ietf-ace-oauth-authz}} and in {{I-D.ietf-ace-oauth-params}}.
 
 The authorization information (authz-info) resource refers to the authorization information endpoint as specified in {{I-D.ietf-ace-oauth-authz}}.
@@ -117,8 +132,22 @@ in the access token or returned from introspection.
 
 This section gives an overview of how to use the ACE framework {{I-D.ietf-ace-oauth-authz}} together with the EDHOC authentication protocol to generate an OSCORE security context with associated authorization information.
 
-The focus of this profile is a "zero-touch" setting where authentication is based on credentials like public key certificates or signed tokens, and where trust anchors may be pre-provisioned.
-Another focus is on reducing message overhead
+The focus of this profile is a "zero-touch" setting where authentication is based on credentials like public key certificates or signed tokens which may be transported via EDHOC or out of band, but where trust anchors may be pre-provisioned.
+Different settings are possible.
+Generally, the AS and RS are likely to have trusted access to each other's credentials, since AS acts on behalf of RS.
+AS needs also to have some information about C to verify from whom the request is coming and for what it is authorized, but this may potentially be obtained dynamically as part of the request.
+
+Another focus is on reducing message overhead over constrained links, and authentication credentials may be large producers of overhead.
+For this reason, opportunities should be explored to pass a reference to a pre-provisioned credential or credential that can be obtained over less constrained links.
+
+Marco's comments:
+
+  * 'req_cnf' can be transferred by reference; 'cnf' and 'rs_cnf' has to be transferred by value.
+
+   * When the Client initially runs EDHOC with the AS (before sending the Token request), both Client and AS can indicate their own authentication credential by reference in ID_CRED_X.
+
+   * Following the expiration of the first token, if the client asks for a new one: 'req_cnf' can be transferred by reference; 'cnf' and 'rs_cnf' can also be transferred by reference. Then EDHOC also uses only transferring by reference.
+
 
 
 NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-authorize. The mode of writing has been to compare the text below with draft-ietf-ace-oscore-profile (for which there is no Markdown document) and selected relevant parts from respective drafts.

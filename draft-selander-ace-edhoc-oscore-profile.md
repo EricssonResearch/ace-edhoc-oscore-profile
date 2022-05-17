@@ -25,19 +25,19 @@ author:
     name: John Preuß Mattsson
     org: Ericsson
     email: john.mattsson@ericsson.com
-    
+
 -
     ins: M. Tiloca
     name: Marco Tiloca
     org: RISE
     email: marco.tiloca@ri.se
-    
+
 -
     ins: R. Höglund
     name: Rikard Höglund
     org: RISE
     email: rikard.hoglund@ri.se
-    
+
 normative:
   RFC2119:
   RFC8174:
@@ -66,14 +66,14 @@ informative:
   RFC8610:
   I-D.ietf-ace-oscore-profile:
   I-D.ietf-cose-cbor-encoded-cert:
-   
+
 entity:
         SELF: "[RFC-XXXX]"
 
 --- abstract
 
-This document specifies a profile for the Authentication and Authorization for Constrained Environments (ACE) framework. 
-It utilizes Ephemeral Diffie-Hellman Over COSE (EDHOC) for mutual authentication between OAuth 2.0 Client and Resource Server and binds an authentication credential of the Client to an OAuth 2.0 Access Token. 
+This document specifies a profile for the Authentication and Authorization for Constrained Environments (ACE) framework.
+It utilizes Ephemeral Diffie-Hellman Over COSE (EDHOC) for mutual authentication between OAuth 2.0 Client and Resource Server and binds an authentication credential of the Client to an OAuth 2.0 Access Token.
 EDHOC also establishes an OSCORE security context used to secure communication with protected resources according to the authorization information indicated in the access token.
 A resource-constrained server can use this profile to delegate management of authorization information to a trusted host with less severe limitations regarding processing power and memory.
 
@@ -86,7 +86,7 @@ This specification defines the `coap_edhoc_oscore` profile of the ACE framework 
 In this profile the client (C) can access protected resources hosted at the resource server (RS) with the use of an access token issued by a trusted authorization server (AS) which associates access rights to a authentication credential of C.
 The authentication credential can be a raw public key of C, e.g., encoded as a CWT Claims Set (CCS, {{RFC8392}}), or a public key certificate, e.g. encoded as an X.509 certificate or CBOR encoded X.509 certificate (C509, {{draft-ietf-cose-cbor-encoded-cert}}), or other data structure containing or uniquely referencing the public key of C.
 
-C and RS use the Constrained Application Protocol (CoAP) {{RFC7252}} to communicate, and Object Security for Constrained RESTful Environments (OSCORE) {{RFC8613}} to protect the communication, like in the `coap_oscore` profile of ACE {{I-D.ietf-ace-oscore-profile}}. 
+C and RS use the Constrained Application Protocol (CoAP) {{RFC7252}} to communicate, and Object Security for Constrained RESTful Environments (OSCORE) {{RFC8613}} to protect the communication, like in the `coap_oscore` profile of ACE {{I-D.ietf-ace-oscore-profile}}.
 But instead of associating the access rights to a symmetric key of C, as in the `coap_oscore` profile, the access rights in this profile are associated to an authentication credential of C, and uses Ephemeral Diffie-Hellman Over COSE (EDHOC) to prove possession of the corresponding private key, and derive a symmetric key.
 
 C provides the access token to RS (different options are possible) and they run the EDHOC protocol for mutual authentication.
@@ -99,13 +99,13 @@ As recommended in Section 5.8 of {{I-D.ietf-ace-oauth-authz}}, this
 specification uses CBOR Web Tokens (CWT) to convey claims within an access
 token issued by the AS.
 
-Marco's comments: 
+Marco's comments:
 
    * New "CWT Confirmation Methods" are registered (e.g., "x5t", "xchain", ..."), basically to cover the types of ID_CRED_X supported in EDHOC.
-   
+
    * The Client receives the Token Response from the AS, and takes the value of 'rs_cnf' as ID_CRED_R.
    Depending on the specific type of 'rs_cnf', the RS' authentication credential here can be pointed by reference or transported by value (what is possible and most efficient to do).
-   
+
    * The RS receives the Token from the Client, and takes the value of the 'cnf' claim as ID_CRED_I.
    Depending on the specific type of 'cnf', the Client's authentication credential here can be pointed by reference or transported by value (what is possible and most efficient to do).
 
@@ -140,17 +140,17 @@ AS needs also to have some information about C to verify from whom the request i
 Another focus is on reducing message overhead over constrained links, and authentication credentials may be large producers of overhead.
 For this reason, opportunities should be explored to pass a reference to a pre-provisioned credential or credential that can be obtained over less constrained links.
 
-Marco's comments: 
+Marco's comments:
 
   * 'req_cnf' can be transferred by reference; 'cnf' and 'rs_cnf' has to be transferred by value.
-   
+
    * When the Client initially runs EDHOC with the AS (before sending the Token request), both Client and AS can indicate their own authentication credential by reference in ID_CRED_X.
-   
+
    * Following the expiration of the first token, if the client asks for a new one: 'req_cnf' can be transferred by reference; 'cnf' and 'rs_cnf' can also be transferred by reference. Then EDHOC also uses only transferring by reference.
-   
 
 
-NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-authorize. The mode of writing has been to compare the text below with draft-ietf-ace-oscore-profile (for which there is no Markdown document) and selected relevant parts from respective drafts. 
+
+NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-authorize. The mode of writing has been to compare the text below with draft-ietf-ace-oscore-profile (for which there is no Markdown document) and selected relevant parts from respective drafts.
 
 
 
@@ -228,7 +228,7 @@ client and the resource server with sufficient information to
 establish a secure channel, and convey authorization information
 specific for this communication relationship to the resource server.
 
-{{C-AS-comm}} describes how the communication between the client (C) and 
+{{C-AS-comm}} describes how the communication between the client (C) and
 the authorization server (AS) must be secured.
 Depending on the used CoAP security mode (see also
 Section 9 of {{RFC7252}},
@@ -404,7 +404,7 @@ an implementation that supports the RPK mode of this profile MUST at
 least support the cipher suite
 TLS\_ECDHE\_ECDSA\_WITH\_AES\_128\_CCM\_8 {{RFC7251}}.
 As discussed in {{RFC7748}}, new ECC
-  curves have been defined recently that are considered superior to 
+  curves have been defined recently that are considered superior to
   the so-called NIST curves. Implementations of this profile therefore
   MUST implement support for curve25519 (cf. {{RFC8032}}, {{RFC8422}})
   as this curve said to be efficient and less dangerous
@@ -461,7 +461,7 @@ the access token (see Section 5.9.4 of {{I-D.ietf-ace-oauth-authz}}) to
 employ a strict order.
 
 Any request that the resource server receives on a DTLS channel that
-is tied to an access token via its keying material 
+is tied to an access token via its keying material
 MUST be checked against the authorization rules that can be determined
 with the access token. The resource server
 MUST check for every request if the access token is still valid.
@@ -528,7 +528,7 @@ can be used with updated permissions.
 The client can therefore update the authorization information stored at the
 resource server at any time without changing an established DTLS
 session. To do so, the client requests a
-new access token from the authorization server 
+new access token from the authorization server
 for the intended action on the respective resource
 and uploads this access token to the authz-info resource on the
 resource server.

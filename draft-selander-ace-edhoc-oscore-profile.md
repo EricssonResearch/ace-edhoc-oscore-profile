@@ -84,7 +84,7 @@ A resource-constrained server can use this profile to delegate management of aut
 
 This specification defines the `coap_edhoc_oscore` profile of the ACE framework {{I-D.ietf-ace-oauth-authz}}.
 In this profile the client (C) can access protected resources hosted at the resource server (RS) with the use of an access token issued by a trusted authorization server (AS) which associates access rights to a authentication credential of C.
-The authentication credential can be a raw public key of C, e.g., encoded as a CWT Claims Set (CCS, {{RFC8392}}), or a public key certificate, e.g. encoded as an X.509 certificate or CBOR encoded X.509 certificate (C509, {{draft-ietf-cose-cbor-encoded-cert}}), or other data structure containing or uniquely referencing the public key of C.
+The authentication credential can be a raw public key of C, e.g., encoded as a CWT Claims Set (CCS, {{RFC8392}}), or a public key certificate, e.g. encoded as an X.509 certificate or CBOR encoded X.509 certificate (C509, {{I-D.ietf-cose-cbor-encoded-cert}}), or other data structure containing or uniquely referencing the public key of C.
 
 C and RS use the Constrained Application Protocol (CoAP) {{RFC7252}} to communicate, and Object Security for Constrained RESTful Environments (OSCORE) {{RFC8613}} to protect the communication, like in the `coap_oscore` profile of ACE {{I-D.ietf-ace-oscore-profile}}.
 But instead of associating the access rights to a symmetric key of C, as in the `coap_oscore` profile, the access rights in this profile are associated to an authentication credential of C, and uses Ephemeral Diffie-Hellman Over COSE (EDHOC) to prove possession of the corresponding private key, and derive a symmetric key.

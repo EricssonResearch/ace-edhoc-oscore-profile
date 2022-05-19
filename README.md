@@ -5,7 +5,7 @@ This is the working area for the individual Internet-Draft, "Ephemeral Diffie-He
 * [Editor's Copy](https://EricssonResearch.github.io/ace-edhoc-oscore-profile/#go.draft-selander-ace-edhoc-oscore-profile.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-selander-ace-edhoc-oscore-profile)
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-selander-ace-edhoc-oscore-profile)
-* [Compare Editor's Copy to Individual Draft](https://EricssonResearch.github.io/ace-edhoc-oscore-profile/#go.draft-selander-ace-edhoc-oscore.profile.diff)
+* [Compare Editor's Copy to Individual Draft](https://EricssonResearch.github.io/ace-edhoc-oscore-profile/#go.draft-selander-ace-edhoc-oscore-profile.diff)
 
 
 ## Contributing

@@ -53,8 +53,8 @@ normative:
   RFC8613:
   RFC8747:
   RFC8949:
-  I-D.ietf-ace-oauth-authz:
-  I-D.ietf-ace-oauth-params:
+  RFC9200:
+  RFC9201:
   I-D.ietf-lake-edhoc:
 
 informative:
@@ -64,6 +64,7 @@ informative:
   RFC8032:
   RFC8446:
   RFC8610:
+  RFC9147:
   I-D.ietf-ace-oscore-profile:
   I-D.ietf-cose-cbor-encoded-cert:
   I-D.ietf-cose-x509:
@@ -83,7 +84,7 @@ A resource-constrained server can use this profile to delegate management of aut
 
 # Introduction
 
-This specification defines the `coap_edhoc_oscore` profile of the ACE framework {{I-D.ietf-ace-oauth-authz}}.
+This specification defines the `coap_edhoc_oscore` profile of the ACE framework {{RFC9200}}.
 This profile addresses a "zero-touch" constrained setting where trusted operations can be performed with low overhead without endpoint specific configurations.
 
 In this profile the client (C) can access protected resources hosted at the resource server (RS) with the use of an access token issued by a trusted authorization server (AS) which associates access rights to an authentication credential of C.
@@ -99,14 +100,14 @@ The processing of requests for specific protected resources is identical to the 
 
 In this process C and RS need to access each other's authentication credentials.
 The ACE protocol establishes what those authentication credentials are and may transport the actual credentials.
-If the actual credentials are pre-provisioned can be obtained over less constrained links then it sufficies that ACE provides a unique reference such as a certificate hash (e.g., using x5t, see {{I-D.ietf-cose-x509}}).
+If the actual credentials are pre-provisioned or can be obtained over less constrained links then it sufficies that ACE provides a unique reference such as a certificate hash (e.g., using x5t, see {{I-D.ietf-cose-x509}}).
 This is in the same spirit as EDHOC, where the authentication credentials may be transported or referenced in the ID_CRED_x message fields, see {{I-D.ietf-lake-edhoc}}.
 
 Generally, the AS and RS are likely to have trusted access to each other's credentials since AS acts on behalf of RS, by the trust model of ACE.
 AS needs also to have some information about C to verify from whom the request is coming and for what it is authorized, but this may potentially be obtained dynamically as part of the request.
 
 
-As recommended in Section 5.8 of {{I-D.ietf-ace-oauth-authz}}, this
+As recommended in Section 5.8 of {{RFC9200}}, this
 specification uses CBOR Web Tokens (CWT) to convey claims within an access
 token issued by the AS.
 
@@ -138,88 +139,69 @@ capitals, as shown here.
 
 Readers are expected to be familiar with security for CoAP {{RFC7252}} based on OSCORE {{RFC8613}} and EDHOC {{I-D.ietf-lake-edhoc}}.
 Readers are also expected to be familiar with the terms and concepts of the ACE framework
-described in {{I-D.ietf-ace-oauth-authz}} and in {{I-D.ietf-ace-oauth-params}}.
+described in {{RFC9200}} and in {{RFC9201}}.
 
-The authorization information (authz-info) resource refers to the authorization information endpoint as specified in {{I-D.ietf-ace-oauth-authz}}.
+The authorization information (authz-info) resource refers to the authorization information endpoint as specified in {{RFC9200}}.
 The term `claim` is used in this document with the same semantics
-as in {{I-D.ietf-ace-oauth-authz}}, i.e., it denotes information carried
+as in {{RFC9200}}, i.e., it denotes information carried
 in the access token or returned from introspection.
 
 <!-- Add terminology from RFC-to-be 9203 -->
 
 # Protocol Overview {#overview}
 
-This section gives an overview of how to use the ACE framework {{I-D.ietf-ace-oauth-authz}} together with the EDHOC authentication protocol to generate an OSCORE security context with associated authorization information.
+This section gives an overview of how to use the ACE framework {{RFC9200}} together with the EDHOC authentication protocol to generate an OSCORE security context with associated authorization information.
 
+The RS maintains a collection of authentication credentials with associated OSCORE security context and authorization information for all the clients that it is communicating with. The authorization information is maintained as policy that is used as input to processing requests from those clients.
 
-NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-authorize. The mode of writing has been to compare the text below with draft-ietf-ace-oscore-profile (for which there is no Markdown document) and selected relevant parts from respective drafts.
+This profile requires C to retrieve an access token from the AS for the resource it wants to access on an RS, by sending an access token request to the token endpoint, as specified in Section 5.8 of {{RFC9200}}. The access token request and response MUST be confidentiality protected and ensure authenticity. The use of EDHOC and OSCORE between the client and AS is RECOMMENDED in this profile, to reduce the number of libraries C has to support, but other protocols fulfilling the security requirements defined in Section 5 of {{RFC9200}} MAY alternatively be used, such as TLS {{RFC8446}} or DTLS {{RFC9147}}.
 
+Once C has retrieved the access token, it posts the token to the RS, either using the authz-info endpoint and mechanisms specified in Section 5.8 of {{RFC9200}} and Content-Format = application/ace+cbor, or with EAD_1 of EDHOC message_1 using the External Authorization Data (EAD) mechanism of {{I-D.ietf-lake-edhoc}} as further detailed in this document.
 
+In the former case, if the access token is valid, the RS responds to the request with a 2.01 (Created) response with Content-Format = application/ace+cbor. In this case and in the latter case above, C and RS mutually authenticate using EDHOC and if successful derive an OSCORE security context. The RS associates C with the access rights of the received token.
 
-This profile requires the client to retrieve an access token for
-protected resource(s) it wants to access on the resource server as
-specified in {{I-D.ietf-ace-oauth-authz}}. {{at-retrieval}} shows the
-typical message flow in this scenario (messages in square brackets are
-optional):
+ When using this profile, the communication with the authz-info endpoint is not protected, except for the update of access rights.
 
-~~~~~~~~~~~~~~~~~~~~~~~
+C gains authorized access to protected resources on RS as long as the access token is valid. The OSCORE security context is discarded when a token (whether the same or a different one) is used to successfully derive a new security context for that client, either by using the EDHOC-KeyUpdate procedure or re-running the EDHOC protocol.
 
-   C                                RS                   AS
-   | [---- Resource Request ------>]|                     |
-   |                                |                     |
-   | [<-AS Request Creation Hints-] |                     |
-   |                                |                     |
-   | ------- Token Request  ----------------------------> |
-   |                                |                     |
-   | <---------------------------- Access Token --------- |
-   |                               + Access Information   |
+ After the whole message exchange has taken place, the client can contact the AS to request an update of its access rights, sending a similar request to the token endpoint that also includes an identifier so that the AS can find the correct data it has previously shared with the client. This specific identifier, encoded as a byte string, is assigned by the AS to be unique in the sets of granted client access rights.
 
-~~~~~~~~~~~~~~~~~~~~~~~
-{: #at-retrieval title="Retrieving an Access Token"}
-
-To determine the authorization server in charge of a resource hosted
-at the resource server, the client can send an initial Unauthorized
-Resource Request message to the resource server. The resource server
-then denies the request and sends an AS Request Creation Hints message
-containing the address of its authorization server back to the client
-as specified in Section 5.3 of {{I-D.ietf-ace-oauth-authz}}.
-
-Once the client knows the authorization server's address, it can send
-an access token request to the token endpoint at the authorization
-server as specified in {{I-D.ietf-ace-oauth-authz}}. As the access
-token request as well as the response may contain confidential data,
-the communication between the client and the authorization server must
-be confidentiality-protected and ensure authenticity. The client is
-expected to have been registered at the authorization server as
-outlined in Section 4 of {{I-D.ietf-ace-oauth-authz}}.
-
-The access token returned by the authorization server can then be used
-by the client to establish a new DTLS session with the resource
-server. When the client intends to use an asymmetric proof-of-possession key in the
-DTLS handshake with the resource server, the client MUST upload the
-access token to the authz-info resource, i.e. the authz-info endpoint,
-on the resource server before
-starting the DTLS handshake, as described in Section 5.10.1 of
-{{I-D.ietf-ace-oauth-authz}}. DTLS MUST be used in a mode that provides replay
-protection.
-
-{{protocol-overview}} depicts the common protocol flow for the DTLS
-profile after the client has retrieved the access token from the
-authorization server, AS.
+An overview of the protocol flow for the `coap_edhoc_oscore` profile is given in {{protocol-overview}}. The names of messages coincide with those of {{RFC9200}} when applicable.
 
 ~~~~~~~~~~~~~~~~~~~~~~~
 
    C                            RS                   AS
-   | [--- Access Token ------>] |                     |
    |                            |                     |
-   | <== DTLS channel setup ==> |                     |
+   | <== Mutual authentication and secure channel ==> |
    |                            |                     |
-   | == Authorized Request ===> |                     |
+   | ----- POST /token  ----------------------------> |
    |                            |                     |
-   | <=== Protected Resource == |                     |
+   | <---------------------------- Access Token ----- |
+   |                           + Access Information   |
+   |                            |                     |
+   | [--- POST /authz-info -->] |                     |
+   |       (access_token)       |                     |
+   |                            |                     |
+   | [<---- 2.01 Created  ----] |                     |
+   |                            |                     |
+   | <========= EDHOC ========> |                     |
+   |  OSCORE Sec Context deriv. |                     |
+   |                            |                     |
+Sec Context storage/    Sec Context storage/          |
+   |                            |                     |
+   | ---- OSCORE Request -----> |                     |
+   |                            |                     |
+   | <--- OSCORE Response ----- |                     |
+   |                            |                     |
+   |           ...              |                     |
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-{: #protocol-overview title="Protocol overview"}
+{: #protocol-overview title="Protocol Overview"}
+
+
+
+NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-authorize. The mode of writing has been to compare the text below with draft-ietf-ace-oscore-profile (for which there is no Markdown document) and selected relevant parts from respective drafts.
+
 
 # Protocol Flow
 
@@ -248,7 +230,7 @@ a secure communication channel. This profile assumes that the keying
 material to secure this communication channel has securely been obtained
 either by manual configuration or in an automated provisioning process.
 The following requirements in alignment with Section 6.5 of
-{{I-D.ietf-ace-oauth-authz}} therefore must be met:
+{{RFC9200}} therefore must be met:
 
 * The client MUST securely have obtained keying material to communicate
   with the authorization server.
@@ -325,7 +307,7 @@ means of the `cnf` claim.
 The response MUST contain an `ace_profile` parameter if
 the `ace_profile` parameter in the request is empty, and MAY contain
 this parameter otherwise (see Section 5.8.2 of
-{{I-D.ietf-ace-oauth-authz}}). This parameter is set to `coap_dtls` to
+{{RFC9200}}). This parameter is set to `coap_dtls` to
 indicate that this profile MUST be used for communication between the
 client and the resource server. The response
 also contains an access token with information for the resource server
@@ -417,7 +399,7 @@ The resource server MUST check if the access token is still valid, if
 the resource server is the intended destination (i.e., the audience)
 of the token, and if the token was issued by an authorized
 authorization server (see also section 5.10.1.1 of
-{{I-D.ietf-ace-oauth-authz}}).
+{{RFC9200}}).
 The access token is constructed by the
 authorization server such that the resource server can associate the
 access token with the Client's public key.  The `cnf` claim MUST
@@ -427,7 +409,7 @@ this key. If the authorization server has no certain knowledge that
 the Client's key is already known to the resource server, the Client's
 public key MUST be included in the access token's `cnf` parameter. If
 CBOR web tokens {{RFC8392}} are used (as recommended in
-{{I-D.ietf-ace-oauth-authz}}), keys MUST be encoded as specified in
+{{RFC9200}}), keys MUST be encoded as specified in
 {{RFC8747}}. A resource server MUST have the capacity to store one
 access token for every proof-of-possession key of every authorized client.
 
@@ -453,13 +435,13 @@ With the successful establishment of the DTLS channel, the client and
 the resource server have proven that they can use their respective
 keying material. An access token that is bound to the client's keying
 material is associated with the channel. According to Section 5.10.1 of
-{{I-D.ietf-ace-oauth-authz}}, there should be only one access token
+{{RFC9200}}, there should be only one access token
 for each client. New access tokens issued by the authorization server
 SHOULD replace previously issued access tokens for the
 respective client. The resource server therefore needs a common
 understanding with the authorization server how access tokens are
 ordered. The authorization server may, e.g., specify a `cti` claim for
-the access token (see Section 5.9.4 of {{I-D.ietf-ace-oauth-authz}}) to
+the access token (see Section 5.9.4 of {{RFC9200}}) to
 employ a strict order.
 
 Any request that the resource server receives on a DTLS channel that
@@ -472,7 +454,7 @@ Incoming CoAP requests that are not authorized with respect
 to any access token that is associated with the client MUST be
 rejected by the resource server with 4.01 response. The response
 SHOULD include AS Request Creation Hints as described in
-Section 5.2 of {{I-D.ietf-ace-oauth-authz}}.
+Section 5.2 of {{RFC9200}}.
 
 The resource server MUST NOT accept an incoming CoAP request as
 authorized if any of the following fails:
@@ -488,7 +470,7 @@ authorized if any of the following fails:
 
 Incoming CoAP requests received on a secure DTLS channel that are not
 thus authorized MUST be
-rejected according to Section 5.10.1.1 of {{I-D.ietf-ace-oauth-authz}}
+rejected according to Section 5.10.1.1 of {{RFC9200}}
 
 1. with response code 4.03 (Forbidden) when the resource URI specified
    in the request is not covered by the authorization information, and
@@ -506,7 +488,7 @@ token uploads and resource access messages. See also
 processing.
 
 If the client gets an error response
-containing AS Request Creation Hints (cf.  Section 5.3 of {{I-D.ietf-ace-oauth-authz}}
+containing AS Request Creation Hints (cf.  Section 5.3 of {{RFC9200}}
 as response to its requests, it SHOULD request a new access token from
 the authorization server in order to continue communication with the
 resource server.
@@ -546,7 +528,7 @@ authorization server MUST verify that the specified `kid` denotes a
 valid verifier for a proof-of-possession token that has previously
 been issued to the requesting client. Otherwise, the Client-to-AS
 request MUST be declined with the error code `unsupported_pop_key` as
-defined in Section 5.8.3 of {{I-D.ietf-ace-oauth-authz}}.
+defined in Section 5.8.3 of {{RFC9200}}.
 
 When the authorization server issues a new access token to update
 existing authorization information, it MUST include the specified `kid`
@@ -586,7 +568,7 @@ association may become useless at some point.  A resource server therefore
 MUST terminate existing DTLS association after the last access token
 associated with this association has expired.
 
-As specified in Section 5.10.3 of {{I-D.ietf-ace-oauth-authz}},
+As specified in Section 5.10.3 of {{RFC9200}},
 the resource server MUST notify the client with an error response with
 code 4.01 (Unauthorized) for any long running request before
 terminating the association.
@@ -594,27 +576,27 @@ terminating the association.
 # Secure Communication with an Authorization Server {#as-commsec}
 
 As specified in the ACE framework (Sections 5.8 and 5.9 of
-{{I-D.ietf-ace-oauth-authz}}), the requesting entity (the resource
+{{RFC9200}}), the requesting entity (the resource
 server and/or the client) and the authorization server communicate via
 the token endpoint or introspection endpoint.  The use of CoAP and
 DTLS for this communication is RECOMMENDED in this profile. Other
 protocols fulfilling the security requirements defined in Section 5
-of {{I-D.ietf-ace-oauth-authz}} MAY be used instead.
+of {{RFC9200}} MAY be used instead.
 
 How credentials (e.g., RPK, X.509 cert) for using DTLS with the
 authorization server are established is out of scope for this profile.
 
 If other means of securing the communication with the authorization
 server are used, the communication security requirements from Section
-6.2 of {{I-D.ietf-ace-oauth-authz}} remain applicable.
+6.2 of {{RFC9200}} remain applicable.
 
 # Security Considerations
 
 This document specifies a profile for the Authentication and
 Authorization for Constrained Environments (ACE) framework
-{{I-D.ietf-ace-oauth-authz}}. As it follows this framework's general
+{{RFC9200}}. As it follows this framework's general
 approach, the general security considerations from Section
-6 of {{I-D.ietf-ace-oauth-authz}} also apply to this profile.
+6 of {{RFC9200}} also apply to this profile.
 
 The authorization server must ascertain that the keying material for
 the client that it provides to the resource server actually is
@@ -676,7 +658,7 @@ force a full handshake.
 ## Multiple Access Tokens
 
 Developers SHOULD avoid using multiple access tokens for a
-client (see also section 5.10.1 of {{I-D.ietf-ace-oauth-authz}}).
+client (see also section 5.10.1 of {{RFC9200}}).
 
 Even when a single access token per client is used, an attacker could
 compromise the dynamic update mechanism for existing DTLS connections
@@ -715,7 +697,7 @@ must be kept up to date.
 # Privacy Considerations
 
 This privacy considerations from Section
-7 of the {{I-D.ietf-ace-oauth-authz}} apply also to this profile.
+7 of the {{RFC9200}} apply also to this profile.
 
 An unprotected response to an unauthorized request may disclose
 information about the resource server and/or its existing relationship
@@ -739,7 +721,7 @@ destination addresses.
 
 The following registrations are done for the ACE OAuth Profile
 Registry following the procedure specified in
-{{I-D.ietf-ace-oauth-authz}}.
+{{RFC9200}}.
 
 Note to RFC Editor: Please replace all occurrences of "{{&SELF}}" with
 the RFC number of this specification and delete this paragraph.

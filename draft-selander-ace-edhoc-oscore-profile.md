@@ -56,6 +56,7 @@ normative:
   RFC9200:
   RFC9201:
   I-D.ietf-lake-edhoc:
+  I-D.ietf-core-oscore-edhoc:
 
 informative:
   RFC5869:
@@ -744,3 +745,554 @@ Reference:  {{&SELF}}
 
 --- back
 
+# Examples # {#examples}
+
+This appendix provides examples where this profile of ACE is used. In particular:
+
+* {{example-without-optimization}} does not make use of use of any optimization.
+
+* {{example-with-optimization}} makes use of the optimizations defined in this specification, hence reducing the roundtrips of the interactions between the Client and RS.
+
+* {{example-without-optimization-as-posting}} does not make use of any optimization, but consider an alternative workflow where the AS uploads the access token to the RS.
+
+All these examples build on the following assumptions, as relying on expected early procedures performed at the AS. These include the registration of RSs by the respective Resource Owners as well as the registrations of Clients authorized to request access token for those RSs.
+
+* The AS knows the authentication credential AUTH_CRED_C of the Client C.
+
+* The Client knows the authentication credential AUTH_CRED_AS of the AS.
+
+* The AS knows the authentication credential AUTH_CRED_RS of RS.
+
+* The RS knows the authentication credential AUTH_CRED_AS of the AS.
+
+   This is relevant in case the AS and RS actually require a secure association (e.g., for the RS to perform token introspection at the AS, or for the AS to upload an access token to the RS on behalf of the Client).
+
+As a result of the assumptions above, it is possible to limit the transport of AUTH_CRED_C and AUTH_CRED_RS by value only to the following two cases, and only when the Client requests an access token for the RS in question for the first time when considering the pair (AUTH_CRED_C, AUTH_CRED_RS).
+
+* In the Token Response from the AS to the Client, where AUTH_CRED_RS is specified by the 'rs_cnf' parameter.
+
+* In the access token, where AUTH_CRED_C is specified by the 'cnf' claim.
+
+   Note that, even under the circumstances mentioned above, AUTH_CRED_C might rather be indicated by reference. This is possible if the RS can effectively use such a reference from the access token to retrieve AUTH_CRED_C (e.g., from a trusted repository of authentication credentials reachable through a non-constrained link), and if the AS is in turn aware of that.
+
+In any other case, it is otherwise possible to indicate both AUTH_CRED_C and AUTH_CRED_RS by reference, when performing the ACE access control workflow as well as later on when the Client and RS run EDHOC.
+
+## Workflow without Optimizations # {#example-without-optimization}
+
+The example below considers the simplest (though least efficient) interaction between the Client and RS. That is: first the Client uploads the access token to the RS; then the Client and RS run EDHOC; and, finally, the Client accesses the protected resource at the RS.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+    C                                 AS                             RS
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+M01 |--------------------------------->|                              |
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+M02 |<---------------------------------|                              |
+    |  ID_CRED_R identifies            |                              |
+    |     CRED_R = AUTH_CRED_AS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  EDHOC message_3 to /edhoc       |                              |
+M03 |--------------------------------->|                              |
+    |  ID_CRED_I identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  Token request to /token         |                              |
+    |  (OSCORE-protected message)      |                              |
+M04 |--------------------------------->|                              |
+    |  'req_cnf' identifies            |                              |
+    |     AUTH_CRED_C by reference     |                              |
+    |                                  |                              |
+    |  Token response                  |                              |
+    |  (OSCORE-protected message)      |                              |
+M05 |<---------------------------------|                              |
+    |  'rs_cnf' specifies              |                              |
+    |     AUTH_CRED_RS by value        |                              |
+    |                                  |                              |
+    |  the 'cnf' claim in the          |                              |
+    |     access token specifies       |                              |
+    |     AUTH_CRED_C by value         |                              |
+    |                                  |                              |
+
+ // Possibly after chain verification, the Client adds AUTH_CRED_RS
+ // to the set of its trusted peer authentication credentials,
+ // relying on the AS as trusted provider
+
+    |                                  |                              |
+    |  Token upload to /authz-info     |                              |
+    |  (unprotected message)           |                              |
+M06 |---------------------------------------------------------------->|
+    |                                  |                              |
+
+ // Possibly after chain verification, the RS adds AUTH_CRED_C
+ // to the set of its trusted peer authentication credentials,
+ // relying on the AS as trusted provider
+
+    |                                  |                              |
+    |   2.01 (Created)                 |                              |
+    |   (unprotected message)          |                              |
+M07 |<----------------------------------------------------------------|
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M08 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+M09 |<----------------------------------------------------------------|
+    |  ID_CRED_R identifies            |                              |
+    |     CRED_R = AUTH_CRED_RS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  EDHOC message_3 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M10 |---------------------------------------------------------------->|
+    |  ID_CRED_I identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  Access to protected resource    |                              |
+    |  (OSCORE-protected message)      |                              |
+    |  (access control is enforced)    |                              |
+M11 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |  Response                        |                              |
+    |  (OSCORE-protected message)      |                              |
+M12 |<----------------------------------------------------------------|
+    |                                  |                              |
+
+ // Later on, the access token expires ...
+ //  - The Client and RS delete their OSCORE Security Context and
+ //    terminate the EDHOC session used to derive it (unless the same
+ //    session is also used for other reasons).
+ //  - The RS retains AUTH_CRED_C as still valid,
+ //    and the AS knows about it.
+ //  - The Client retains AUTH_CRED_RS as still valid,
+ //    and the AS knows about it.
+
+    |                                  |                              |
+    |                                  |                              |
+
+ // Time passes ...
+
+    |                                  |                              |
+    |                                  |                              |
+
+ // The Client asks for a new access token; now all the
+ // authentication credentials can be indicated by reference
+
+ // The price to pay is on the AS, about remembering that at least
+ // one access token has been issued for the pair (Client, RS)
+ // and considering the pair (AUTH_CRED_C, AUTH_CRED_RS)
+
+    |                                  |                              |
+    |  Token request to /token         |                              |
+    |  (OSCORE-protected message)      |                              |
+M13 |--------------------------------->|                              |
+    |  'req_cnf' identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  Token response                  |                              |
+    |  (OSCORE-protected message)      |                              |
+M14 |<---------------------------------|                              |
+    |  'rs_cnf' identifies             |                              |
+    |     AUTH_CRED_RS                 |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  the 'cnf' claim in the          |                              |
+    |  access token identifies         |                              |
+    |  AUTH_CRED_C by reference        |                              |
+    |                                  |                              |
+    |  Token upload to /authz-info     |                              |
+    |  (unprotected message)           |                              |
+M15 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |   2.01 (Created)                 |                              |
+    |  (unprotected message)           |                              |
+M16 |<----------------------------------------------------------------|
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M17 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+    |  (no access control is enforced) |                              |
+M18 |<----------------------------------------------------------------|
+    |  ID_CRED_R specifies             |                              |
+    |     CRED_R = AUTH_CRED_RS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  EDHOC message_3 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M19 |---------------------------------------------------------------->|
+    |  ID_CRED_I identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  Access to protected resource /r |                              |
+    |  (OSCORE-protected message)      |                              |
+    |  (access control is enforced)    |                              |
+M20 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |  Response                        |                              |
+    |  (OSCORE-protected message)      |                              |
+M21 |<----------------------------------------------------------------|
+    |                                  |                              |
+~~~~~~~~~~~~~~~~~~~~~~~
+
+## Workflow with Optimizations # {#example-with-optimization}
+
+The example below builds on the example in {{example-without-optimization}}, while additionally relying on the two following optimizations.
+
+* The access token is not separately uploaded to the /authz-info endpoint at the RS, but rather included in the EAD_1 parameter of EDHOC message_1 sent by the Client to the RS.
+
+* The Client uses the EDHOC+OSCORE request defined in {{I-D.ietf-core-oscore-edhoc}} is used, when running EDHOC both with the AS and with the RS.
+
+These two optimizations used together result in the most efficient interaction between the Client and RS, as consisting of only two roundtrips to upload the access token, run EDHOC and access the protected resource at the RS.
+
+Also, a further optimization is used upon uploading a second access token to the RS, following the expiration of the first one. That is, after posting the second access token, the Client and RS do not run EDHOC again, but rather EDHOC-KeyUpdate() and EDHOC-Exporter() building on the same EDHOC session established before.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+    C                                 AS                             RS
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+M01 |--------------------------------->|                              |
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+M02 |<---------------------------------|                              |
+    |  ID_CRED_R identifies            |                              |
+    |     CRED_R = AUTH_CRED_AS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  EDHOC+OSCORE request to /token  |                              |
+M03 |--------------------------------->|                              |
+    |  EDHOC message_3                 |                              |
+    |   ID_CRED_I identifies           |                              |
+    |   CRED_I = AUTH_CRED_C           |                              |
+    |   by reference                   |                              |
+    |  --- --- ---                     |                              |
+    |  (OSCORE-protected part)         |                              |
+    |  Token request                   |                              |
+    |    'req_cnf' identifies          |                              |
+    |    AUTH_CRED_C by reference      |                              |
+    |  )                               |                              |
+    |                                  |                              |
+    |  Token response                  |                              |
+    |  (OSCORE-protected message)      |                              |
+M04 |<---------------------------------|                              |
+    |  'rs_cnf' specifies              |                              |
+    |     AUTH_CRED_RS by value        |                              |
+    |                                  |                              |
+    |  the 'cnf' claim in the          |                              |
+    |     access token specifies       |                              |
+    |     AUTH_CRED_C by value         |                              |
+    |                                  |                              |
+
+ // Possibly after chain verification, the Client adds AUTH_CRED_RS
+ // to the set of its trusted peer authentication credentials,
+ // relying on the AS as trusted provider
+
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M05 |---------------------------------------------------------------->|
+    |  Access token specified in EAD_1 |                              |
+    |                                  |                              |
+
+ // Possibly after chain verification, the RS adds AUTH_CRED_C
+ // to the set of its trusted peer authentication credentials,
+ // relying on the AS as trusted provider
+
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+M06 |<----------------------------------------------------------------|
+    |  ID_CRED_R identifies            |                              |
+    |     CRED_R = AUTH_CRED_RS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |                                  |                              |
+    |  EDHOC+OSCORE request to /r      |                              |
+M07 |---------------------------------------------------------------->|
+    |  EDHOC message_3                 |                              |
+    |   ID_CRED_I identifies           |                              |
+    |   CRED_I = AUTH_CRED_C           |                              |
+    |   by reference                   |                              |
+    |  --- --- ---                     |                              |
+    |  (OSCORE-protected part)         |                              |
+    |  Application request to /r       |                              |
+    |                                  |                              |
+
+ // After the EDHOC processing is completed, access control
+ // is enforced on the rebuilt OSCORE-protected request,
+ // like if it had been sent stand-alone
+
+    |                                  |                              |
+    |  Response                        |                              |
+    |  (OSCORE-protected message)      |                              |
+M08 |<----------------------------------------------------------------|
+    |                                  |                              |
+
+ // Later on, the access token expires ...
+ //  - The Client and RS delete their OSCORE Security Context and
+ //    terminate the EDHOC session used to derive it (unless the same
+ //    session is also used for other reasons).
+ //  - The RS retains AUTH_CRED_C as still valid,
+ //    and the AS knows about it.
+ //  - The Client retains AUTH_CRED_RS as still valid,
+ //    and the AS knows about it.
+
+    |                                  |                              |
+    |                                  |                              |
+
+ // Time passes ...
+
+    |                                  |                              |
+    |                                  |                              |
+
+ // The Client asks for a new access token; now all the
+ // authentication credentials can be indicated by reference
+
+ // The price to pay is on the AS, about remembering that at least
+ // one access token has been issued for the pair (Client, RS)
+ // and considering the pair (AUTH_CRED_C, AUTH_CRED_RS)
+
+    |                                  |                              |
+    |  Token request to /token         |                              |
+    |  (OSCORE-protected message)      |                              |
+M09 |--------------------------------->|                              |
+    |  'req_cnf' identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  Token response                  |                              |
+    |  (OSCORE-protected message)      |                              |
+M10 |<---------------------------------|                              |
+    |  'rs_cnf' identifies             |                              |
+    |     AUTH_CRED_RS                 |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  the 'cnf' claim in the          |                              |
+    |  access token identifies         |                              |
+    |  AUTH_CRED_C by reference        |                              |
+    |                                  |                              |
+    |  Token upload to /authz-info     |                              |
+    |  (unprotected message)           |                              |
+M11 |---------------------------------------------------------------->|
+    |   Payload {                      |                              |
+    |     access token,                |                              |
+    |     N1 // nonce                  |                              |
+    |   }                              |                              |
+    |                                  |                              |
+    |   2.01 (Created)                 |                              |
+    |  (unprotected message)           |                              |
+M12 |<----------------------------------------------------------------|
+    |   Payload {                      |                              |
+    |     N2 // nonce                  |                              |
+    |   }                              |                              |
+    |                                  |                              |
+
+ // The Client and RS first run EDHOC-KeyUpdate(N1 | N2), and
+ // then EDHOC-Exporter() to derive a new OSCORE Master Secret and
+ // OSCORE Master Salt, from which a new OSCORE Security Context is
+ // derived. The Sender/Recipiend IDs are the same C_I and C_R from
+ // the previous EDHOC execution
+
+    |                                  |                              |
+    |  Access to protected resource /r |                              |
+    |  (OSCORE-protected message)      |                              |
+    |  (access control is enforced)    |                              |
+M13 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |  Response                        |                              |
+    |  (OSCORE-protected message)      |                              |
+M14 |<----------------------------------------------------------------|
+    |                                  |                              |
+~~~~~~~~~~~~~~~~~~~~~~~
+
+## Workflow without Optimizations (AS token posting) # {#example-without-optimization-as-posting}
+
+The example below builds on the example in {{example-without-optimization}}, but assumes that the AS is uploading the access token to the RS on behalf of C.
+
+In order to save roundtrips between the Client and RS, further, more efficient interactions can be seamlessly considered, e.g., as per the example in {{example-with-optimization}}.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+    C                                 AS                             RS
+    |                                  | Establish secure association |
+    |                                  | (e.g., OSCORE using EDHOC)   |
+    |                                  |<---------------------------->|
+    |                                  |                              |
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+M01 |--------------------------------->|                              |
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+M02 |<---------------------------------|                              |
+    |  ID_CRED_R identifies            |                              |
+    |     CRED_R = AUTH_CRED_AS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  EDHOC message_3 to /edhoc       |                              |
+M03 |--------------------------------->|                              |
+    |  ID_CRED_I identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  Token request to /token         |                              |
+    |  (OSCORE-protected message)      |                              |
+M04 |--------------------------------->|                              |
+    |  'req_cnf' identifies            |                              |
+    |     AUTH_CRED_C by reference     |                              |
+    |                                  |                              |
+    |                                  |                              |
+    |                                  |  Token upload to /authz-info |
+    |                                  |  (OSCORE-protected message)  |
+M05 |                                  |----------------------------->|
+    |                                  |  the 'cnf' claim in the      |
+    |                                  |     access token specifies   |
+    |                                  |     AUTH_CRED_C by value     |
+    |                                  |                              |
+
+ // Possibly after chain verification, the RS adds AUTH_CRED_C
+ // to the set of its trusted peer authentication credentials,
+ // relying on the AS as trusted provider
+
+    |                                  |                              |
+    |                                  |  2.01 (Created)              |
+    |                                  |  (OSCORE-protected message)  |
+M06 |                                  |<-----------------------------|
+    |                                  |                              |
+    |  Token response                  |                              |
+    |  (OSCORE-protected message)      |                              |
+M07 |<---------------------------------|                              |
+    |  'rs_cnf' specifies              |                              |
+    |     AUTH_CRED_RS by value        |                              |
+    |                                  |                              |
+
+
+ // Possibly after chain verification, the Client adds AUTH_CRED_RS
+ // to the set of its trusted peer authentication credentials,
+ // relying on the AS as trusted provider
+
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M08 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+M09 |<----------------------------------------------------------------|
+    |  ID_CRED_R identifies            |                              |
+    |     CRED_R = AUTH_CRED_RS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |                                  |                              |
+    |  EDHOC message_3 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M10 |---------------------------------------------------------------->|
+    |  ID_CRED_I identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |                                  |                              |
+    |  Access to protected resource    |                              |
+    |  (OSCORE-protected message)      |                              |
+    |  (access control is enforced)    |                              |
+M11 |---------------------------------------------------------------->|
+    |                                  |                              |
+
+ // After the EDHOC processing is completed, access control
+ // is enforced on the rebuilt OSCORE-protected request,
+ // like if it had been sent stand-alone
+
+    |                                  |                              |
+    |  Response                        |                              |
+    |  (OSCORE-protected message)      |                              |
+M12 |<----------------------------------------------------------------|
+    |                                  |                              |
+    |                                  |                              |
+
+ // Later on, the access token expires ...
+ //  - The Client and RS delete their OSCORE Security Context and
+ //    terminate the EDHOC session used to derive it (unless the same
+ //    session is also used for other reasons).
+ //  - The RS retains AUTH_CRED_C as still valid,
+ //    and the AS knows about it.
+ //  - The Client retains AUTH_CRED_RS as still valid,
+ //    and the AS knows about it.
+
+    |                                  |                              |
+    |                                  |                              |
+
+ // Time passes ...
+
+    |                                  |                              |
+    |                                  |                              |
+
+ // The Client asks for a new access token; now all the
+ // authentication credentials can be indicated by reference
+
+ // The price to pay is on the AS, about remembering that at least
+ // one access token has been issued for the pair (Client, RS)
+ // and considering the pair (AUTH_CRED_C, AUTH_CRED_RS)
+
+    |                                  |                              |
+    |  Token request to /token         |                              |
+    |  (OSCORE-protected message)      |                              |
+M13 |--------------------------------->|                              |
+    |  'req_cnf' identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |                                  |  Token upload to /authz-info |
+    |                                  |  (OSCORE-protected message)  |
+M14 |                                  |----------------------------->|
+    |                                  |  the 'cnf' claim in the      |
+    |                                  |     access token specifies   |
+    |                                  |     AUTH_CRED_C by value     |
+    |                                  |                              |
+    |                                  |  2.01 (Created)              |
+    |                                  |  (OSCORE-protected message)  |
+M15 |                                  |<-----------------------------|
+    |                                  |                              |
+    |  Token response                  |                              |
+    |  (OSCORE-protected message)      |                              |
+M16 |<---------------------------------|                              |
+    |  'rs_cnf' identifies             |                              |
+    |     AUTH_CRED_RS                 |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  EDHOC message_1 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M17 |---------------------------------------------------------------->|
+    |                                  |                              |
+    |  EDHOC message_2                 |                              |
+    |  (no access control is enforced) |                              |
+M18 |<----------------------------------------------------------------|
+    |  ID_CRED_R specifies             |                              |
+    |     CRED_R = AUTH_CRED_RS        |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  EDHOC message_3 to /edhoc       |                              |
+    |  (no access control is enforced) |                              |
+M19 |---------------------------------------------------------------->|
+    |  ID_CRED_I identifies            |                              |
+    |     CRED_I = AUTH_CRED_C         |                              |
+    |     by reference                 |                              |
+    |                                  |                              |
+    |  Access to protected resource /r |                              |
+    |  (OSCORE-protected message)      |                              |
+    |  (access control is enforced)    |                              |
+M20 |---------------------------------------------------------------->|
+    |                                  |                              |
+
+ // After the EDHOC processing is completed, access control
+ // is enforced on the rebuilt OSCORE-protected request,
+ // like if it had been sent stand-alone
+
+    |  Response                        |                              |
+    |  (OSCORE-protected message)      |                              |
+M21 |<----------------------------------------------------------------|
+    |                                  |                              |
+~~~~~~~~~~~~~~~~~~~~~~~

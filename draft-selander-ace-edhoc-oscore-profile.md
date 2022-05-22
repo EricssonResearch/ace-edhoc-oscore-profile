@@ -46,6 +46,7 @@ normative:
   RFC7250:
   RFC7251:
   RFC7252:
+  RFC7519:
   RFC7925:
   RFC8152:
   RFC8392:
@@ -769,13 +770,22 @@ IANA is asked to add the following entries to the "OAuth Parameters CBOR Mapping
 * Value Type: simple value "true" / simple type "false"
 * Specification Document(s): {{&SELF}}
 
+## JSON Web Token Claims Registry ## {#iana-token-json-claims}
+
+IANA is asked to add the following entries to the "JSON Web Token Claims" registry following the procedure specified in {{RFC7519}}.
+
+*  Claim Name: "key_establishment_info"
+*  Claim Description: Information related to key establishment
+*  Change Controller: IETF
+*  Reference: {{&SELF}}
+
 ## CBOR Web Token Claims Registry ## {#iana-token-cwt-claims}
 
 IANA is asked to add the following entries to the "CBOR Web Token Claims" registry following the procedure specified in {{RFC8392}}.
 
 * Claim Name: "key_establishment_info"
 * Claim Description: Information related to key establishment
-* JWT Claim Name: "N/A"
+* JWT Claim Name: "key_establishment_info"
 * Claim Key: TBD
 * Claim Value Type(s): map
 * Change Controller: IESG

@@ -753,6 +753,22 @@ IANA is asked to add the following entries to the "OAuth Parameters" registry.
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
+## OAuth Parameters CBOR Mappings Registry ## {#iana-token-cbor-mappings}
+
+IANA is asked to add the following entries to the "OAuth Parameters CBOR Mappings" following the procedure specified in {{RFC9200}}.
+
+* Name: "key_establishment_info"
+* CBOR Key: TBD
+* Value Type: map
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Name: "token_uploaded"
+* CBOR Key: TBD
+* Value Type: simple value "true" / simple type "false"
+* Specification Document(s): {{&SELF}}
+
 --- back
 
 # Examples # {#examples}

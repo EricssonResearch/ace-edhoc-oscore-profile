@@ -1296,3 +1296,8 @@ M20 |---------------------------------------------------------------->|
 M21 |<----------------------------------------------------------------|
     |                                  |                              |
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+# Acknowledgments # {#acknowldegment}
+{: numbered="no"}
+
+Work on this document has in part been supported by the H2020 project SIFIS-Home (grant agreement 952652).

@@ -737,6 +737,22 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 * Change Controller: IESG
 * Reference:  {{&SELF}}
 
+## OAuth Parameters Registry ## {#iana-oauth-params}
+
+IANA is asked to add the following entries to the "OAuth Parameters" registry.
+
+* Name: "key_establishment_info"
+* Parameter Usage Location: token request, token response
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Name: "token_uploaded"
+* Parameter Usage Location: token request, token response
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
 --- back
 
 # Examples # {#examples}

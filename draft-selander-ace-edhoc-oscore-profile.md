@@ -47,6 +47,7 @@ normative:
   RFC7251:
   RFC7252:
   RFC7519:
+  RFC7800:
   RFC7925:
   RFC8152:
   RFC8392:
@@ -791,13 +792,87 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
-## CWT Confirmation Methods Registry ## {#iana-token-confirmation-methods}
+## JWT Confirmation Methods Registry ## {#iana-jwt-confirmation-methods}
 
-IANA is asked to add the following entries to the "CBOR Web Token Claims" registry following the procedure specified in {{RFC8747}}.
+IANA is asked to add the following entries to the "JWT Confirmation Methods" registry following the procedure specified in {{RFC7800}}.
+
+* Confirmation Method Value: "x5bag"
+* Confirmation Method Description: An unordered bag of X.509 certificates
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "x5chain"
+* Confirmation Method Description: An ordered chain of X.509 certificates
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "x5t"
+* Confirmation Method Description: Hash of an X.509 certificate
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "x5u"
+* Confirmation Method Description: URI pointing to an X.509 certificate
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "c5b"
+* Confirmation Method Description: An unordered bag of C509 certificates
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "c5c"
+* Confirmation Method Description: An ordered chain of C509 certificates
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "c5t"
+* Confirmation Method Description: Hash of an C509 certificate
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "c5u"
+* Confirmation Method Description: URI pointing to a COSE_C509 containing an ordere chain of certificates
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "kcwt"
+* Confirmation Method Description: A CBOR Web Token (CWT) containing a COSE_Key in a 'cnf' claim
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Value: "kccs"
+* Confirmation Method Description: A CWT Claims Set (CCS) containing a COSE_Key in a 'cnf' claim
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+## CWT Confirmation Methods Registry ## {#iana-cwt-confirmation-methods}
+
+IANA is asked to add the following entries to the "CWT Confirmation Methods" registry following the procedure specified in {{RFC8747}}.
 
 * Confirmation Method Name: x5bag
 * Confirmation Method Description: An unordered bag of X.509 certificates
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "x5bag"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): COSE_X509
 * Change Controller: IESG
@@ -807,7 +882,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: x5chain
 * Confirmation Method Description: An ordered chain of X.509 certificates
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "x5chain"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): COSE_X509
 * Change Controller: IESG
@@ -817,7 +892,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: x5t
 * Confirmation Method Description: Hash of an X.509 certificate
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "x5t"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): COSE_CertHash
 * Change Controller: IESG
@@ -827,7 +902,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: x5u
 * Confirmation Method Description: URI pointing to an X.509 certificate
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "x5u"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): uri
 * Change Controller: IESG
@@ -837,7 +912,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: c5b
 * Confirmation Method Description: An unordered bag of C509 certificates
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "c5b"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): COSE_C509
 * Change Controller: IESG
@@ -847,7 +922,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: c5c
 * Confirmation Method Description: An ordered chain of C509 certificates
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "c5c"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): COSE_C509
 * Change Controller: IESG
@@ -857,7 +932,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: c5t
 * Confirmation Method Description: Hash of an C509 certificate
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "c5t"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): COSE_CertHash
 * Change Controller: IESG
@@ -867,7 +942,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: c5u
 * Confirmation Method Description: URI pointing to a COSE_C509 containing an ordere chain of certificates
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "c5u"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): uri
 * Change Controller: IESG
@@ -877,7 +952,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: kcwt
 * Confirmation Method Description: A CBOR Web Token (CWT) containing a COSE_Key in a 'cnf' claim
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "kcwt"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): COSE_Messages
 * Change Controller: IESG
@@ -887,7 +962,7 @@ IANA is asked to add the following entries to the "CBOR Web Token Claims" regist
 
 * Confirmation Method Name: kccs
 * Confirmation Method Description: A CWT Claims Set (CCS) containing a COSE_Key in a 'cnf' claim
-* JWT Confirmation Method Name: "N/A"
+* JWT Confirmation Method Name: "kccs"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): map / #6(map)
 * Change Controller: IESG

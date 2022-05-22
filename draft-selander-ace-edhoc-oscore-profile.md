@@ -57,6 +57,8 @@ normative:
   RFC9201:
   I-D.ietf-lake-edhoc:
   I-D.ietf-core-oscore-edhoc:
+  I-D.ietf-cose-x509:
+  I-D.ietf-cose-cbor-encoded-cert:
 
 informative:
   RFC5869:
@@ -67,8 +69,6 @@ informative:
   RFC8610:
   RFC9147:
   I-D.ietf-ace-oscore-profile:
-  I-D.ietf-cose-cbor-encoded-cert:
-  I-D.ietf-cose-x509:
 
 entity:
   SELF: "[RFC-XXXX]"
@@ -771,13 +771,115 @@ IANA is asked to add the following entries to the "OAuth Parameters CBOR Mapping
 
 ## CBOR Web Token Claims Registry ## {#iana-token-cwt-claims}
 
-IANA is asked to add the following entries to the "CBOR Web Token Claims" registry.
+IANA is asked to add the following entries to the "CBOR Web Token Claims" registry following the procedure specified in {{RFC8392}}.
 
 * Claim Name: "key_establishment_info"
 * Claim Description: Information related to key establishment
 * JWT Claim Name: "N/A"
 * Claim Key: TBD
 * Claim Value Type(s): map
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+## CWT Confirmation Methods Registry ## {#iana-token-confirmation-methods}
+
+IANA is asked to add the following entries to the "CBOR Web Token Claims" registry following the procedure specified in {{RFC8747}}.
+
+* Confirmation Method Name: x5bag
+* Confirmation Method Description: An unordered bag of X.509 certificates
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): COSE_X509
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: x5chain
+* Confirmation Method Description: An ordered chain of X.509 certificates
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): COSE_X509
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: x5t
+* Confirmation Method Description: Hash of an X.509 certificate
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): COSE_CertHash
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: x5u
+* Confirmation Method Description: URI pointing to an X.509 certificate
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): uri
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: c5b
+* Confirmation Method Description: An unordered bag of C509 certificates
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): COSE_C509
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: c5c
+* Confirmation Method Description: An ordered chain of C509 certificates
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): COSE_C509
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: c5t
+* Confirmation Method Description: Hash of an C509 certificate
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): COSE_CertHash
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: c5u
+* Confirmation Method Description: URI pointing to a COSE_C509 containing an ordere chain of certificates
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): uri
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: kcwt
+* Confirmation Method Description: A CBOR Web Token (CWT) containing a COSE_Key in a 'cnf' claim
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): COSE_Messages
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
+&nbsp;
+
+* Confirmation Method Name: kccs
+* Confirmation Method Description: A CWT Claims Set (CCS) containing a COSE_Key in a 'cnf' claim
+* JWT Confirmation Method Name: "N/A"
+* Confirmation Key: TBD
+* Confirmation Value Type(s): map / #6(map)
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 

@@ -71,7 +71,7 @@ informative:
   I-D.ietf-cose-x509:
 
 entity:
-        SELF: "[RFC-XXXX]"
+  SELF: "[RFC-XXXX]"
 
 --- abstract
 
@@ -720,25 +720,22 @@ destination addresses.
 
 # IANA Considerations
 
-The following registrations are done for the ACE OAuth Profile
-Registry following the procedure specified in
-{{RFC9200}}.
+This document has the following actions for IANA.
 
 Note to RFC Editor: Please replace all occurrences of "{{&SELF}}" with
 the RFC number of this specification and delete this paragraph.
 
-Profile name: coap_dtls
+## ACE OAuth Profile Registry ## {#iana-ace-oauth-profile}
 
-Profile Description: Profile for delegating client authentication and
-authorization in a constrained environment by establishing a Datagram
-Transport Layer Security (DTLS) channel between resource-constrained
-nodes.
+IANA is asked to add the following entry to the "ACE OAuth Profile"
+Registry following the procedure specified in {{RFC9200}}.
 
-Profile ID:  TBD (suggested: 1)
-
-Change Controller:  IESG
-
-Reference:  {{&SELF}}
+* Profile name: coap_edhoc_oscore
+* Profile Description: Profile for delegating client authentication and
+authorization in a constrained environment by establishing an OSCORE Security Context {{RFC8613}} between resource-constrained nodes, through the execution of the authenticated key establishment protocol EDHOC {{I-D.ietf-core-oscore-edhoc}}.
+* Profile ID:  TBD (value between 1 and 255)
+* Change Controller: IESG
+* Reference:  {{&SELF}}
 
 # Acknowledgments
 

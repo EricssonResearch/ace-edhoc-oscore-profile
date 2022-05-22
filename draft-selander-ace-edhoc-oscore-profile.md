@@ -49,6 +49,7 @@ normative:
   RFC7519:
   RFC7800:
   RFC7925:
+  RFC8126:
   RFC8152:
   RFC8392:
   RFC8422:
@@ -593,6 +594,10 @@ If other means of securing the communication with the authorization
 server are used, the communication security requirements from Section
 6.2 of {{RFC9200}} remain applicable.
 
+# ACE Key Establishment Information Parameters # {#key-establishment-info-params}
+
+\[ TODO \]
+
 # Security Considerations
 
 This document specifies a profile for the Authentication and
@@ -967,6 +972,34 @@ IANA is asked to add the following entries to the "CWT Confirmation Methods" reg
 * Confirmation Value Type(s): map / #6(map)
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
+
+## ACE Key Establishment Information Registry # {#iana-key-establishment-info}
+
+It is requested that IANA create a new registry entitled "ACE Key Establishment Information". The registry is to be created as Expert Review Required {{RFC8126}}. Guidelines for the experts are provided in {{iana-expert-review}}. It should be noted that in addition to the expert review, some portions of the registry require a specification, potentially on standards track, be supplied as well.
+
+The columns of the registry are:
+
+* Name: A descriptive name that enables easier reference to this item. Because a core goal of this document is for the resulting representations to be compact, it is RECOMMENDED that the name be short.
+
+   This name is case sensitive. Names may not match other registered names in a case-insensitive manner unless the Designated Experts determine that there is a compelling reason to allow an exception. The name is not used in the CBOR encoding.
+
+* CBOR Value: The value to be used as CBOR abbreviation of the item.
+
+   The value MUST be unique. The value can be a positive integer, a negative integer or a string.  Integer values between -256 and 255 and strings of length 1 are designated as Standards Track Document required. Integer values from -65536 to -257 and from 256 to 65535 and strings of maximum length 2 are designated as Specification Required. Integer values greater than 65535 and strings of length greater than 2 are designated as Expert Review. Integer values less than -65536 are marked as Private Use.
+
+* CBOR Type: The CBOR type of the item, or a pointer to the registry that defines its type, when that depends on another item.
+
+* Registry: The registry that values of the item may come from, if one exists.
+
+* Description: A brief description of this item.
+
+* Specification: A pointer to the public specification for the item, if one exists.
+
+This registry will be initially populated by the values in {{key-establishment-info-params}}. The specification column for all of these entries will be this document and {{I-D.ietf-core-oscore-edhoc}}.
+
+## Expert Review Instructions # {#iana-expert-review}
+
+\[ TODO \]
 
 --- back
 

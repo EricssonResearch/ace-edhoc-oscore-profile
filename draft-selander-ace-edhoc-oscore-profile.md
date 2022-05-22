@@ -737,9 +737,6 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 * Change Controller: IESG
 * Reference:  {{&SELF}}
 
-# Acknowledgments
-
-
 --- back
 
 # Examples # {#examples}

@@ -769,6 +769,18 @@ IANA is asked to add the following entries to the "OAuth Parameters CBOR Mapping
 * Value Type: simple value "true" / simple type "false"
 * Specification Document(s): {{&SELF}}
 
+## CBOR Web Token Claims Registry ## {#iana-token-cwt-claims}
+
+IANA is asked to add the following entries to the "CBOR Web Token Claims" registry.
+
+* Claim Name: "key_establishment_info"
+* Claim Description: Information related to key establishment
+* JWT Claim Name: "N/A"
+* Claim Key: TBD
+* Claim Value Type(s): map
+* Change Controller: IESG
+* Specification Document(s): {{&SELF}}
+
 --- back
 
 # Examples # {#examples}

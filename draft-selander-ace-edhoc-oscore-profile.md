@@ -596,7 +596,23 @@ server are used, the communication security requirements from Section
 
 # ACE Key Establishment Information Parameters # {#key-establishment-info-params}
 
-\[ TODO \]
+This specification defines a number of parameters that can be transported in the 'key_establishment_info' parameter of a Token Response to the Client, or in the 'key_establishment_info' claim of an access token.
+
+In the former case, when the response payload is encoded as a CBOR map, the response MUST use the Content-Format "application/ace+cbor" defined in {{RFC9200}}.
+
+The table below summarizes them, and specifies the CBOR value to use as abbreviation instead of the full descriptive name.
+
+~~~~~~~~~~~
++-------+-------+------+----------+-------------+---------------+
+| Name  | CBOR  | CBOR | Registry | Description | Specification |
+|       | Value | Type |          |             |               |
++-------+-------+------+----------+-------------+---------------+
+| TBD   | TBD   | TBD  | TBD      | TBD         |               |
++-------+-------+------+----------+-------------+---------------+
+~~~~~~~~~~~
+{: #fig-cbor-key-establishment-params title="CBOR abbreviations for the ACE Key Establishment Information parameters" artwork-align="center"}
+
+\[ TODO: fill the table \]
 
 # Security Considerations
 

@@ -603,16 +603,44 @@ In the former case, when the response payload is encoded as a CBOR map, the resp
 The table below summarizes them, and specifies the CBOR value to use as abbreviation instead of the full descriptive name.
 
 ~~~~~~~~~~~
-+-------+-------+------+----------+-------------+---------------+
-| Name  | CBOR  | CBOR | Registry | Description | Specification |
-|       | Value | Type |          |             |               |
-+-------+-------+------+----------+-------------+---------------+
-| TBD   | TBD   | TBD  | TBD      | TBD         |               |
-+-------+-------+------+----------+-------------+---------------+
++--------------+------+--------------+----------+---------------------+
+| Name         | CBOR | CBOR value   | Registry | Description         |
+|              | Type |              |          |                     |
++--------------+------+--------------+----------+---------------------+
+| id           | TBD  | bstr         |          | EDHOC session       |
+|              |      |              |          | identifier          |
++--------------+------+--------------+----------+---------------------+
+| methods      | TBD  | int / array  | EDHOC    | EDHOC methods       |
+|              |      |              | Method   | supported by both   |
+|              |      |              | Type     | the Client and      |
+|              |      |              | Registry | Resource Server     |
++--------------+------+--------------+----------+---------------------+
+| suite        | TBD  | int          | EDHOC    | The EDHOC cipher    |
+|              |      |              | Cipher   | to use as selected  |
+|              |      |              | Suites   | cipher suite        |
+|              |      |              | Registry |                     |
++--------------+------+--------------+----------+---------------------+
+| osc_ms_len   | TBD  | uint         |          | Length in bytes of  |
+|              |      |              |          | the OSCORE Master   |
+|              |      |              |          | Secret to derive    |
+|              |      |              |          | with EDHOC-Exporter |
++--------------+------+--------------+----------+---------------------+
+| osc_salt_len | TBD  | uint         |          | Length in bytes of  |
+|              |      |              |          | the OSCORE Master   |
+|              |      |              |          | Salt to derive      |
+|              |      |              |          | with EDHOC-Exporter |
++--------------+------+--------------+----------+---------------------+
+| comb_req     | TBD  | simple value |          | Indication on the   |
+|              |      | "true" /     |          | RS support for the  |
+|              |      | simple value |          | EDHOC+OSCORE        |
+|              |      | "false"      |          | combined requests   |
++--------------+------+--------------+----------+---------------------+
+| uri_path     | TBD  | tstr         |          | URI-path of the     |
+|              |      |              |          | EDHOC resource at   |
+|              |      |              |          | the RS              |
++--------------+------+--------------+----------+---------------------+
 ~~~~~~~~~~~
 {: #fig-cbor-key-edhoc-params title="CBOR abbreviations for the EDHOC application profile parameters" artwork-align="center"}
-
-\[ TODO: fill the table \]
 
 # Security Considerations
 
@@ -1011,7 +1039,7 @@ The columns of the registry are:
 
 * Specification: A pointer to the public specification for the item, if one exists.
 
-This registry will be initially populated by the values in {{key-edhoc-params}}. The specification column for all of these entries will be this document and {{I-D.ietf-core-oscore-edhoc}}.
+This registry will be initially populated by the values in {{key-edhoc-params}}. The "Specification" column for all of these entries will be this document and {{I-D.ietf-core-oscore-edhoc}}.
 
 ## Expert Review Instructions # {#iana-expert-review}
 

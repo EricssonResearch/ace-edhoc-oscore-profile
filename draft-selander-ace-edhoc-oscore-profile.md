@@ -611,9 +611,9 @@ The table below summarizes them, and specifies the CBOR value to use as abbrevia
 |              |      |              |          | identifier          |
 +--------------+------+--------------+----------+---------------------+
 | methods      | TBD  | int / array  | EDHOC    | EDHOC methods       |
-|              |      |              | Method   | supported by both   |
-|              |      |              | Type     | the Client and      |
-|              |      |              | Registry | Resource Server     |
+|              |      |              | Method   | possible to use     |
+|              |      |              | Type     | between the Client  |
+|              |      |              | Registry | and RS              |
 +--------------+------+--------------+----------+---------------------+
 | suite        | TBD  | int          | EDHOC    | The EDHOC cipher    |
 |              |      |              | Cipher   | to use as selected  |
@@ -633,7 +633,7 @@ The table below summarizes them, and specifies the CBOR value to use as abbrevia
 | comb_req     | TBD  | simple value |          | Indication on the   |
 |              |      | "true" /     |          | RS support for the  |
 |              |      | simple value |          | EDHOC+OSCORE        |
-|              |      | "false"      |          | combined requests   |
+|              |      | "false"      |          | combined request    |
 +--------------+------+--------------+----------+---------------------+
 | uri_path     | TBD  | tstr         |          | URI-path of the     |
 |              |      |              |          | EDHOC resource at   |

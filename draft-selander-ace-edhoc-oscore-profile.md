@@ -1019,7 +1019,7 @@ IANA is asked to add the following entries to the "CWT Confirmation Methods" reg
 
 ## EDHOC Application Profile Parameters Registry # {#iana-edhoc-parameters}
 
-It is requested that IANA create a new registry entitled "EDHOC Application Profile Parameters" registry. The registry is to be created as Expert Review Required {{RFC8126}}. Guidelines for the experts are provided in {{iana-expert-review}}. It should be noted that in addition to the expert review, some portions of the registry require a specification, potentially on standards track, be supplied as well.
+It is requested that IANA create a new registry entitled "EDHOC Application Profile Parameters" registry. The registry is to be created with registration policy Expert Review {{RFC8126}}. Guidelines for the experts are provided in {{iana-expert-review}}. It should be noted that in addition to the expert review, some portions of the registry require a specification, potentially on Standards Track, be supplied as well.
 
 The columns of the registry are:
 
@@ -1029,7 +1029,7 @@ The columns of the registry are:
 
 * CBOR Value: The value to be used as CBOR abbreviation of the item.
 
-   The value MUST be unique. The value can be a positive integer, a negative integer or a string.  Integer values between -256 and 255 and strings of length 1 are designated as Standards Track Document required. Integer values from -65536 to -257 and from 256 to 65535 and strings of maximum length 2 are designated as Specification Required. Integer values greater than 65535 and strings of length greater than 2 are designated as Expert Review. Integer values less than -65536 are marked as Private Use.
+   The value MUST be unique. The value can be a positive integer, a negative integer or a string. Integer values between -256 and 255 and strings of length 1 are to be registered by Standards Track documents (Standards Action). Integer values from -65536 to -257 and from 256 to 65535 and strings of maximum length 2 are to be registered by public specifications (Specification Required). Integer values greater than 65535 and strings of length greater than 2 are subject to the Expert Review policy. Integer values less than -65536 are marked as private use.
 
 * CBOR Type: The CBOR type of the item, or a pointer to the registry that defines its type, when that depends on another item.
 
@@ -1043,7 +1043,15 @@ This registry will be initially populated by the values in {{key-edhoc-params}}.
 
 ## Expert Review Instructions # {#iana-expert-review}
 
-\[ TODO \]
+The IANA registry established in this document is defined to use the registration policy Expert Review. This section gives some general guidelines for what the experts should be looking for, but they are being designated as experts for a reason so they should be given substantial latitude.
+
+Expert reviewers should take into consideration the following points:
+
+* Point squatting should be discouraged. Reviewers are encouraged to get sufficient information for registration requests to ensure that the usage is not going to duplicate one that is already registered and that the point is likely to be used in deployments. The zones tagged as private use are intended for testing purposes and closed environments; code points in other ranges should not be assigned for testing.
+
+* Specifications are required for the Standards Action range of point assignment. Specifications should exist for Specification Required ranges, but early assignment before a specification is available is considered to be permissible. Specifications are needed for the first-come, first-serve range if they are expected to be used outside of closed environments in an interoperable way. When specifications are not provided, the description provided needs to have sufficient information to identify what the point is being used for.
+
+* Experts should take into account the expected usage of fields when approving point assignment. The fact that there is a range for Standards Track documents does not mean that a Standards Track document cannot have points assigned outside of that range. The length of the encoded value should be weighed against how many code points of that length are left, the size of device it will be used on, and the number of code points left that encode to that size.
 
 --- back
 

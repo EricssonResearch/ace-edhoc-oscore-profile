@@ -594,9 +594,9 @@ If other means of securing the communication with the authorization
 server are used, the communication security requirements from Section
 6.2 of {{RFC9200}} remain applicable.
 
-# ACE Key Establishment Information Parameters # {#key-establishment-info-params}
+# EDHOC Application Profile Parameters # {#key-edhoc-params}
 
-This specification defines a number of parameters that can be transported in the 'key_establishment_info' parameter of a Token Response to the Client, or in the 'key_establishment_info' claim of an access token.
+This specification defines a number of EDHOC application profile parameters that can be transported in the 'edhoc_params' parameter of a Token Response to the Client, or in the 'edhoc_params' claim of an access token.
 
 In the former case, when the response payload is encoded as a CBOR map, the response MUST use the Content-Format "application/ace+cbor" defined in {{RFC9200}}.
 
@@ -610,7 +610,7 @@ The table below summarizes them, and specifies the CBOR value to use as abbrevia
 | TBD   | TBD   | TBD  | TBD      | TBD         |               |
 +-------+-------+------+----------+-------------+---------------+
 ~~~~~~~~~~~
-{: #fig-cbor-key-establishment-params title="CBOR abbreviations for the ACE Key Establishment Information parameters" artwork-align="center"}
+{: #fig-cbor-key-edhoc-params title="CBOR abbreviations for the EDHOC application profile parameters" artwork-align="center"}
 
 \[ TODO: fill the table \]
 
@@ -764,15 +764,15 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 
 IANA is asked to add the following entries to the "OAuth Parameters" registry.
 
-* Name: "key_establishment_info"
-* Parameter Usage Location: token request, token response
+* Name: "edhoc_params"
+* Parameter Usage Location: token response
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
 &nbsp;
 
 * Name: "token_uploaded"
-* Parameter Usage Location: token request, token response
+* Parameter Usage Location: token response
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
@@ -780,7 +780,7 @@ IANA is asked to add the following entries to the "OAuth Parameters" registry.
 
 IANA is asked to add the following entries to the "OAuth Parameters CBOR Mappings" following the procedure specified in {{RFC9200}}.
 
-* Name: "key_establishment_info"
+* Name: "edhoc_params"
 * CBOR Key: TBD
 * Value Type: map
 * Specification Document(s): {{&SELF}}
@@ -796,8 +796,8 @@ IANA is asked to add the following entries to the "OAuth Parameters CBOR Mapping
 
 IANA is asked to add the following entries to the "JSON Web Token Claims" registry following the procedure specified in {{RFC7519}}.
 
-*  Claim Name: "key_establishment_info"
-*  Claim Description: Information related to key establishment
+*  Claim Name: "edhoc_params"
+*  Claim Description: Parameters of the EDHOC application profile to use
 *  Change Controller: IETF
 *  Reference: {{&SELF}}
 
@@ -805,9 +805,9 @@ IANA is asked to add the following entries to the "JSON Web Token Claims" regist
 
 IANA is asked to add the following entries to the "CBOR Web Token Claims" registry following the procedure specified in {{RFC8392}}.
 
-* Claim Name: "key_establishment_info"
-* Claim Description: Information related to key establishment
-* JWT Claim Name: "key_establishment_info"
+* Claim Name: "edhoc_params"
+* Claim Description: Parameters of the EDHOC application profile to use
+* JWT Claim Name: "edhoc_params"
 * Claim Key: TBD
 * Claim Value Type(s): map
 * Change Controller: IESG
@@ -989,9 +989,9 @@ IANA is asked to add the following entries to the "CWT Confirmation Methods" reg
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
-## ACE Key Establishment Information Registry # {#iana-key-establishment-info}
+## EDHOC Application Profile Parameters Registry # {#iana-edhoc-parameters}
 
-It is requested that IANA create a new registry entitled "ACE Key Establishment Information". The registry is to be created as Expert Review Required {{RFC8126}}. Guidelines for the experts are provided in {{iana-expert-review}}. It should be noted that in addition to the expert review, some portions of the registry require a specification, potentially on standards track, be supplied as well.
+It is requested that IANA create a new registry entitled "EDHOC Application Profile Parameters" registry. The registry is to be created as Expert Review Required {{RFC8126}}. Guidelines for the experts are provided in {{iana-expert-review}}. It should be noted that in addition to the expert review, some portions of the registry require a specification, potentially on standards track, be supplied as well.
 
 The columns of the registry are:
 
@@ -1011,7 +1011,7 @@ The columns of the registry are:
 
 * Specification: A pointer to the public specification for the item, if one exists.
 
-This registry will be initially populated by the values in {{key-establishment-info-params}}. The specification column for all of these entries will be this document and {{I-D.ietf-core-oscore-edhoc}}.
+This registry will be initially populated by the values in {{key-edhoc-params}}. The specification column for all of these entries will be this document and {{I-D.ietf-core-oscore-edhoc}}.
 
 ## Expert Review Instructions # {#iana-expert-review}
 

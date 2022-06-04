@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 25 November 2022                                      M. Tiloca
+Expires: 6 December 2022                                       M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                             24 May 2022
+                                                             4 June 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 November 2022.
+   This Internet-Draft will expire on 6 December 2022.
 
 Copyright Notice
 
@@ -2059,13 +2059,6 @@ A.3.  Workflow without Optimizations (AS token posting)
      |       methods: 3                 |                              |
      |     }                            |                              |
      |                                  |                              |
-     |  In the access token:            |                              |
-     |     * the 'cnf' claim specifies  |                              |
-     |       AUTH_CRED_C by value       |                              |
-     |     * the 'edhoc_params' claim   |                              |
-     |       specifies the same as      |                              |
-     |       'edhoc_params' above       |                              |
-     |                                  |                              |
 
 
   // Possibly after chain verification, the Client adds AUTH_CRED_RS
@@ -2175,13 +2168,6 @@ A.3.  Workflow without Optimizations (AS token posting)
      |       suite  : 2,                |                              |
      |       methods: 3                 |                              |
      |     }                            |                              |
-     |                                  |                              |
-     |  In the access token:            |                              |
-     |     * the 'cnf' claim specifies  |                              |
-     |       AUTH_CRED_C by reference   |                              |
-     |     * the 'edhoc_params' claim   |                              |
-     |       specifies the same as      |                              |
-     |       'edhoc_params' above       |                              |
      |                                  |                              |
      |                                  |                              |
      |  EDHOC message_1 to /edhoc       |                              |

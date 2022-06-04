@@ -1575,13 +1575,6 @@ M07 |<---------------------------------|                              |
     |       methods: 3                 |                              |
     |     }                            |                              |
     |                                  |                              |
-    |  In the access token:            |                              |
-    |     * the 'cnf' claim specifies  |                              |
-    |       AUTH_CRED_C by value       |                              |
-    |     * the 'edhoc_params' claim   |                              |
-    |       specifies the same as      |                              |
-    |       'edhoc_params' above       |                              |
-    |                                  |                              |
 
 
  // Possibly after chain verification, the Client adds AUTH_CRED_RS
@@ -1691,13 +1684,6 @@ M16 |<---------------------------------|                              |
     |       suite  : 2,                |                              |
     |       methods: 3                 |                              |
     |     }                            |                              |
-    |                                  |                              |
-    |  In the access token:            |                              |
-    |     * the 'cnf' claim specifies  |                              |
-    |       AUTH_CRED_C by reference   |                              |
-    |     * the 'edhoc_params' claim   |                              |
-    |       specifies the same as      |                              |
-    |       'edhoc_params' above       |                              |
     |                                  |                              |
     |                                  |                              |
     |  EDHOC message_1 to /edhoc       |                              |

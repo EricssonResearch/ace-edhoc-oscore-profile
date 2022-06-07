@@ -117,9 +117,9 @@ Table of Contents
 1.  Introduction
 
    This specification defines the coap_edhoc_oscore profile of the ACE
-   framework [RFC9200].  This profile addresses a "zero-touch"
-   constrained setting where trusted operations can be performed with
-   low overhead without endpoint specific configurations.
+   framework [I-D.ietf-ace-oauth-authz].  This profile addresses a
+   "zero-touch" constrained setting where trusted operations can be
+   performed with low overhead without endpoint specific configurations.
 
    In this profile the client (C) can access protected resources hosted
    at the resource server (RS) with the use of an access token issued by
@@ -167,9 +167,9 @@ Table of Contents
    from whom the request is coming and for what it is authorized, but
    this may potentially be obtained dynamically as part of the request.
 
-   As recommended in Section 5.8 of [RFC9200], this specification uses
-   CBOR Web Tokens (CWT) to convey claims within an access token issued
-   by the AS.
+   As recommended in Section 5.8 of [I-D.ietf-ace-oauth-authz], this
+   specification uses CBOR Web Tokens (CWT) to convey claims within an
+   access token issued by the AS.
 
    Marco's comments:
 
@@ -212,19 +212,22 @@ Table of Contents
    Readers are expected to be familiar with security for CoAP [RFC7252]
    based on OSCORE [RFC8613] and EDHOC [I-D.ietf-lake-edhoc].  Readers
    are also expected to be familiar with the terms and concepts of the
-   ACE framework described in [RFC9200] and in [RFC9201].
+   ACE framework described in [I-D.ietf-ace-oauth-authz] and in
+   [I-D.ietf-ace-oauth-params].
 
    The authorization information (authz-info) resource refers to the
-   authorization information endpoint as specified in [RFC9200].  The
-   term claim is used in this document with the same semantics as in
-   [RFC9200], i.e., it denotes information carried in the access token
-   or returned from introspection.
+   authorization information endpoint as specified in
+   [I-D.ietf-ace-oauth-authz].  The term claim is used in this document
+   with the same semantics as in [I-D.ietf-ace-oauth-authz], i.e., it
+   denotes information carried in the access token or returned from
+   introspection.
 
 2.  Protocol Overview
 
    This section gives an overview of how to use the ACE framework
-   [RFC9200] together with the EDHOC authentication protocol to generate
-   an OSCORE security context with associated authorization information.
+   [I-D.ietf-ace-oauth-authz] together with the EDHOC authentication
+   protocol to generate an OSCORE security context with associated
+   authorization information.
 
    The RS maintains a collection of authentication credentials with
    associated OSCORE security context and authorization information for
@@ -235,20 +238,20 @@ Table of Contents
    This profile requires C to retrieve an access token from the AS for
    the resource it wants to access on an RS, by sending an access token
    request to the token endpoint, as specified in Section 5.8 of
-   [RFC9200].  The access token request and response MUST be
-   confidentiality protected and ensure authenticity.  The use of EDHOC
-   and OSCORE between the client and AS is RECOMMENDED in this profile,
-   to reduce the number of libraries C has to support, but other
-   protocols fulfilling the security requirements defined in Section 5
-   of [RFC9200] MAY alternatively be used, such as TLS [RFC8446] or DTLS
-   [RFC9147].
+   [I-D.ietf-ace-oauth-authz].  The access token request and response
+   MUST be confidentiality protected and ensure authenticity.  The use
+   of EDHOC and OSCORE between the client and AS is RECOMMENDED in this
+   profile, to reduce the number of libraries C has to support, but
+   other protocols fulfilling the security requirements defined in
+   Section 5 of [I-D.ietf-ace-oauth-authz] MAY alternatively be used,
+   such as TLS [RFC8446] or DTLS [RFC9147].
 
    Once C has retrieved the access token, it posts the token to the RS,
    either using the authz-info endpoint and mechanisms specified in
-   Section 5.8 of [RFC9200] and Content-Format = application/ace+cbor,
-   or with EAD_1 of EDHOC message_1 using the External Authorization
-   Data (EAD) mechanism of [I-D.ietf-lake-edhoc] as further detailed in
-   this document.
+   Section 5.8 of [I-D.ietf-ace-oauth-authz] and Content-Format =
+   application/ace+cbor, or with EAD_1 of EDHOC message_1 using the
+   External Authorization Data (EAD) mechanism of [I-D.ietf-lake-edhoc]
+   as further detailed in this document.
 
    In the former case, if the access token is valid, the RS responds to
    the request with a 2.01 (Created) response with Content-Format =
@@ -276,7 +279,7 @@ Table of Contents
 
    An overview of the protocol flow for the coap_edhoc_oscore profile is
    given in Figure 1.  The names of messages coincide with those of
-   [RFC9200] when applicable.
+   [I-D.ietf-ace-oauth-authz] when applicable.
 
       C                            RS                   AS
       |                            |                     |
@@ -335,8 +338,8 @@ Table of Contents
    channel.  This profile assumes that the keying material to secure
    this communication channel has securely been obtained either by
    manual configuration or in an automated provisioning process.  The
-   following requirements in alignment with Section 6.5 of [RFC9200]
-   therefore must be met:
+   following requirements in alignment with Section 6.5 of
+   [I-D.ietf-ace-oauth-authz] therefore must be met:
 
    *  The client MUST securely have obtained keying material to
       communicate with the authorization server.
@@ -415,10 +418,10 @@ Table of Contents
 
    The response MUST contain an ace_profile parameter if the ace_profile
    parameter in the request is empty, and MAY contain this parameter
-   otherwise (see Section 5.8.2 of [RFC9200]).  This parameter is set to
-   coap_dtls to indicate that this profile MUST be used for
-   communication between the client and the resource server.  The
-   response also contains an access token with information for the
+   otherwise (see Section 5.8.2 of [I-D.ietf-ace-oauth-authz]).  This
+   parameter is set to coap_dtls to indicate that this profile MUST be
+   used for communication between the client and the resource server.
+   The response also contains an access token with information for the
    resource server about the client's public key.  The authorization
    server MUST return in its response the parameter rs_cnf unless it is
    certain that the client already knows the public key of the resource
@@ -503,19 +506,20 @@ Table of Contents
    The resource server MUST check if the access token is still valid, if
    the resource server is the intended destination (i.e., the audience)
    of the token, and if the token was issued by an authorized
-   authorization server (see also section 5.10.1.1 of [RFC9200]).  The
-   access token is constructed by the authorization server such that the
-   resource server can associate the access token with the Client's
-   public key.  The cnf claim MUST contain either the client's RPK or,
-   if the key is already known by the resource server (e.g., from
-   previous communication), a reference to this key.  If the
-   authorization server has no certain knowledge that the Client's key
-   is already known to the resource server, the Client's public key MUST
-   be included in the access token's cnf parameter.  If CBOR web tokens
-   [RFC8392] are used (as recommended in [RFC9200]), keys MUST be
-   encoded as specified in [RFC8747].  A resource server MUST have the
-   capacity to store one access token for every proof-of-possession key
-   of every authorized client.
+   authorization server (see also section 5.10.1.1 of
+   [I-D.ietf-ace-oauth-authz]).  The access token is constructed by the
+   authorization server such that the resource server can associate the
+   access token with the Client's public key.  The cnf claim MUST
+   contain either the client's RPK or, if the key is already known by
+   the resource server (e.g., from previous communication), a reference
+   to this key.  If the authorization server has no certain knowledge
+   that the Client's key is already known to the resource server, the
+   Client's public key MUST be included in the access token's cnf
+   parameter.  If CBOR web tokens [RFC8392] are used (as recommended in
+   [I-D.ietf-ace-oauth-authz]), keys MUST be encoded as specified in
+   [RFC8747].  A resource server MUST have the capacity to store one
+   access token for every proof-of-possession key of every authorized
+   client.
 
    The raw public key used in the DTLS handshake with the client MUST
    belong to the resource server.  If the resource server has several
@@ -539,14 +543,14 @@ Table of Contents
    the resource server have proven that they can use their respective
    keying material.  An access token that is bound to the client's
    keying material is associated with the channel.  According to
-   Section 5.10.1 of [RFC9200], there should be only one access token
-   for each client.  New access tokens issued by the authorization
-   server SHOULD replace previously issued access tokens for the
-   respective client.  The resource server therefore needs a common
-   understanding with the authorization server how access tokens are
-   ordered.  The authorization server may, e.g., specify a cti claim for
-   the access token (see Section 5.9.4 of [RFC9200]) to employ a strict
-   order.
+   Section 5.10.1 of [I-D.ietf-ace-oauth-authz], there should be only
+   one access token for each client.  New access tokens issued by the
+   authorization server SHOULD replace previously issued access tokens
+   for the respective client.  The resource server therefore needs a
+   common understanding with the authorization server how access tokens
+   are ordered.  The authorization server may, e.g., specify a cti claim
+   for the access token (see Section 5.9.4 of
+   [I-D.ietf-ace-oauth-authz]) to employ a strict order.
 
    Any request that the resource server receives on a DTLS channel that
    is tied to an access token via its keying material MUST be checked
@@ -557,7 +561,7 @@ Table of Contents
    authorized with respect to any access token that is associated with
    the client MUST be rejected by the resource server with 4.01
    response.  The response SHOULD include AS Request Creation Hints as
-   described in Section 5.2 of [RFC9200].
+   described in Section 5.2 of [I-D.ietf-ace-oauth-authz].
 
    The resource server MUST NOT accept an incoming CoAP request as
    authorized if any of the following fails:
@@ -578,7 +582,7 @@ Table of Contents
 
    Incoming CoAP requests received on a secure DTLS channel that are not
    thus authorized MUST be rejected according to Section 5.10.1.1 of
-   [RFC9200]
+   [I-D.ietf-ace-oauth-authz]
 
    1.  with response code 4.03 (Forbidden) when the resource URI
        specified in the request is not covered by the authorization
@@ -597,9 +601,10 @@ Table of Contents
    a discussion of access token processing.
 
    If the client gets an error response containing AS Request Creation
-   Hints (cf.  Section 5.3 of [RFC9200] as response to its requests, it
-   SHOULD request a new access token from the authorization server in
-   order to continue communication with the resource server.
+   Hints (cf.  Section 5.3 of [I-D.ietf-ace-oauth-authz] as response to
+   its requests, it SHOULD request a new access token from the
+   authorization server in order to continue communication with the
+   resource server.
 
    Unauthorized requests that have been received over a DTLS session
    SHOULD be treated as non-fatal by the resource server, i.e., the DTLS
@@ -635,7 +640,7 @@ Table of Contents
    valid verifier for a proof-of-possession token that has previously
    been issued to the requesting client.  Otherwise, the Client-to-AS
    request MUST be declined with the error code unsupported_pop_key as
-   defined in Section 5.8.3 of [RFC9200].
+   defined in Section 5.8.3 of [I-D.ietf-ace-oauth-authz].
 
    When the authorization server issues a new access token to update
    existing authorization information, it MUST include the specified kid
@@ -674,20 +679,20 @@ Table of Contents
    after the last access token associated with this association has
    expired.
 
-   As specified in Section 5.10.3 of [RFC9200], the resource server MUST
-   notify the client with an error response with code 4.01
-   (Unauthorized) for any long running request before terminating the
-   association.
+   As specified in Section 5.10.3 of [I-D.ietf-ace-oauth-authz], the
+   resource server MUST notify the client with an error response with
+   code 4.01 (Unauthorized) for any long running request before
+   terminating the association.
 
 6.  Secure Communication with an Authorization Server
 
    As specified in the ACE framework (Sections 5.8 and 5.9 of
-   [RFC9200]), the requesting entity (the resource server and/or the
-   client) and the authorization server communicate via the token
-   endpoint or introspection endpoint.  The use of CoAP and DTLS for
-   this communication is RECOMMENDED in this profile.  Other protocols
-   fulfilling the security requirements defined in Section 5 of
-   [RFC9200] MAY be used instead.
+   [I-D.ietf-ace-oauth-authz]), the requesting entity (the resource
+   server and/or the client) and the authorization server communicate
+   via the token endpoint or introspection endpoint.  The use of CoAP
+   and DTLS for this communication is RECOMMENDED in this profile.
+   Other protocols fulfilling the security requirements defined in
+   Section 5 of [I-D.ietf-ace-oauth-authz] MAY be used instead.
 
    How credentials (e.g., RPK, X.509 cert) for using DTLS with the
    authorization server are established is out of scope for this
@@ -695,7 +700,7 @@ Table of Contents
 
    If other means of securing the communication with the authorization
    server are used, the communication security requirements from
-   Section 6.2 of [RFC9200] remain applicable.
+   Section 6.2 of [I-D.ietf-ace-oauth-authz] remain applicable.
 
 7.  EDHOC Application Profile Parameters
 
@@ -706,7 +711,7 @@ Table of Contents
 
    In the former case, when the response payload is encoded as a CBOR
    map, the response MUST use the Content-Format "application/ace+cbor"
-   defined in [RFC9200].
+   defined in [I-D.ietf-ace-oauth-authz].
 
    The table below summarizes them, and specifies the CBOR value to use
    as abbreviation instead of the full descriptive name.
@@ -763,10 +768,10 @@ Table of Contents
 8.  Security Considerations
 
    This document specifies a profile for the Authentication and
-   Authorization for Constrained Environments (ACE) framework [RFC9200].
-   As it follows this framework's general approach, the general security
-   considerations from Section 6 of [RFC9200] also apply to this
-   profile.
+   Authorization for Constrained Environments (ACE) framework
+   [I-D.ietf-ace-oauth-authz].  As it follows this framework's general
+   approach, the general security considerations from Section 6 of
+   [I-D.ietf-ace-oauth-authz] also apply to this profile.
 
    The authorization server must ascertain that the keying material for
    the client that it provides to the resource server actually is
@@ -828,7 +833,7 @@ Table of Contents
 8.2.  Multiple Access Tokens
 
    Developers SHOULD avoid using multiple access tokens for a client
-   (see also section 5.10.1 of [RFC9200]).
+   (see also section 5.10.1 of [I-D.ietf-ace-oauth-authz]).
 
    Even when a single access token per client is used, an attacker could
    compromise the dynamic update mechanism for existing DTLS connections
@@ -866,8 +871,8 @@ Table of Contents
 
 9.  Privacy Considerations
 
-   This privacy considerations from Section 7 of the [RFC9200] apply
-   also to this profile.
+   This privacy considerations from Section 7 of the
+   [I-D.ietf-ace-oauth-authz] apply also to this profile.
 
    An unprotected response to an unauthorized request may disclose
    information about the resource server and/or its existing
@@ -898,7 +903,8 @@ Table of Contents
 10.1.  ACE OAuth Profile Registry
 
    IANA is asked to add the following entry to the "ACE OAuth Profile"
-   Registry following the procedure specified in [RFC9200].
+   Registry following the procedure specified in
+   [I-D.ietf-ace-oauth-authz].
 
    *  Profile name: coap_edhoc_oscore
 
@@ -939,7 +945,8 @@ Table of Contents
 10.3.  OAuth Parameters CBOR Mappings Registry
 
    IANA is asked to add the following entries to the "OAuth Parameters
-   CBOR Mappings" following the procedure specified in [RFC9200].
+   CBOR Mappings" following the procedure specified in
+   [I-D.ietf-ace-oauth-authz].
 
    *  Name: "edhoc_params"
 
@@ -1347,6 +1354,22 @@ Table of Contents
 
 11.1.  Normative References
 
+   [I-D.ietf-ace-oauth-authz]
+              Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and
+              H. Tschofenig, "Authentication and Authorization for
+              Constrained Environments (ACE) using the OAuth 2.0
+              Framework (ACE-OAuth)", Work in Progress, Internet-Draft,
+              draft-ietf-ace-oauth-authz-46, 8 November 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-ace-
+              oauth-authz-46>.
+
+   [I-D.ietf-ace-oauth-params]
+              Seitz, L., "Additional OAuth Parameters for Authorization
+              in Constrained Environments (ACE)", Work in Progress,
+              Internet-Draft, draft-ietf-ace-oauth-params-16, 7
+              September 2021, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-ace-oauth-params-16>.
+
    [I-D.ietf-core-oscore-edhoc]
               Palombini, F., Tiloca, M., Hoeglund, R., Hristozov, S.,
               and G. Selander, "Profiling EDHOC for CoAP and OSCORE",
@@ -1459,10 +1482,6 @@ Table of Contents
               Representation (CBOR)", STD 94, RFC 8949,
               DOI 10.17487/RFC8949, December 2020,
               <https://www.rfc-editor.org/rfc/rfc8949>.
-
-   [RFC9200]  "*** BROKEN REFERENCE ***".
-
-   [RFC9201]  "*** BROKEN REFERENCE ***".
 
 11.2.  Informative References
 

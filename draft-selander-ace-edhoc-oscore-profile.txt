@@ -117,90 +117,71 @@ Table of Contents
 
 1.  Introduction
 
-   This specification defines the coap_edhoc_oscore profile of the ACE
+   This specification defines the "coap_edhoc_oscore" profile of the ACE
    framework [I-D.ietf-ace-oauth-authz].  This profile addresses a
    "zero-touch" constrained setting where trusted operations can be
    performed with low overhead without endpoint specific configurations.
 
-   In this profile the client (C) can access protected resources hosted
-   at the resource server (RS) with the use of an access token issued by
-   a trusted authorization server (AS) which associates access rights to
-   an authentication credential of C.  The authentication credential can
-   be a raw public key of C, e.g., encoded as a CWT Claims Set (CCS,
-   [RFC8392]), or a public key certificate, e.g. encoded as an X.509
-   certificate or CBOR encoded X.509 certificate (C509,
-   [I-D.ietf-cose-cbor-encoded-cert]), or other data structure
-   containing or uniquely referencing the public key of C.
+   Like in the "coap_oscore" profile [I-D.ietf-ace-oscore-profile], also
+   in this profile a client (C) and a resource server (RS) use the
+   Constrained Application Protocol (CoAP) [RFC7252] to communicate, and
+   Object Security for Constrained RESTful Environments (OSCORE)
+   [RFC8613] to protect their communications.  Besides, the processing
+   of requests for specific protected resources is identical to what is
+   defined in the "coap_oscore" profile.
 
-   C and RS use the Constrained Application Protocol (CoAP) [RFC7252] to
-   communicate, and Object Security for Constrained RESTful Environments
-   (OSCORE) [RFC8613] to protect the communication, like in the
-   coap_oscore profile of ACE [I-D.ietf-ace-oscore-profile].  But
-   instead of associating the access rights to a symmetric key of C, as
-   in the coap_oscore profile, the access rights in this profile are
-   associated to an authentication credential of C, and uses Ephemeral
-   Diffie-Hellman Over COSE (EDHOC) to prove possession of the
-   corresponding private key.
+   When using this profile, C accesses protected resources hosted at the
+   RS with the use of an access token issued by a trusted authorization
+   server (AS) and bound to an authentication credential of C.  This
+   differs from the "coap_oscore" profile, where the access token is
+   bound to a symmetric key used to derive OSCORE keying material.  As
+   recommended in [I-D.ietf-ace-oauth-authz], this specification uses
+   CBOR Web Tokens (CWTs) [RFC8392] as access tokens.
 
-   RS obtains the access token for C (different options are possible)
-   and they run the EDHOC protocol for mutual authentication.  RS
-   matches the authentication credential associated to the access token
-   against the authentication credential used by the other endpoint.  If
-   relevant verifications are successful, RS concludes that the other
-   endpoint has the associated access rights, and derives the
-   corresponding OSCORE security context.  The processing of requests
-   for specific protected resources is identical to the coap_oscore
-   profile.
+   The authentication and authorization workflow requires C and the RS
+   to have access to each other's authentication credentials.  In
+   particular, C obtains both an access token and an authentication
+   credential of the RS from the AS, while the RS can obtain the access
+   token for C (and the authentication credential of C included therin)
+   through different possible options.  If the RS successfully verifies
+   the access token, then C and the RS run the Ephemeral Diffie-Hellman
+   Over COSE (EDHOC) protocol [I-D.ietf-lake-edhoc], with each peer
+   using its own and the other peer's authentication credential.
 
-   In this process C and RS need to access each other's authentication
-   credentials.  The ACE protocol establishes what those authentication
-   credentials are and may transport the actual credentials.  If the
-   actual credentials are pre-provisioned or can be obtained over less
-   constrained links then it sufficies that ACE provides a unique
-   reference such as a certificate hash (e.g., using x5t, see
-   [I-D.ietf-cose-x509]).  This is in the same spirit as EDHOC, where
-   the authentication credentials may be transported or referenced in
-   the ID_CRED_x message fields, see [I-D.ietf-lake-edhoc].
+   Once completed the EDHOC execution, C and the RS are mutually
+   authenticated and establish an OSCORE Security Context to protect
+   following communications, while the RS achieves proof of possession
+   of the private key of C.  Instead, C achieves proof of possession of
+   the private key of the RS either once completed the EDHOC execution
+   (if an optional, fourth EDHOC message is sent by the RS) or after the
+   first message exchange using OSCORE.
+
+   Authentication credentials can be a raw public key, e.g., encoded as
+   a CWT Claims Set (CCS, [RFC8392]); or a public key certificate, e.g.,
+   encoded as an X.509 certificate or as a CBOR encoded X.509
+   certificate (C509, [I-D.ietf-cose-cbor-encoded-cert]); or a different
+   type of data structure containing (or uniquely referring to) the
+   public key of the peer in question.
+
+   The ACE protocol establishes what those authentication credentials
+   are, and may transport the actual authentication credentials by value
+   or rather uniquely refer to them.  If an actual authentication
+   credential is pre-provisioned or can be obtained over less
+   constrained links, then it suffices that ACE provides a unique
+   reference such as a certificate hash (e.g., by using the COSE header
+   parameter "x5t", see [I-D.ietf-cose-x509]).  This is in the same
+   spirit as EDHOC, where the authentication credentials may be
+   transported or referenced in the ID_CRED_x message fields (see
+   Section 3.5.3 of [I-D.ietf-lake-edhoc]).
 
    Generally, the AS and RS are likely to have trusted access to each
-   other's credentials since AS acts on behalf of RS, by the trust model
-   of ACE.  AS needs also to have some information about C to verify
-   from whom the request is coming and for what it is authorized, but
-   this may potentially be obtained dynamically as part of the request.
-
-   As recommended in Section 5.8 of [I-D.ietf-ace-oauth-authz], this
-   specification uses CBOR Web Tokens (CWT) to convey claims within an
-   access token issued by the AS.
-
-   Marco's comments:
-
-   *  New "CWT Confirmation Methods" are registered (e.g., "x5t",
-      "xchain", ..."), basically to cover the types of ID_CRED_X
-      supported in EDHOC.
-
-   *  The Client receives the Token Response from the AS, and takes the
-      value of 'rs_cnf' as ID_CRED_R.  Depending on the specific type of
-      'rs_cnf', the RS' authentication credential here can be pointed by
-      reference or transported by value (what is possible and most
-      efficient to do).
-
-   *  The RS receives the Token from the Client, and takes the value of
-      the 'cnf' claim as ID_CRED_I.  Depending on the specific type of
-      'cnf', the Client's authentication credential here can be pointed
-      by reference or transported by value (what is possible and most
-      efficient to do).
-
-   *  'req_cnf' can be transferred by reference; 'cnf' and 'rs_cnf' has
-      to be transferred by value.
-
-   *  When the Client initially runs EDHOC with the AS (before sending
-      the Token request), both Client and AS can indicate their own
-      authentication credential by reference in ID_CRED_X.
-
-   *  Following the expiration of the first token, if the client asks
-      for a new one: 'req_cnf' can be transferred by reference; 'cnf'
-      and 'rs_cnf' can also be transferred by reference.  Then EDHOC
-      also uses only transferring by reference.
+   other's authentication credentials, since the AS acts on behalf of
+   the RS as per the trust model of ACE.  Also, the AS needs to have
+   some information about C, including the respective authentication
+   credential, in order to identify C when it requests an access token
+   and to determine what access rights it can be granted.  However, the
+   authentication credential of C may potentially be conveyed (or
+   uniquely referred to) within the request sent to the AS.
 
 1.1.  Terminology
 

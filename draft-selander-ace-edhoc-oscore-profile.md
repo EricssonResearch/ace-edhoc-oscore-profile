@@ -615,10 +615,10 @@ The table below summarizes them, and specifies the CBOR value to use as abbrevia
 |              |      |              | Type     | between the Client  |
 |              |      |              | Registry | and RS              |
 +--------------+------+--------------+----------+---------------------+
-| suite        | TBD  | int          | EDHOC    | The EDHOC cipher    |
-|              |      |              | Cipher   | to use as selected  |
-|              |      |              | Suites   | cipher suite        |
-|              |      |              | Registry |                     |
+| cipher_suite | TBD  | int          | EDHOC    | The EDHOC cipher    |
+|              |      |              | Cipher   | suite to use as     |
+|              |      |              | Suites   | selected cipher     |
+|              |      |              | Registry | suite               |
 +--------------+------+--------------+----------+---------------------+
 | osc_ms_len   | TBD  | uint         |          | Length in bytes of  |
 |              |      |              |          | the OSCORE Master   |
@@ -629,6 +629,15 @@ The table below summarizes them, and specifies the CBOR value to use as abbrevia
 |              |      |              |          | the OSCORE Master   |
 |              |      |              |          | Salt to derive      |
 |              |      |              |          | with EDHOC-Exporter |
++--------------+------+--------------+----------+---------------------+
+| key_update   | TBD  | simple value |          | Indication on the   |
+|              |      | "true" /     |          | RS support for      |
+|              |      | simple value |          | EDHOC-KeyUpdate     |
+|              |      | "false"      |          |                     |
++--------------+------+--------------+----------+---------------------+
+| message_4    | TBD  | simple value |          | Indication on the   |
+|              |      | "true" /     |          | RS support for      |
+|              |      | simple value |          | EDHOC message_4     |
 +--------------+------+--------------+----------+---------------------+
 | comb_req     | TBD  | simple value |          | Indication on the   |
 |              |      | "true" /     |          | RS support for the  |

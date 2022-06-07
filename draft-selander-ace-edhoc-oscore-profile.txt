@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 6 December 2022                                       M. Tiloca
+Expires: 9 December 2022                                       M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                             4 June 2022
+                                                             7 June 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 December 2022.
+   This Internet-Draft will expire on 9 December 2022.
 
 Copyright Notice
 
@@ -723,10 +723,10 @@ Table of Contents
  |              |      |              | Type     | between the Client  |
  |              |      |              | Registry | and RS              |
  +--------------+------+--------------+----------+---------------------+
- | suite        | TBD  | int          | EDHOC    | The EDHOC cipher    |
- |              |      |              | Cipher   | to use as selected  |
- |              |      |              | Suites   | cipher suite        |
- |              |      |              | Registry |                     |
+ | cipher_suite | TBD  | int          | EDHOC    | The EDHOC cipher    |
+ |              |      |              | Cipher   | suite to use as     |
+ |              |      |              | Suites   | selected cipher     |
+ |              |      |              | Registry | suite               |
  +--------------+------+--------------+----------+---------------------+
  | osc_ms_len   | TBD  | uint         |          | Length in bytes of  |
  |              |      |              |          | the OSCORE Master   |
@@ -737,6 +737,15 @@ Table of Contents
  |              |      |              |          | the OSCORE Master   |
  |              |      |              |          | Salt to derive      |
  |              |      |              |          | with EDHOC-Exporter |
+ +--------------+------+--------------+----------+---------------------+
+ | key_update   | TBD  | simple value |          | Indication on the   |
+ |              |      | "true" /     |          | RS support for      |
+ |              |      | simple value |          | EDHOC-KeyUpdate     |
+ |              |      | "false"      |          |                     |
+ +--------------+------+--------------+----------+---------------------+
+ | message_4    | TBD  | simple value |          | Indication on the   |
+ |              |      | "true" /     |          | RS support for      |
+ |              |      | simple value |          | EDHOC message_4     |
  +--------------+------+--------------+----------+---------------------+
  | comb_req     | TBD  | simple value |          | Indication on the   |
  |              |      | "true" /     |          | RS support for the  |

@@ -1036,7 +1036,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Selander, et al.</td>
-<td class="center">Expires 6 December 2022</td>
+<td class="center">Expires 9 December 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1049,12 +1049,12 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-selander-ace-edhoc-oscore-profile-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2022-06-04" class="published">4 June 2022</time>
+<time datetime="2022-06-07" class="published">7 June 2022</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-12-06">6 December 2022</time></dd>
+<dd class="expires"><time datetime="2022-12-09">9 December 2022</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1114,7 +1114,7 @@ A resource-constrained server can use this profile to delegate management of aut
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 6 December 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 9 December 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1835,10 +1835,10 @@ server are used, the communication security requirements from Section
 |              |      |              | Type     | between the Client  |
 |              |      |              | Registry | and RS              |
 +--------------+------+--------------+----------+---------------------+
-| suite        | TBD  | int          | EDHOC    | The EDHOC cipher    |
-|              |      |              | Cipher   | to use as selected  |
-|              |      |              | Suites   | cipher suite        |
-|              |      |              | Registry |                     |
+| cipher_suite | TBD  | int          | EDHOC    | The EDHOC cipher    |
+|              |      |              | Cipher   | suite to use as     |
+|              |      |              | Suites   | selected cipher     |
+|              |      |              | Registry | suite               |
 +--------------+------+--------------+----------+---------------------+
 | osc_ms_len   | TBD  | uint         |          | Length in bytes of  |
 |              |      |              |          | the OSCORE Master   |
@@ -1849,6 +1849,15 @@ server are used, the communication security requirements from Section
 |              |      |              |          | the OSCORE Master   |
 |              |      |              |          | Salt to derive      |
 |              |      |              |          | with EDHOC-Exporter |
++--------------+------+--------------+----------+---------------------+
+| key_update   | TBD  | simple value |          | Indication on the   |
+|              |      | "true" /     |          | RS support for      |
+|              |      | simple value |          | EDHOC-KeyUpdate     |
+|              |      | "false"      |          |                     |
++--------------+------+--------------+----------+---------------------+
+| message_4    | TBD  | simple value |          | Indication on the   |
+|              |      | "true" /     |          | RS support for      |
+|              |      | simple value |          | EDHOC message_4     |
 +--------------+------+--------------+----------+---------------------+
 | comb_req     | TBD  | simple value |          | Indication on the   |
 |              |      | "true" /     |          | RS support for the  |

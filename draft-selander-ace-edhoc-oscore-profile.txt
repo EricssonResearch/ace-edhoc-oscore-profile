@@ -79,35 +79,34 @@ Table of Contents
    1.  Introduction
      1.1.  Terminology
    2.  Protocol Overview
-   3.  Protocol Flow
-     3.1.  Communication Between the Client and the Authorization
-           Server
-     3.2.  Raw Public Key Mode
-       3.2.1.  Access Token Retrieval from the Authorization Server
-       3.2.2.  DTLS Channel Setup Between Client and Resource Server
-     3.3.  Resource Access
-   4.  Dynamic Update of Authorization Information
-   5.  Token Expiration
-   6.  Secure Communication with an Authorization Server
-   7.  EDHOC Application Profile Parameters
-   8.  Security Considerations
-     8.1.  Reuse of Existing Sessions
-     8.2.  Multiple Access Tokens
-     8.3.  Out-of-Band Configuration
-   9.  Privacy Considerations
-   10. IANA Considerations
-     10.1.  ACE OAuth Profile Registry
-     10.2.  OAuth Parameters Registry
-     10.3.  OAuth Parameters CBOR Mappings Registry
-     10.4.  JSON Web Token Claims Registry
-     10.5.  CBOR Web Token Claims Registry
-     10.6.  JWT Confirmation Methods Registry
-     10.7.  CWT Confirmation Methods Registry
-     10.8.  EDHOC Application Profile Parameters Registry
-     10.9.  Expert Review Instructions
-   11. References
-     11.1.  Normative References
-     11.2.  Informative References
+   3.  Client-AS Communication
+     3.1.  C-to-AS: POST to token endpoint
+     3.2.  AS-to-C: Access Token
+       3.2.1.  The EDHOC_Parameters Object
+   4.  Client-RS Communication
+     4.1.  C-to-RS: POST to authz-info endpoint
+     4.2.  RS-to-C: 2.01 (Created)
+     4.3.  EDHOC Execution and OSCORE Setup
+     4.4.  Access Rights Verification
+   5.  Secure Communication with the AS
+   6.  Discarding the Security Context
+   7.  Optimized Posting of New Token
+   8.  EDHOC Application Profile Parameters
+   9.  Security Considerations
+   10. Privacy Considerations
+   11. IANA Considerations
+     11.1.  ACE OAuth Profile Registry
+     11.2.  OAuth Parameters Registry
+     11.3.  OAuth Parameters CBOR Mappings Registry
+     11.4.  JSON Web Token Claims Registry
+     11.5.  CBOR Web Token Claims Registry
+     11.6.  JWT Confirmation Methods Registry
+     11.7.  CWT Confirmation Methods Registry
+     11.8.  EDHOC Application Profile Parameters Registry
+     11.9.  Expert Review Instructions
+   12. References
+     12.1.  Normative References
+     12.2.  Informative References
    Appendix A.  Examples
      A.1.  Workflow without Optimizations
      A.2.  Workflow with Optimizations
@@ -117,7 +116,7 @@ Table of Contents
 
 1.  Introduction
 
-   This specification defines the "coap_edhoc_oscore" profile of the ACE
+   This document defines the "coap_edhoc_oscore" profile of the ACE
    framework [I-D.ietf-ace-oauth-authz].  This profile addresses a
    "zero-touch" constrained setting where trusted operations can be
    performed with low overhead without endpoint specific configurations.
@@ -135,8 +134,8 @@ Table of Contents
    server (AS) and bound to an authentication credential of C.  This
    differs from the "coap_oscore" profile, where the access token is
    bound to a symmetric key used to derive OSCORE keying material.  As
-   recommended in [I-D.ietf-ace-oauth-authz], this specification uses
-   CBOR Web Tokens (CWTs) [RFC8392] as access tokens.
+   recommended in [I-D.ietf-ace-oauth-authz], this document uses CBOR
+   Web Tokens (CWTs) [RFC8392] as access tokens.
 
    The authentication and authorization workflow requires C and the RS
    to have access to each other's authentication credentials.  In
@@ -187,22 +186,50 @@ Table of Contents
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in BCP
-   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   Readers are expected to be familiar with security for CoAP [RFC7252]
-   based on OSCORE [RFC8613] and EDHOC [I-D.ietf-lake-edhoc].  Readers
-   are also expected to be familiar with the terms and concepts of the
-   ACE framework described in [I-D.ietf-ace-oauth-authz] and in
+   Certain security-related terms such as "authentication",
+   "authorization", "confidentiality", "(data) integrity", "Message
+   Authentication Code (MAC)", "Hash-based Message Authentication Code
+   (HMAC)", and "verify" are taken from [RFC4949].
+
+   RESTful terminology follows HTTP [RFC7231].
+
+   Readers are expected to be familiar with the terms and concepts
+   defined in CoAP [RFC7252], OSCORE [RFC8613] and EDHOC
+   [I-D.ietf-lake-edhoc].
+
+   Readers are also expected to be familiar with the terms and concepts
+   of the ACE framework described in [I-D.ietf-ace-oauth-authz] and in
    [I-D.ietf-ace-oauth-params].
+
+   Terminology for entities in the architecture is defined in OAuth 2.0
+   [RFC6749], such as client (C), resource server (RS), and
+   authorization server (AS).  It is assumed in this document that a
+   given resource on a specific RS is associated to a unique AS.
+
+   Note that the term "endpoint" is used here, as in
+   [I-D.ietf-ace-oauth-authz], following its OAuth definition, which is
+   to denote resources such as token and introspect at the AS and authz-
+   info at the RS.  The CoAP [RFC7252] definition, which is "An entity
+   participating in the CoAP protocol" is not used in this document.
 
    The authorization information (authz-info) resource refers to the
    authorization information endpoint as specified in
-   [I-D.ietf-ace-oauth-authz].  The term claim is used in this document
-   with the same semantics as in [I-D.ietf-ace-oauth-authz], i.e., it
-   denotes information carried in the access token or returned from
-   introspection.
+   [I-D.ietf-ace-oauth-authz].  The term "claim" is used in this
+   document with the same semantics as in [I-D.ietf-ace-oauth-authz],
+   i.e., it denotes information carried in the access token or returned
+   from introspection.
+
+   Concise Binary Object Representation (CBOR) [RFC8949] and Concise
+   Data Definition Language (CDDL) [RFC8610] are used in this document.
+   CDDL predefined type names, especially bstr for CBOR byte strings and
+   tstr for CBOR text strings, are used extensively in this document.
+
+   Examples throughout this document are expressed in CBOR diagnostic
+   notation without the tag and value abbreviations.
 
 2.  Protocol Overview
 
@@ -290,401 +317,55 @@ Table of Contents
 
                         Figure 1: Protocol Overview
 
-   NOTE: The rest of the draft is a copy of draft-ietf-ace-dtls-
-   authorize.  The mode of writing has been to compare the text below
-   with draft-ietf-ace-oscore-profile (for which there is no Markdown
-   document) and selected relevant parts from respective drafts.
+3.  Client-AS Communication
 
-3.  Protocol Flow
+   TBD
 
-   The following sections specify how CoAP is used to interchange
-   access-related data between the resource server, the client and the
-   authorization server so that the authorization server can provide the
-   client and the resource server with sufficient information to
-   establish a secure channel, and convey authorization information
-   specific for this communication relationship to the resource server.
+3.1.  C-to-AS: POST to token endpoint
 
-   Section 3.1 describes how the communication between the client (C)
-   and the authorization server (AS) must be secured.  Depending on the
-   used CoAP security mode (see also Section 9 of [RFC7252], the Client-
-   to-AS request, AS-to-Client response and DTLS session establishment
-   carry slightly different information.  Section 3.2 addresses the use
-   of raw public keys.
+   TBD
 
-3.1.  Communication Between the Client and the Authorization Server
+3.2.  AS-to-C: Access Token
 
-   To retrieve an access token for the resource that the client wants to
-   access, the client requests an access token from the authorization
-   server.  Before the client can request the access token, the client
-   and the authorization server MUST establish a secure communication
-   channel.  This profile assumes that the keying material to secure
-   this communication channel has securely been obtained either by
-   manual configuration or in an automated provisioning process.  The
-   following requirements in alignment with Section 6.5 of
-   [I-D.ietf-ace-oauth-authz] therefore must be met:
+   TBD
 
-   *  The client MUST securely have obtained keying material to
-      communicate with the authorization server.
+3.2.1.  The EDHOC_Parameters Object
 
-   *  Furthermore, the client MUST verify that the authorization server
-      is authorized to provide access tokens (including authorization
-      information) about the resource server to the client, and that
-      this authorization information about the authorization server is
-      still valid.
+   TBD
 
-   *  Also, the authorization server MUST securely have obtained keying
-      material for the client, and obtained authorization rules approved
-      by the resource owner (RO) concerning the client and the resource
-      server that relate to this keying material.
+4.  Client-RS Communication
 
-   The client and the authorization server MUST use their respective
-   keying material for all exchanged messages.  How the security
-   association between the client and the authorization server is
-   bootstrapped is not part of this document.  The client and the
-   authorization server must ensure the confidentiality, integrity and
-   authenticity of all exchanged messages within the ACE protocol.
+   TBD
 
-   Section 6 specifies how communication with the authorization server
-   is secured.
+4.1.  C-to-RS: POST to authz-info endpoint
 
-3.2.  Raw Public Key Mode
+   TBD
 
-   When the client uses raw public key authentication, the procedure is
-   as described in the following.
+4.2.  RS-to-C: 2.01 (Created)
 
-3.2.1.  Access Token Retrieval from the Authorization Server
+   TBD
 
-   After the client and the authorization server mutually authenticated
-   each other and validated each other's authorization, the client sends
-   a token request to the authorization server's token endpoint.  The
-   client MUST add a req_cnf object carrying either its raw public key
-   or a unique identifier for a public key that it has previously made
-   known to the authorization server.  It is RECOMMENDED that the client
-   uses DTLS with the same keying material to secure the communication
-   with the authorization server, proving possession of the key as part
-   of the token request.  Other mechanisms for proving possession of the
-   key may be defined in the future.
+4.3.  EDHOC Execution and OSCORE Setup
 
-   An example access token request from the client to the authorization
-   server is depicted in Figure 2.
+   TBD
 
-      POST coaps://as.example.com/token
-      Content-Format: application/ace+cbor
-      Payload:
-      {
-        grant_type : client_credentials,
-        audience   : "tempSensor4711",
-        req_cnf    : {
-          COSE_Key : {
-            kty : EC2,
-            crv : P-256,
-            x   : h'e866c35f4c3c81bb96a1...',
-            y   : h'2e25556be097c8778a20...'
-          }
-        }
-      }
+4.4.  Access Rights Verification
 
-            Figure 2: Access Token Request Example for RPK Mode
+   TBD
 
-   The example shows an access token request for the resource identified
-   by the string "tempSensor4711" on the authorization server using a
-   raw public key.
+5.  Secure Communication with the AS
 
-   The authorization server MUST check if the client that it
-   communicates with is associated with the RPK in the req_cnf parameter
-   before issuing an access token to it.  If the authorization server
-   determines that the request is to be authorized according to the
-   respective authorization rules, it generates an access token response
-   for the client.  The access token MUST be bound to the RPK of the
-   client by means of the cnf claim.
+   TBD
 
-   The response MUST contain an ace_profile parameter if the ace_profile
-   parameter in the request is empty, and MAY contain this parameter
-   otherwise (see Section 5.8.2 of [I-D.ietf-ace-oauth-authz]).  This
-   parameter is set to coap_dtls to indicate that this profile MUST be
-   used for communication between the client and the resource server.
-   The response also contains an access token with information for the
-   resource server about the client's public key.  The authorization
-   server MUST return in its response the parameter rs_cnf unless it is
-   certain that the client already knows the public key of the resource
-   server.  The authorization server MUST ascertain that the RPK
-   specified in rs_cnf belongs to the resource server that the client
-   wants to communicate with.  The authorization server MUST protect the
-   integrity of the access token such that the resource server can
-   detect unauthorized changes.  If the access token contains
-   confidential data, the authorization server MUST also protect the
-   confidentiality of the access token.
+6.  Discarding the Security Context
 
-   The client MUST ascertain that the access token response belongs to a
-   certain previously sent access token request, as the request may
-   specify the resource server with which the client wants to
-   communicate.
+   TBD
 
-   An example access token response from the authorization server to the
-   client is depicted in Figure 3.  Here, the contents of the
-   access_token claim have been truncated to improve readability.  The
-   response comprises access information for the client that contains
-   the server's public key in the rs_cnf parameter.  Caching proxies
-   process the Max-Age option in the CoAP response which has a default
-   value of 60 seconds (Section 5.6.1 of [RFC7252]).  The authorization
-   server SHOULD adjust the Max-Age option such that it does not exceed
-   the expires_in parameter to avoid stale responses.
+7.  Optimized Posting of New Token
 
-      2.01 Created
-      Content-Format: application/ace+cbor
-      Max-Age: 3560
-      Payload:
-      {
-        access_token : b64'SlAV32hkKG...
-         (remainder of CWT omitted for brevity;
-         CWT contains the client's RPK in the cnf claim)',
-        expires_in : 3600,
-        rs_cnf     : {
-          COSE_Key : {
-            kty : EC2,
-            crv : P-256,
-            x   : h'd7cc072de2205bdc1537...',
-            y   : h'f95e1d4b851a2cc80fff...'
-          }
-        }
-      }
+   TBD
 
-            Figure 3: Access Token Response Example for RPK Mode
-
-3.2.2.  DTLS Channel Setup Between Client and Resource Server
-
-   Before the client initiates the DTLS handshake with the resource
-   server, the client MUST send a POST request containing the obtained
-   access token to the authz-info resource hosted by the resource
-   server.  After the client receives a confirmation that the resource
-   server has accepted the access token, it proceeds to establish a new
-   DTLS channel with the resource server.  The client MUST use its
-   correct public key in the DTLS handshake.  If the authorization
-   server has specified a cnf field in the access token response, the
-   client MUST use this key.  Otherwise, the client MUST use the public
-   key that it specified in the req_cnf of the access token request.
-   The client MUST specify this public key in the SubjectPublicKeyInfo
-   structure of the DTLS handshake as described in [RFC7250].
-
-   If the client does not have the keying material belonging to the
-   public key, the client MAY try to send an access token request to the
-   AS where it specifies its public key in the req_cnf parameter.  If
-   the AS still specifies a public key in the response that the client
-   does not have, the client SHOULD re-register with the authorization
-   server to establish a new client public key.  This process is out of
-   scope for this document.
-
-   To be consistent with [RFC7252], which allows for shortened MAC tags
-   in constrained environments, an implementation that supports the RPK
-   mode of this profile MUST at least support the cipher suite
-   TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 [RFC7251].  As discussed in
-   [RFC7748], new ECC curves have been defined recently that are
-   considered superior to the so-called NIST curves.  Implementations of
-   this profile therefore MUST implement support for curve25519 (cf.
-   [RFC8032], [RFC8422]) as this curve said to be efficient and less
-   dangerous regarding implementation errors than the secp256r1 curve
-   mandated in [RFC7252].
-
-   The resource server MUST check if the access token is still valid, if
-   the resource server is the intended destination (i.e., the audience)
-   of the token, and if the token was issued by an authorized
-   authorization server (see also section 5.10.1.1 of
-   [I-D.ietf-ace-oauth-authz]).  The access token is constructed by the
-   authorization server such that the resource server can associate the
-   access token with the Client's public key.  The cnf claim MUST
-   contain either the client's RPK or, if the key is already known by
-   the resource server (e.g., from previous communication), a reference
-   to this key.  If the authorization server has no certain knowledge
-   that the Client's key is already known to the resource server, the
-   Client's public key MUST be included in the access token's cnf
-   parameter.  If CBOR web tokens [RFC8392] are used (as recommended in
-   [I-D.ietf-ace-oauth-authz]), keys MUST be encoded as specified in
-   [RFC8747].  A resource server MUST have the capacity to store one
-   access token for every proof-of-possession key of every authorized
-   client.
-
-   The raw public key used in the DTLS handshake with the client MUST
-   belong to the resource server.  If the resource server has several
-   raw public keys, it needs to determine which key to use.  The
-   authorization server can help with this decision by including a cnf
-   parameter in the access token that is associated with this
-   communication.  In this case, the resource server MUST use the
-   information from the cnf field to select the proper keying material.
-
-   Thus, the handshake only finishes if the client and the resource
-   server are able to use their respective keying material.
-
-3.3.  Resource Access
-
-   Once a DTLS channel has been established as described in Section 3.2
-   the client is authorized to access resources covered by the access
-   token it has uploaded to the authz-info resource hosted by the
-   resource server.
-
-   With the successful establishment of the DTLS channel, the client and
-   the resource server have proven that they can use their respective
-   keying material.  An access token that is bound to the client's
-   keying material is associated with the channel.  According to
-   Section 5.10.1 of [I-D.ietf-ace-oauth-authz], there should be only
-   one access token for each client.  New access tokens issued by the
-   authorization server SHOULD replace previously issued access tokens
-   for the respective client.  The resource server therefore needs a
-   common understanding with the authorization server how access tokens
-   are ordered.  The authorization server may, e.g., specify a cti claim
-   for the access token (see Section 5.9.4 of
-   [I-D.ietf-ace-oauth-authz]) to employ a strict order.
-
-   Any request that the resource server receives on a DTLS channel that
-   is tied to an access token via its keying material MUST be checked
-   against the authorization rules that can be determined with the
-   access token.  The resource server MUST check for every request if
-   the access token is still valid.  If the token has expired, the
-   resource server MUST remove it.  Incoming CoAP requests that are not
-   authorized with respect to any access token that is associated with
-   the client MUST be rejected by the resource server with 4.01
-   response.  The response SHOULD include AS Request Creation Hints as
-   described in Section 5.2 of [I-D.ietf-ace-oauth-authz].
-
-   The resource server MUST NOT accept an incoming CoAP request as
-   authorized if any of the following fails:
-
-   1.  The message was received on a secure channel that has been
-       established using the procedure defined in this document.
-
-   2.  The authorization information tied to the sending client is
-       valid.
-
-   3.  The request is destined for the resource server.
-
-   4.  The resource URI specified in the request is covered by the
-       authorization information.
-
-   5.  The request method is an authorized action on the resource with
-       respect to the authorization information.
-
-   Incoming CoAP requests received on a secure DTLS channel that are not
-   thus authorized MUST be rejected according to Section 5.10.1.1 of
-   [I-D.ietf-ace-oauth-authz]
-
-   1.  with response code 4.03 (Forbidden) when the resource URI
-       specified in the request is not covered by the authorization
-       information, and
-
-   2.  with response code 4.05 (Method Not Allowed) when the resource
-       URI specified in the request covered by the authorization
-       information but not the requested action.
-
-   The client MUST ascertain that its keying material is still valid
-   before sending a request or processing a response.  If the client
-   recently has updated the access token (see Section 4), it must be
-   prepared that its request is still handled according to the previous
-   authorization rules as there is no strict ordering between access
-   token uploads and resource access messages.  See also Section 8.2 for
-   a discussion of access token processing.
-
-   If the client gets an error response containing AS Request Creation
-   Hints (cf.  Section 5.3 of [I-D.ietf-ace-oauth-authz] as response to
-   its requests, it SHOULD request a new access token from the
-   authorization server in order to continue communication with the
-   resource server.
-
-   Unauthorized requests that have been received over a DTLS session
-   SHOULD be treated as non-fatal by the resource server, i.e., the DTLS
-   session SHOULD be kept alive until the associated access token has
-   expired.
-
-4.  Dynamic Update of Authorization Information
-
-   Resource servers must only use a new access token to update the
-   authorization information for a DTLS session if the keying material
-   that is bound to the token is the same that was used in the DTLS
-   handshake.  By associating the access tokens with the identifier of
-   an existing DTLS session, the authorization information can be
-   updated without changing the cryptographic keys for the DTLS
-   communication between the client and the resource server, i.e. an
-   existing session can be used with updated permissions.
-
-   The client can therefore update the authorization information stored
-   at the resource server at any time without changing an established
-   DTLS session.  To do so, the client requests a new access token from
-   the authorization server for the intended action on the respective
-   resource and uploads this access token to the authz-info resource on
-   the resource server.
-
-   Figure 4 depicts the message flow where the client requests a new
-   access token after a security association between the client and the
-   resource server has been established using this protocol.  If the
-   client wants to update the authorization information, the token
-   request MUST specify the key identifier of the proof-of-possession
-   key used for the existing DTLS channel between the client and the
-   resource server in the kid parameter of the Client-to-AS request.
-   The authorization server MUST verify that the specified kid denotes a
-   valid verifier for a proof-of-possession token that has previously
-   been issued to the requesting client.  Otherwise, the Client-to-AS
-   request MUST be declined with the error code unsupported_pop_key as
-   defined in Section 5.8.3 of [I-D.ietf-ace-oauth-authz].
-
-   When the authorization server issues a new access token to update
-   existing authorization information, it MUST include the specified kid
-   parameter in this access token.  A resource server MUST replace the
-   authorization information of any existing DTLS session that is
-   identified by this key identifier with the updated authorization
-   information.
-
-      C                            RS                   AS
-      | <===== DTLS channel =====> |                     |
-      |        + Access Token      |                     |
-      |                            |                     |
-      | --- Token Request  ----------------------------> |
-      |                            |                     |
-      | <---------------------------- New Access Token - |
-      |                           + Access Information   |
-      |                            |                     |
-      | --- Update /authz-info --> |                     |
-      |     New Access Token       |                     |
-      |                            |                     |
-      | == Authorized Request ===> |                     |
-      |                            |                     |
-      | <=== Protected Resource == |                     |
-
-               Figure 4: Overview of Dynamic Update Operation
-
-5.  Token Expiration
-
-   The resource server MUST delete access tokens that are no longer
-   valid.  DTLS associations that have been setup in accordance with
-   this profile are always tied to specific tokens (which may be
-   exchanged with a dynamic update as described in Section 4).  As
-   tokens may become invalid at any time (e.g., because they have
-   expired), the association may become useless at some point.  A
-   resource server therefore MUST terminate existing DTLS association
-   after the last access token associated with this association has
-   expired.
-
-   As specified in Section 5.10.3 of [I-D.ietf-ace-oauth-authz], the
-   resource server MUST notify the client with an error response with
-   code 4.01 (Unauthorized) for any long running request before
-   terminating the association.
-
-6.  Secure Communication with an Authorization Server
-
-   As specified in the ACE framework (Sections 5.8 and 5.9 of
-   [I-D.ietf-ace-oauth-authz]), the requesting entity (the resource
-   server and/or the client) and the authorization server communicate
-   via the token endpoint or introspection endpoint.  The use of CoAP
-   and DTLS for this communication is RECOMMENDED in this profile.
-   Other protocols fulfilling the security requirements defined in
-   Section 5 of [I-D.ietf-ace-oauth-authz] MAY be used instead.
-
-   How credentials (e.g., RPK, X.509 cert) for using DTLS with the
-   authorization server are established is out of scope for this
-   profile.
-
-   If other means of securing the communication with the authorization
-   server are used, the communication security requirements from
-   Section 6.2 of [I-D.ietf-ace-oauth-authz] remain applicable.
-
-7.  EDHOC Application Profile Parameters
+8.  EDHOC Application Profile Parameters
 
    This specification defines a number of EDHOC application profile
    parameters that can be transported in the 'edhoc_params' parameter of
@@ -744,145 +425,25 @@ Table of Contents
  |              |      |              |          | the RS              |
  +--------------+------+--------------+----------+---------------------+
 
-     Figure 5: CBOR abbreviations for the EDHOC application profile
+     Figure 2: CBOR abbreviations for the EDHOC application profile
                                parameters
 
-8.  Security Considerations
+9.  Security Considerations
 
-   This document specifies a profile for the Authentication and
-   Authorization for Constrained Environments (ACE) framework
-   [I-D.ietf-ace-oauth-authz].  As it follows this framework's general
-   approach, the general security considerations from Section 6 of
-   [I-D.ietf-ace-oauth-authz] also apply to this profile.
+   TBD
 
-   The authorization server must ascertain that the keying material for
-   the client that it provides to the resource server actually is
-   associated with this client.  Malicious clients may hand over access
-   tokens containing their own access permissions to other entities.
-   This problem cannot be completely eliminated.  Nevertheless, in RPK
-   mode it should not be possible for clients to request access tokens
-   for arbitrary public keys: if the client can cause the authorization
-   server to issue a token for a public key without proving possession
-   of the corresponding private key, this allows for identity misbinding
-   attacks where the issued token is usable by an entity other than the
-   intended one.  The authorization server therefore at some point needs
-   to validate that the client can actually use the private key
-   corresponding to the client's public key.
+10.  Privacy Considerations
 
-   Constrained devices that use DTLS [RFC6347] are inherently vulnerable
-   to Denial of Service (DoS) attacks as the handshake protocol requires
-   creation of internal state within the device.  This is specifically
-   of concern where an adversary is able to intercept the initial cookie
-   exchange and interject forged messages with a valid cookie to
-   continue with the handshake.  A similar issue exists with the
-   unprotected authorization information endpoint when the resource
-   server needs to keep valid access tokens for a long time.
-   Adversaries could fill up the constrained resource server's internal
-   storage for a very long time with interjected or otherwise retrieved
-   valid access tokens.  To mitigate against this, the resource server
-   should set a time boundary until an access token that has not been
-   used until then will be deleted.
+   TBD
 
-   The protection of access tokens that are stored in the authorization
-   information endpoint depends on the keying material that is used
-   between the authorization server and the resource server: The
-   resource server must ensure that it processes only access tokens that
-   are (encrypted and) integrity-protected by an authorization server
-   that is authorized to provide access tokens for the resource server.
-
-8.1.  Reuse of Existing Sessions
-
-   To avoid the overhead of a repeated DTLS handshake, [RFC7925]
-   recommends session resumption [RFC8446] to reuse session state from
-   an earlier DTLS association and thus requires client side
-   implementation.  In this specification, the DTLS session is subject
-   to the authorization rules denoted by the access token that was used
-   for the initial setup of the DTLS association.  Enabling session
-   resumption would require the server to transfer the authorization
-   information with the session state in an encrypted SessionTicket to
-   the client.  Assuming that the server uses long-lived keying
-   material, this could open up attacks due to the lack of forward
-   secrecy.  Moreover, using this mechanism, a client can resume a DTLS
-   session without proving the possession of the PoP key again.
-   Therefore, session resumption should be used only in combination with
-   reasonably short-lived PoP keys.
-
-   Since renegotiation of DTLS associations is prone to attacks as well,
-   [RFC7925] requires clients to decline any renegotiation attempt.  A
-   server that wants to initiate re-keying therefore SHOULD periodically
-   force a full handshake.
-
-8.2.  Multiple Access Tokens
-
-   Developers SHOULD avoid using multiple access tokens for a client
-   (see also section 5.10.1 of [I-D.ietf-ace-oauth-authz]).
-
-   Even when a single access token per client is used, an attacker could
-   compromise the dynamic update mechanism for existing DTLS connections
-   by delaying or reordering packets destined for the authz-info
-   endpoint.  Thus, the order in which operations occur at the resource
-   server (and thus which authorization info is used to process a given
-   client request) cannot be guaranteed.  Especially in the presence of
-   later-issued access tokens that reduce the client's permissions from
-   the initial access token, it is impossible to guarantee that the
-   reduction in authorization will take effect prior to the expiration
-   of the original token.
-
-8.3.  Out-of-Band Configuration
-
-   To communicate securely, the authorization server, the client and the
-   resource server require certain information that must be exchanged
-   outside the protocol flow described in this document.  The
-   authorization server must have obtained authorization information
-   concerning the client and the resource server that is approved by the
-   resource owner as well as corresponding keying material.  The
-   resource server must have received authorization information approved
-   by the resource owner concerning its authorization managers and the
-   respective keying material.  The client must have obtained
-   authorization information concerning the authorization server
-   approved by its owner as well as the corresponding keying material.
-   Also, the client's owner must have approved of the client's
-   communication with the resource server.  The client and the
-   authorization server must have obtained a common understanding how
-   this resource server is identified to ensure that the client obtains
-   access token and keying material for the correct resource server.  If
-   the client is provided with a raw public key for the resource server,
-   it must be ascertained to which resource server (which identifier and
-   authorization information) the key is associated.  All authorization
-   information and keying material must be kept up to date.
-
-9.  Privacy Considerations
-
-   This privacy considerations from Section 7 of the
-   [I-D.ietf-ace-oauth-authz] apply also to this profile.
-
-   An unprotected response to an unauthorized request may disclose
-   information about the resource server and/or its existing
-   relationship with the client.  It is advisable to include as little
-   information as possible in an unencrypted response.  When a DTLS
-   session between an authenticated client and the resource server
-   already exists, more detailed information MAY be included with an
-   error response to provide the client with sufficient information to
-   react on that particular error.
-
-   Also, unprotected requests to the resource server may reveal
-   information about the client, e.g., which resources the client
-   attempts to request or the data that the client wants to provide to
-   the resource server.  The client SHOULD NOT send confidential data in
-   an unprotected request.
-
-   Note that some information might still leak after DTLS session is
-   established, due to observable message sizes, the source, and the
-   destination addresses.
-
-10.  IANA Considerations
+11.  IANA Considerations
 
    This document has the following actions for IANA.
 
    Note to RFC Editor: Please replace all occurrences of "[RFC-XXXX]"
    with the RFC number of this specification and delete this paragraph.
 
-10.1.  ACE OAuth Profile Registry
+11.1.  ACE OAuth Profile Registry
 
    IANA is asked to add the following entry to the "ACE OAuth Profile"
    Registry following the procedure specified in
@@ -902,7 +463,7 @@ Table of Contents
 
    *  Reference: [RFC-XXXX]
 
-10.2.  OAuth Parameters Registry
+11.2.  OAuth Parameters Registry
 
    IANA is asked to add the following entries to the "OAuth Parameters"
    registry.
@@ -924,7 +485,7 @@ Table of Contents
 
    *  Specification Document(s): [RFC-XXXX]
 
-10.3.  OAuth Parameters CBOR Mappings Registry
+11.3.  OAuth Parameters CBOR Mappings Registry
 
    IANA is asked to add the following entries to the "OAuth Parameters
    CBOR Mappings" following the procedure specified in
@@ -947,7 +508,7 @@ Table of Contents
 
    *  Specification Document(s): [RFC-XXXX]
 
-10.4.  JSON Web Token Claims Registry
+11.4.  JSON Web Token Claims Registry
 
    IANA is asked to add the following entries to the "JSON Web Token
    Claims" registry following the procedure specified in [RFC7519].
@@ -961,7 +522,7 @@ Table of Contents
 
    *  Reference: [RFC-XXXX]
 
-10.5.  CBOR Web Token Claims Registry
+11.5.  CBOR Web Token Claims Registry
 
    IANA is asked to add the following entries to the "CBOR Web Token
    Claims" registry following the procedure specified in [RFC8392].
@@ -981,7 +542,7 @@ Table of Contents
 
    *  Specification Document(s): [RFC-XXXX]
 
-10.6.  JWT Confirmation Methods Registry
+11.6.  JWT Confirmation Methods Registry
 
    IANA is asked to add the following entries to the "JWT Confirmation
    Methods" registry following the procedure specified in [RFC7800].
@@ -1084,7 +645,7 @@ Table of Contents
    *  Specification Document(s): [RFC-XXXX]
 
 
-10.7.  CWT Confirmation Methods Registry
+11.7.  CWT Confirmation Methods Registry
 
    IANA is asked to add the following entries to the "CWT Confirmation
    Methods" registry following the procedure specified in [RFC8747].
@@ -1246,12 +807,12 @@ Table of Contents
 
    *  Specification Document(s): [RFC-XXXX]
 
-10.8.  EDHOC Application Profile Parameters Registry
+11.8.  EDHOC Application Profile Parameters Registry
 
    It is requested that IANA create a new registry entitled "EDHOC
    Application Profile Parameters" registry.  The registry is to be
    created with registration policy Expert Review [RFC8126].  Guidelines
-   for the experts are provided in Section 10.9.  It should be noted
+   for the experts are provided in Section 11.9.  It should be noted
    that in addition to the expert review, some portions of the registry
    require a specification, potentially on Standards Track, be supplied
    as well.
@@ -1291,11 +852,11 @@ Table of Contents
    *  Specification: A pointer to the public specification for the item,
       if one exists.
 
-   This registry will be initially populated by the values in Section 7.
+   This registry will be initially populated by the values in Section 8.
    The "Specification" column for all of these entries will be this
    document and [I-D.ietf-core-oscore-edhoc].
 
-10.9.  Expert Review Instructions
+11.9.  Expert Review Instructions
 
    The IANA registry established in this document is defined to use the
    registration policy Expert Review.  This section gives some general
@@ -1332,9 +893,9 @@ Table of Contents
       used on, and the number of code points left that encode to that
       size.
 
-11.  References
+12.  References
 
-11.1.  Normative References
+12.1.  Normative References
 
    [I-D.ietf-ace-oauth-authz]
               Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and
@@ -1450,6 +1011,12 @@ Table of Contents
               DOI 10.17487/RFC8422, August 2018,
               <https://www.rfc-editor.org/rfc/rfc8422>.
 
+   [RFC8610]  Birkholz, H., Vigano, C., and C. Bormann, "Concise Data
+              Definition Language (CDDL): A Notational Convention to
+              Express Concise Binary Object Representation (CBOR) and
+              JSON Data Structures", RFC 8610, DOI 10.17487/RFC8610,
+              June 2019, <https://www.rfc-editor.org/rfc/rfc8610>.
+
    [RFC8613]  Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
               "Object Security for Constrained RESTful Environments
               (OSCORE)", RFC 8613, DOI 10.17487/RFC8613, July 2019,
@@ -1465,7 +1032,7 @@ Table of Contents
               DOI 10.17487/RFC8949, December 2020,
               <https://www.rfc-editor.org/rfc/rfc8949>.
 
-11.2.  Informative References
+12.2.  Informative References
 
    [I-D.ietf-ace-oscore-profile]
               Palombini, F., Seitz, L., Selander, G., and M. Gunnarsson,
@@ -1475,10 +1042,19 @@ Table of Contents
               2021, <https://datatracker.ietf.org/doc/html/draft-ietf-
               ace-oscore-profile-19>.
 
+   [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
+              FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
+              <https://www.rfc-editor.org/rfc/rfc4949>.
+
    [RFC5869]  Krawczyk, H. and P. Eronen, "HMAC-based Extract-and-Expand
               Key Derivation Function (HKDF)", RFC 5869,
               DOI 10.17487/RFC5869, May 2010,
               <https://www.rfc-editor.org/rfc/rfc5869>.
+
+   [RFC7231]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
+              Protocol (HTTP/1.1): Semantics and Content", RFC 7231,
+              DOI 10.17487/RFC7231, June 2014,
+              <https://www.rfc-editor.org/rfc/rfc7231>.
 
    [RFC7662]  Richer, J., Ed., "OAuth 2.0 Token Introspection",
               RFC 7662, DOI 10.17487/RFC7662, October 2015,
@@ -1496,12 +1072,6 @@ Table of Contents
    [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
               <https://www.rfc-editor.org/rfc/rfc8446>.
-
-   [RFC8610]  Birkholz, H., Vigano, C., and C. Bormann, "Concise Data
-              Definition Language (CDDL): A Notational Convention to
-              Express Concise Binary Object Representation (CBOR) and
-              JSON Data Structures", RFC 8610, DOI 10.17487/RFC8610,
-              June 2019, <https://www.rfc-editor.org/rfc/rfc8610>.
 
    [RFC9147]  Rescorla, E., Tschofenig, H., and N. Modadugu, "The
               Datagram Transport Layer Security (DTLS) Protocol Version

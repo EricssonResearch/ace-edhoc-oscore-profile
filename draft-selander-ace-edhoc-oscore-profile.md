@@ -106,7 +106,7 @@ The ACE protocol establishes what those authentication credentials are, and may 
 
 Generally, the AS and RS are likely to have trusted access to each other's authentication credentials, since the AS acts on behalf of the RS as per the trust model of ACE. Also, the AS needs to have some information about C, including the respective authentication credential, in order to identify C when it requests an access token and to determine what access rights it can be granted. However, the authentication credential of C may potentially be conveyed (or uniquely referred to) within the request sent to the AS.
 
-## Terminology
+## Terminology # {#terminology}
 
 {::boilerplate bcp14}
 
@@ -123,6 +123,12 @@ Terminology for entities in the architecture is defined in OAuth 2.0 {{RFC6749}}
 Note that the term "endpoint" is used here, as in {{I-D.ietf-ace-oauth-authz}}, following its OAuth definition, which is to denote resources such as token and introspect at the AS and authz-info at the RS. The CoAP {{RFC7252}} definition, which is "An entity participating in the CoAP protocol" is not used in this document.
 
 The authorization information (authz-info) resource refers to the authorization information endpoint as specified in {{I-D.ietf-ace-oauth-authz}}. The term "claim" is used in this document with the same semantics as in {{I-D.ietf-ace-oauth-authz}}, i.e., it denotes information carried in the access token or returned from introspection.
+
+Furthermore, this document refers to these additional terms.
+
+* Token dynasty - A series of access tokens sorted in chronological order of release and such that: they are all issued by the same AS; they are all issued to the same C and for the same RS; they are all issued together with the same authentication credential of the RS; and they are all bound to the same authentication credential of C used as proof-of-possession key. When an access token becomes invalid (e.g., due to its expiration or revocation), its token dynasty ends.
+
+* Forefather token - The first access token in a token dynasty.
 
 Concise Binary Object Representation (CBOR) {{RFC8949}} and Concise Data Definition Language (CDDL) {{RFC8610}} are used in this document. CDDL predefined type names, especially bstr for CBOR byte strings and tstr for CBOR text strings, are used extensively in this document.
 
@@ -146,7 +152,7 @@ When running the EDHOC protocol, C uses the authentication credential of RS spec
 
 From then on, C effectively gains authorized and secure access to protected resources on the RS, as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the OSCORE Security Context established above. The OSCORE Security Context is discarded when a token (whether the same or a different one) is used to successfully derive a new OSCORE Security Context for C, either by re-running the EDHOC protocol or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
 
-After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint that also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "dynasty" of access tokens. In particular, all access tokens in a dynasty are issued to the same C for the same RS, with the AS specifying to C (to the RS) the same authentication credential of the RS (of C). Upon a successful update of access rights, the new issued access token becomes the latest one of its dynasty. When the current, latest issued access token of a dynasty becomes invalid (e.g., when it expires), that dynasty ends.
+After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint that also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "token dynasty" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token dynasty. When the latest access token of a token dynasty becomes invalid (e.g., when it expires or gets revoked), that token dynasty ends.
 
 An overview of the profile flow for the "coap_edhoc_oscore" profile is given in {{protocol-overview}}. The names of messages coincide with those of {{I-D.ietf-ace-oauth-authz}} when applicable.
 
@@ -194,11 +200,59 @@ storage (latest)/               |                         |
 
 # Client-AS Communication # {#c-as-comm}
 
-TBD
+The following subsections describe the details of the POST request and response to the token endpoint between C and the AS.
+
+In this exchange, the AS provides C with the access token, together with a set of parameters that enable C to run EDHOC with the RS. These especially include the authorization credential of the RS, namely AUTH\_CRED\_RS, either transported by value or uniquely referred to.
+
+The proof-of-possession key (pop-key) bound to the access token and specified therein, either transported by value or uniquely referred to, MUST be the authentication credential of C, namely AUTH\_CRED\_C. This is provided by C to the AS in the POST request to the token endpoint, either transported by value or uniquely referred to, by means of the "req_cnf" parameter defined in {{I-D.ietf-ace-oauth-params}}.
 
 ## C-to-AS: POST to token endpoint # {#c-as}
 
-TBD
+The client-to-AS request is specified in {{Section 5.8.1 of I-D.ietf-ace-oauth-authz}}.
+
+The client must send this POST request to the token endpoint over a secure channel that guarantees authentication, message integrity and confidentiality (see {{secure-comm-as}}).
+
+An example of such a request is shown in {{token-request}}. In this example, C specifies its own authentication credential by reference, as the hash of an X.509 certificate carried in the field "x5t" of the "req\_cnf" parameter. Typically, it is expected that C can in fact specify its own authentication credential by reference, since the AS is expected to obtain it during an early client registration process or during a previous secure association establishment with C.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+    Header: POST (Code=0.02)
+    Uri-Host: "as.example.com"
+    Uri-Path: "token"
+    Content-Format: "application/ace+cbor"
+    Payload:
+    {
+      "audience" : "tempSensor4711",
+      "scope" : "read",
+      "req_cnf" : {
+        "x5t" : h'822E4879F2A41B510C1F9B'
+      }
+    }
+~~~~~~~~~~~~~~~~~~~~~~~
+{: #token-request title="Example of C-to-AS POST /token request for an access token."}
+
+If C wants to update its access rights without changing an existing OSCORE Security Context, it MUST include in its POST request to the token endpoint the parameter "edhoc_params". This in turn MUST include the "id" field, carrying a CBOR byte string containing the identifier of the token dynasty to which the current, still valid access token shared with the RS belongs to. The POST request MAY omit the parameter "req_cnf".
+
+This identifier is assigned by the AS as discussed in {{as-c}}, and, together with other information such as audience (see Section 5.8.1 of {{I-D.ietf-ace-oauth-authz}}), can be used by the AS to determine the token dynasty to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH\_CRED\_C, AUTH\_CRED\_RS) associated with a still valid access token previously issued for C and the RS by the AS.
+
+The AS MUST verify that the received value identifies a token dinasty to which a still valid access token issued for C and the RS belongs to. If that is not the case, the Client-to-AS request MUST be declined with the error code "invalid_request" as defined in {{Section 5.8.3 of I-D.ietf-ace-oauth-authz}}.
+
+An example of such a request is shown in {{token-request-update}}.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+    Header: POST (Code=0.02)
+    Uri-Host: "as.example.com"
+    Uri-Path: "token"
+    Content-Format: "application/ace+cbor"
+    Payload:
+    {
+      "audience" : "tempSensor4711",
+      "scope" : "write",
+      "edhoc_params" : {
+         "id" : h'01'
+      }
+    }
+~~~~~~~~~~~~~~~~~~~~~~~
+{: #token-request-update title="Example of C-to-AS POST /token request for updating access rights to an access token."}
 
 ## AS-to-C: Access Token # {#as-c}
 
@@ -253,8 +307,9 @@ The table below summarizes them, and specifies the CBOR value to use as abbrevia
 | Name         | CBOR | CBOR value   | Registry | Description         |
 |              | Type |              |          |                     |
 +--------------+------+--------------+----------+---------------------+
-| id           | TBD  | bstr         |          | EDHOC session       |
-|              |      |              |          | identifier          |
+| id           | TBD  | bstr         |          | Identifier of a     |
+|              |      |              |          | dynasty of access   |
+|              |      |              |          | tokens              |
 +--------------+------+--------------+----------+---------------------+
 | methods      | TBD  | int / array  | EDHOC    | EDHOC methods       |
 |              |      |              | Method   | possible to use     |
@@ -329,7 +384,7 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 IANA is asked to add the following entries to the "OAuth Parameters" registry.
 
 * Name: "edhoc_params"
-* Parameter Usage Location: token response
+* Parameter Usage Location: token request, token response
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 

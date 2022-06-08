@@ -234,7 +234,7 @@ If C wants to update its access rights without changing an existing OSCORE Secur
 
 This identifier is assigned by the AS as discussed in {{as-c}}, and, together with other information such as audience (see Section 5.8.1 of {{I-D.ietf-ace-oauth-authz}}), can be used by the AS to determine the token dynasty to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH\_CRED\_C, AUTH\_CRED\_RS) associated with a still valid access token previously issued for C and the RS by the AS.
 
-The AS MUST verify that the received value identifies a token dinasty to which a still valid access token issued for C and the RS belongs to. If that is not the case, the Client-to-AS request MUST be declined with the error code "invalid_request" as defined in {{Section 5.8.3 of I-D.ietf-ace-oauth-authz}}.
+The AS MUST verify that the received value identifies a token dynasty to which a still valid access token issued for C and the RS belongs to. If that is not the case, the Client-to-AS request MUST be declined with the error code "invalid_request" as defined in {{Section 5.8.3 of I-D.ietf-ace-oauth-authz}}.
 
 An example of such a request is shown in {{token-request-update}}.
 

@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 9 December 2022                                       M. Tiloca
+Expires: 10 December 2022                                      M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                             7 June 2022
+                                                             8 June 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 December 2022.
+   This Internet-Draft will expire on 10 December 2022.
 
 Copyright Notice
 
@@ -90,7 +90,7 @@ Table of Contents
      4.4.  Access Rights Verification
    5.  Secure Communication with the AS
    6.  Discarding the Security Context
-   7.  Optimized Posting of New Token
+   7.  Use of EDHOC-KeyUpdate
    8.  EDHOC Application Profile Parameters
    9.  Security Considerations
    10. Privacy Considerations
@@ -234,86 +234,124 @@ Table of Contents
 2.  Protocol Overview
 
    This section gives an overview of how to use the ACE framework
-   [I-D.ietf-ace-oauth-authz] together with the EDHOC authentication
-   protocol to generate an OSCORE security context with associated
-   authorization information.
+   [I-D.ietf-ace-oauth-authz] together with the authenticated key
+   establishment protocol EDHOC [I-D.ietf-lake-edhoc].  By doing so, a
+   client (C) and a resource server (RS) generate an OSCORE Security
+   Context [RFC8613] associated with authorization information, and use
+   that Security Context to protect their communications.  The
+   parameters needed by C to negotiate the use of this profile with the
+   authorization server (AS), as well as the OSCORE setup process, are
+   described in detail in the following sections.
 
-   The RS maintains a collection of authentication credentials with
-   associated OSCORE security context and authorization information for
-   all the clients that it is communicating with.  The authorization
-   information is maintained as policy that is used as input to
-   processing requests from those clients.
+   The RS maintains a collection of authentication credentials.  These
+   are related to OSCORE Security Contexts associated with authorization
+   information for all the clients that the RS is communicating with.
+   The authorization information is maintained as policy that is used as
+   input to the processing of requests from those clients.
 
    This profile requires C to retrieve an access token from the AS for
-   the resource it wants to access on an RS, by sending an access token
+   the resources it wants to access on an RS, by sending an access token
    request to the token endpoint, as specified in Section 5.8 of
    [I-D.ietf-ace-oauth-authz].  The access token request and response
    MUST be confidentiality protected and ensure authenticity.  The use
-   of EDHOC and OSCORE between the client and AS is RECOMMENDED in this
-   profile, to reduce the number of libraries C has to support, but
-   other protocols fulfilling the security requirements defined in
-   Section 5 of [I-D.ietf-ace-oauth-authz] MAY alternatively be used,
-   such as TLS [RFC8446] or DTLS [RFC9147].
+   of EDHOC and OSCORE between C and the AS is RECOMMENDED in this
+   profile, in order to reduce the number of libraries that C has to
+   support.  However, other protocols fulfilling the security
+   requirements defined in Section 5 of [I-D.ietf-ace-oauth-authz] MAY
+   alternatively be used, such as TLS [RFC8446] or DTLS [RFC9147].
 
-   Once C has retrieved the access token, it posts the token to the RS,
-   either using the authz-info endpoint and mechanisms specified in
-   Section 5.8 of [I-D.ietf-ace-oauth-authz] and Content-Format =
-   application/ace+cbor, or with EAD_1 of EDHOC message_1 using the
-   External Authorization Data (EAD) mechanism of [I-D.ietf-lake-edhoc]
-   as further detailed in this document.
+   Once C has retrieved the access token, C uploads it to the RS.  To
+   this end, there are two different options, as further detailed in
+   this document.
 
-   In the former case, if the access token is valid, the RS responds to
-   the request with a 2.01 (Created) response with Content-Format =
-   application/ace+cbor.  In this case and in the latter case above, C
-   and RS mutually authenticate using EDHOC and if successful derive an
-   OSCORE security context.  The RS associates C with the access rights
-   of the received token.
+   *  C posts the access token to the authz-info endpoint by using the
+      mechanisms specified in Section 5.8 of [I-D.ietf-ace-oauth-authz].
+      If the access token is valid, the RS responds to the request with
+      a 2.01 (Created) response, after which C initiates the EDHOC
+      protocol by sending EDHOC message_1 to the RS.  When using this
+      profile, the communication with the authz-info endpoint is not
+      protected, except for the update of access rights.
 
-   When using this profile, the communication with the authz-info
-   endpoint is not protected, except for the update of access rights.
+   *  C initiates the EDHOC protocol by sending EDHOC message_1 to the
+      RS, specifying the access token as External Authorization Data
+      (EAD) in the field EAD_1 of EDHOC message_1 (see Section 3.8
+      [I-D.ietf-lake-edhoc]).  If the access token is valid and the
+      processing of EDHOC message_1 is successful, the RS responds with
+      EDHOC message_2, thus continuing the EDHOC protocol.  This
+      alternative cannot be used for the update of access rights.
 
-   C gains authorized access to protected resources on RS as long as the
-   access token is valid.  The OSCORE security context is discarded when
-   a token (whether the same or a different one) is used to successfully
-   derive a new security context for that client, either by using the
-   EDHOC-KeyUpdate procedure or re-running the EDHOC protocol.
+   When running the EDHOC protocol, C uses the authentication credential
+   of RS specified by the AS together with the access token, while the
+   RS uses the authentication credential of C bound to and specified
+   within the access token.  If C and RS complete the EDHOC execution
+   successfully, they are mutually authenticated and they derive an
+   OSCORE Security Context as per Appendix A.1 of [I-D.ietf-lake-edhoc].
+   Also, the RS associates the authentication credential of C with the
+   derived OSCORE Security Context and with the access rights of C
+   specified in the access token.
 
-   After the whole message exchange has taken place, the client can
-   contact the AS to request an update of its access rights, sending a
-   similar request to the token endpoint that also includes an
-   identifier so that the AS can find the correct data it has previously
-   shared with the client.  This specific identifier, encoded as a byte
-   string, is assigned by the AS to be unique in the sets of granted
-   client access rights.
+   From then on, C effectively gains authorized and secure access to
+   protected resources on the RS, as long as the access token is valid.
+   Until then, C can communicate with the RS by sending a request
+   protected with the OSCORE Security Context established above.  The
+   OSCORE Security Context is discarded when a token (whether the same
+   or a different one) is used to successfully derive a new OSCORE
+   Security Context for C, either by re-running the EDHOC protocol or by
+   exchanging nonces and using the EDHOC-KeyUpdate function (see
+   Section 7).
 
-   An overview of the protocol flow for the coap_edhoc_oscore profile is
-   given in Figure 1.  The names of messages coincide with those of
+   After the whole message exchange has taken place, C can contact the
+   AS to request an update of its access rights, by sending a similar
+   request to the token endpoint that also includes an identifier, which
+   allows the AS to find the correct data it has previously shared with
+   C.  This specific identifier, encoded as a byte string, is uniquely
+   assigned by the AS to a "dynasty" of access tokens.  In particular,
+   all access tokens in a dynasty are issued to the same C for the same
+   RS, with the AS specifying to C (to the RS) the same authentication
+   credential of the RS (of C).  Upon a successful update of access
+   rights, the new issued access token becomes the latest one of its
+   dynasty.  When the current, latest issued access token of a dynasty
+   becomes invalid (e.g., when it expires), that dynasty ends.
+
+   An overview of the profile flow for the "coap_edhoc_oscore" profile
+   is given in Figure 1.  The names of messages coincide with those of
    [I-D.ietf-ace-oauth-authz] when applicable.
 
-      C                            RS                   AS
-      |                            |                     |
-      | <== Mutual authentication and secure channel ==> |
-      |                            |                     |
-      | ----- POST /token  ----------------------------> |
-      |                            |                     |
-      | <---------------------------- Access Token ----- |
-      |                           + Access Information   |
-      |                            |                     |
-      | [--- POST /authz-info -->] |                     |
-      |       (access_token)       |                     |
-      |                            |                     |
-      | [<---- 2.01 Created  ----] |                     |
-      |                            |                     |
-      | <========= EDHOC ========> |                     |
-      |  OSCORE Sec Context deriv. |                     |
-      |                            |                     |
-   Sec Context storage/    Sec Context storage/          |
-      |                            |                     |
-      | ---- OSCORE Request -----> |                     |
-      |                            |                     |
-      | <--- OSCORE Response ----- |                     |
-      |                            |                     |
-      |           ...              |                     |
+      C                            RS                       AS
+      |                            |                         |
+      | <==== Mutual authentication and secure channel ====> |
+      |                            |                         |
+      | ------- POST /token  ------------------------------> |
+      |                            |                         |
+      | <-------------------------------- Access Token ----- |
+      |                               + Access Information   |
+      |                            |                         |
+      | ---- POST /authz-info ---> |                         |
+      |       (access_token)       |                         |
+      |                            |                         |
+      | <----- 2.01 Created ------ |                         |
+      |                            |                         |
+      | <========= EDHOC ========> |                         |
+      |  Mutual authentication     |                         |
+      |  and derivation of an      |                         |
+      |  OSCORE Security Context   |                         |
+      |                            |                         |
+      |                /Proof-of-possession and              |
+      |                Security Context storage/             |
+      |                            |                         |
+      | ---- OSCORE Request -----> |                         |
+      |                            |                         |
+      | <--- OSCORE Response ----- |                         |
+      |                            |                         |
+   /Proof-of-possession            |                         |
+   and Security Context            |                         |
+   storage (latest)/               |                         |
+      |                            |                         |
+      | ---- OSCORE Request -----> |                         |
+      |                            |                         |
+      | <--- OSCORE Response ----- |                         |
+      |                            |                         |
+      |           ...              |                         |
 
                         Figure 1: Protocol Overview
 
@@ -361,7 +399,7 @@ Table of Contents
 
    TBD
 
-7.  Optimized Posting of New Token
+7.  Use of EDHOC-KeyUpdate
 
    TBD
 

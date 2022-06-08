@@ -433,7 +433,7 @@ Table of Contents
    pair (AUTH_CRED_C, AUTH_CRED_RS) associated with a still valid access
    token previously issued for C and the RS by the AS.
 
-   The AS MUST verify that the received value identifies a token dinasty
+   The AS MUST verify that the received value identifies a token dynasty
    to which a still valid access token issued for C and the RS belongs
    to.  If that is not the case, the Client-to-AS request MUST be
    declined with the error code "invalid_request" as defined in

@@ -1302,8 +1302,15 @@ appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">�
 <p id="section-1.1-6">Terminology for entities in the architecture is defined in OAuth 2.0 <span>[<a href="#RFC6749" class="xref">RFC6749</a>]</span>, such as client (C), resource server (RS), and authorization server (AS).  It is assumed in this document that a given resource on a specific RS is associated to a unique AS.<a href="#section-1.1-6" class="pilcrow">¶</a></p>
 <p id="section-1.1-7">Note that the term "endpoint" is used here, as in <span>[<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>, following its OAuth definition, which is to denote resources such as token and introspect at the AS and authz-info at the RS. The CoAP <span>[<a href="#RFC7252" class="xref">RFC7252</a>]</span> definition, which is "An entity participating in the CoAP protocol" is not used in this document.<a href="#section-1.1-7" class="pilcrow">¶</a></p>
 <p id="section-1.1-8">The authorization information (authz-info) resource refers to the authorization information endpoint as specified in <span>[<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>. The term "claim" is used in this document with the same semantics as in <span>[<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>, i.e., it denotes information carried in the access token or returned from introspection.<a href="#section-1.1-8" class="pilcrow">¶</a></p>
-<p id="section-1.1-9">Concise Binary Object Representation (CBOR) <span>[<a href="#RFC8949" class="xref">RFC8949</a>]</span> and Concise Data Definition Language (CDDL) <span>[<a href="#RFC8610" class="xref">RFC8610</a>]</span> are used in this document. CDDL predefined type names, especially bstr for CBOR byte strings and tstr for CBOR text strings, are used extensively in this document.<a href="#section-1.1-9" class="pilcrow">¶</a></p>
-<p id="section-1.1-10">Examples throughout this document are expressed in CBOR diagnostic notation without the tag and value abbreviations.<a href="#section-1.1-10" class="pilcrow">¶</a></p>
+<p id="section-1.1-9">Furthermore, this document refers to these additional terms.<a href="#section-1.1-9" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-10.1">Token dynasty - A series of access tokens sorted in chronological order of release and such that: they are all issued by the same AS; they are all issued to the same C and for the same RS; they are all issued together with the same authentication credential of the RS; and they are all bound to the same authentication credential of C used as proof-of-possession key. When an access token becomes invalid (e.g., due to its expiration or revocation), its token dynasty ends.<a href="#section-1.1-10.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-1.1-10.2">Forefather token - The first access token in a token dynasty.<a href="#section-1.1-10.2" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-1.1-11">Concise Binary Object Representation (CBOR) <span>[<a href="#RFC8949" class="xref">RFC8949</a>]</span> and Concise Data Definition Language (CDDL) <span>[<a href="#RFC8610" class="xref">RFC8610</a>]</span> are used in this document. CDDL predefined type names, especially bstr for CBOR byte strings and tstr for CBOR text strings, are used extensively in this document.<a href="#section-1.1-11" class="pilcrow">¶</a></p>
+<p id="section-1.1-12">Examples throughout this document are expressed in CBOR diagnostic notation without the tag and value abbreviations.<a href="#section-1.1-12" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1325,7 +1332,7 @@ appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">�
       </ul>
 <p id="section-2-6">When running the EDHOC protocol, C uses the authentication credential of RS specified by the AS together with the access token, while the RS uses the authentication credential of C bound to and specified within the access token. If C and RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#appendix-A.1" class="relref">Appendix A.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. Also, the RS associates the authentication credential of C with the derived OSCORE Security Context and with the access rights of C specified in the access token.<a href="#section-2-6" class="pilcrow">¶</a></p>
 <p id="section-2-7">From then on, C effectively gains authorized and secure access to protected resources on the RS, as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the OSCORE Security Context established above. The OSCORE Security Context is discarded when a token (whether the same or a different one) is used to successfully derive a new OSCORE Security Context for C, either by re-running the EDHOC protocol or by exchanging nonces and using the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 7</a>).<a href="#section-2-7" class="pilcrow">¶</a></p>
-<p id="section-2-8">After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint that also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "dynasty" of access tokens. In particular, all access tokens in a dynasty are issued to the same C for the same RS, with the AS specifying to C (to the RS) the same authentication credential of the RS (of C). Upon a successful update of access rights, the new issued access token becomes the latest one of its dynasty. When the current, latest issued access token of a dynasty becomes invalid (e.g., when it expires), that dynasty ends.<a href="#section-2-8" class="pilcrow">¶</a></p>
+<p id="section-2-8">After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint that also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "token dynasty" (see <a href="#terminology" class="xref">Section 1.1</a>). Upon a successful update of access rights, the new issued access token becomes the latest one of its token dynasty. When the latest access token of a token dynasty becomes invalid (e.g., when it expires or gets revoked), that token dynasty ends.<a href="#section-2-8" class="pilcrow">¶</a></p>
 <p id="section-2-9">An overview of the profile flow for the "coap_edhoc_oscore" profile is given in <a href="#protocol-overview" class="xref">Figure 1</a>. The names of messages coincide with those of <span>[<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> when applicable.<a href="#section-2-9" class="pilcrow">¶</a></p>
 <span id="name-protocol-overview-2"></span><div id="protocol-overview">
 <figure id="figure-1">
@@ -1380,13 +1387,65 @@ storage (latest)/               |                         |
       <h2 id="name-client-as-communication">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-client-as-communication" class="section-name selfRef">Client-AS Communication</a>
       </h2>
-<p id="section-3-1">TBD<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-1">The following subsections describe the details of the POST request and response to the token endpoint between C and the AS.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">In this exchange, the AS provides C with the access token, together with a set of parameters that enable C to run EDHOC with the RS. These especially include the authorization credential of the RS, namely AUTH_CRED_RS, either transported by value or uniquely referred to.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-3">The proof-of-possession key (pop-key) bound to the access token and specified therein, either transported by value or uniquely referred to, MUST be the authentication credential of C, namely AUTH_CRED_C. This is provided by C to the AS in the POST request to the token endpoint, either transported by value or uniquely referred to, by means of the "req_cnf" parameter defined in <span>[<a href="#I-D.ietf-ace-oauth-params" class="xref">I-D.ietf-ace-oauth-params</a>]</span>.<a href="#section-3-3" class="pilcrow">¶</a></p>
 <div id="c-as">
 <section id="section-3.1">
         <h3 id="name-c-to-as-post-to-token-endpo">
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-c-to-as-post-to-token-endpo" class="section-name selfRef">C-to-AS: POST to token endpoint</a>
         </h3>
-<p id="section-3.1-1">TBD<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-1">The client-to-AS request is specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.8.1" class="relref">Section 5.8.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">The client must send this POST request to the token endpoint over a secure channel that guarantees authentication, message integrity and confidentiality (see <a href="#secure-comm-as" class="xref">Section 5</a>).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">An example of such a request is shown in <a href="#token-request" class="xref">Figure 2</a>. In this example, C specifies its own authentication credential by reference, as the hash of an X.509 certificate carried in the field "x5t" of the "req_cnf" parameter. Typically, it is expected that C can in fact specify its own authentication credential by reference, since the AS is expected to obtain it during an early client registration process or during a previous secure association establishment with C.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<span id="name-example-of-c-to-as-post-tok"></span><div id="token-request">
+<figure id="figure-2">
+          <div class="alignLeft art-text artwork" id="section-3.1-4.1">
+<pre>
+    Header: POST (Code=0.02)
+    Uri-Host: "as.example.com"
+    Uri-Path: "token"
+    Content-Format: "application/ace+cbor"
+    Payload:
+    {
+      "audience" : "tempSensor4711",
+      "scope" : "read",
+      "req_cnf" : {
+        "x5t" : h'822E4879F2A41B510C1F9B'
+      }
+    }
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-example-of-c-to-as-post-tok" class="selfRef">Example of C-to-AS POST /token request for an access token.</a>
+          </figcaption></figure>
+</div>
+<p id="section-3.1-5">If C wants to update its access rights without changing an existing OSCORE Security Context, it MUST include in its POST request to the token endpoint the parameter "edhoc_params". This in turn MUST include the "id" field, carrying a CBOR byte string containing the identifier of the token dynasty to which the current, still valid access token shared with the RS belongs to. The POST request MAY omit the parameter "req_cnf".<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.1-6">This identifier is assigned by the AS as discussed in <a href="#as-c" class="xref">Section 3.2</a>, and, together with other information such as audience (see Section 5.8.1 of <span>[<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>), can be used by the AS to determine the token dynasty to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH_CRED_C, AUTH_CRED_RS) associated with a still valid access token previously issued for C and the RS by the AS.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
+<p id="section-3.1-7">The AS MUST verify that the received value identifies a token dinasty to which a still valid access token issued for C and the RS belongs to. If that is not the case, the Client-to-AS request MUST be declined with the error code "invalid_request" as defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.8.3" class="relref">Section 5.8.3</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
+<p id="section-3.1-8">An example of such a request is shown in <a href="#token-request-update" class="xref">Figure 3</a>.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
+<span id="name-example-of-c-to-as-post-toke"></span><div id="token-request-update">
+<figure id="figure-3">
+          <div class="alignLeft art-text artwork" id="section-3.1-9.1">
+<pre>
+    Header: POST (Code=0.02)
+    Uri-Host: "as.example.com"
+    Uri-Path: "token"
+    Content-Format: "application/ace+cbor"
+    Payload:
+    {
+      "audience" : "tempSensor4711",
+      "scope" : "write",
+      "edhoc_params" : {
+         "id" : h'01'
+      }
+    }
+</pre>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-example-of-c-to-as-post-toke" class="selfRef">Example of C-to-AS POST /token request for updating access rights to an access token.</a>
+          </figcaption></figure>
+</div>
 </section>
 </div>
 <div id="as-c">
@@ -1480,15 +1539,16 @@ storage (latest)/               |                         |
 <p id="section-8-2">In the former case, when the response payload is encoded as a CBOR map, the response MUST use the Content-Format "application/ace+cbor" defined in <span>[<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-8-3">The table below summarizes them, and specifies the CBOR value to use as abbreviation instead of the full descriptive name.<a href="#section-8-3" class="pilcrow">¶</a></p>
 <span id="name-cbor-abbreviations-for-the-"></span><div id="fig-cbor-key-edhoc-params">
-<figure id="figure-2">
+<figure id="figure-4">
         <div class="alignCenter art-text artwork" id="section-8-4.1">
 <pre>
 +--------------+------+--------------+----------+---------------------+
 | Name         | CBOR | CBOR value   | Registry | Description         |
 |              | Type |              |          |                     |
 +--------------+------+--------------+----------+---------------------+
-| id           | TBD  | bstr         |          | EDHOC session       |
-|              |      |              |          | identifier          |
+| id           | TBD  | bstr         |          | Identifier of a     |
+|              |      |              |          | dynasty of access   |
+|              |      |              |          | tokens              |
 +--------------+------+--------------+----------+---------------------+
 | methods      | TBD  | int / array  | EDHOC    | EDHOC methods       |
 |              |      |              | Method   | possible to use     |
@@ -1530,7 +1590,7 @@ storage (latest)/               |                         |
 +--------------+------+--------------+----------+---------------------+
 </pre>
 </div>
-<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
 <a href="#name-cbor-abbreviations-for-the-" class="selfRef">CBOR abbreviations for the EDHOC application profile parameters</a>
         </figcaption></figure>
 </div>
@@ -1591,7 +1651,7 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 <ul class="normal">
 <li class="normal" id="section-11.2-2.1">Name: "edhoc_params"<a href="#section-11.2-2.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-11.2-2.2">Parameter Usage Location: token response<a href="#section-11.2-2.2" class="pilcrow">¶</a>
+          <li class="normal" id="section-11.2-2.2">Parameter Usage Location: token request, token response<a href="#section-11.2-2.2" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-11.2-2.3">Change Controller: IESG<a href="#section-11.2-2.3" class="pilcrow">¶</a>
 </li>

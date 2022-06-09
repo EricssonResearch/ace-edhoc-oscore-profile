@@ -124,11 +124,9 @@ Note that the term "endpoint" is used here, as in {{I-D.ietf-ace-oauth-authz}}, 
 
 The authorization information (authz-info) resource refers to the authorization information endpoint as specified in {{I-D.ietf-ace-oauth-authz}}. The term "claim" is used in this document with the same semantics as in {{I-D.ietf-ace-oauth-authz}}, i.e., it denotes information carried in the access token or returned from introspection.
 
-Furthermore, this document refers to these additional terms.
+Furthermore, this document refers to the following term.
 
-* Token dynasty - A series of access tokens sorted in chronological order of release and such that: they are all issued by the same AS; they are all issued to the same C and for the same RS; they are all issued together with the same authentication credential of the RS; and they are all bound to the same authentication credential of C used as proof-of-possession key. When an access token becomes invalid (e.g., due to its expiration or revocation), its token dynasty ends.
-
-* Forefather token - The first access token in a token dynasty.
+* Token series - A series of access tokens sorted in chronological order of release and such that: they are all issued by the same AS; they are all issued to the same C and for the same RS; they are all issued together with the same authentication credential of the RS; and they are all bound to the same authentication credential of C used as proof-of-possession key. When an access token becomes invalid (e.g., due to its expiration or revocation), the token series it belongs to ends.
 
 Concise Binary Object Representation (CBOR) {{RFC8949}} and Concise Data Definition Language (CDDL) {{RFC8610}} are used in this document. CDDL predefined type names, especially bstr for CBOR byte strings and tstr for CBOR text strings, are used extensively in this document.
 
@@ -148,11 +146,11 @@ Once C has retrieved the access token, C uploads it to the RS. To this end, ther
 
 * C initiates the EDHOC protocol by sending EDHOC message_1 to the RS, specifying the access token as External Authorization Data (EAD) in the field EAD_1 of EDHOC message_1 (see Section 3.8 {{I-D.ietf-lake-edhoc}}). If the access token is valid and the processing of EDHOC message_1 is successful, the RS responds with EDHOC message_2, thus continuing the EDHOC protocol. This alternative cannot be used for the update of access rights.
 
-When running the EDHOC protocol, C uses the authentication credential of RS specified by the AS together with the access token, while the RS uses the authentication credential of C bound to and specified within the access token. If C and RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per {{Section A.1 of I-D.ietf-lake-edhoc}}. Also, the RS associates the authentication credential of C with the derived OSCORE Security Context and with the access rights of C specified in the access token.
+When running the EDHOC protocol, C uses the authentication credential of the RS specified by the AS together with the access token, while the RS uses the authentication credential of C bound to and specified within the access token. If C and the RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per {{Section A.1 of I-D.ietf-lake-edhoc}}. Also, the RS associates the authentication credential of C with the derived OSCORE Security Context and with the access rights of C specified in the access token.
 
-From then on, C effectively gains authorized and secure access to protected resources on the RS, as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the OSCORE Security Context established above. The OSCORE Security Context is discarded when a token (whether the same or a different one) is used to successfully derive a new OSCORE Security Context for C, either by re-running the EDHOC protocol or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
+From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The OSCORE Security Context is discarded when a token (whether the same or a different one) is used to successfully derive a new OSCORE Security Context for C, either by re-running the EDHOC protocol or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
 
-After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint that also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "token dynasty" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token dynasty. When the latest access token of a token dynasty becomes invalid (e.g., when it expires or gets revoked), that token dynasty ends.
+After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint that also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "token series" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token series. When the latest access token of a token series becomes invalid (e.g., when it expires or gets revoked), that token series ends.
 
 An overview of the profile flow for the "coap_edhoc_oscore" profile is given in {{protocol-overview}}. The names of messages coincide with those of {{I-D.ietf-ace-oauth-authz}} when applicable.
 
@@ -230,11 +228,11 @@ An example of such a request is shown in {{token-request}}. In this example, C s
 ~~~~~~~~~~~~~~~~~~~~~~~
 {: #token-request title="Example of C-to-AS POST /token request for an access token."}
 
-If C wants to update its access rights without changing an existing OSCORE Security Context, it MUST include in its POST request to the token endpoint the parameter "edhoc_params". This in turn MUST include the "id" field, carrying a CBOR byte string containing the identifier of the token dynasty to which the current, still valid access token shared with the RS belongs to. The POST request MAY omit the parameter "req_cnf".
+If C wants to update its access rights without changing an existing OSCORE Security Context, it MUST include in its POST request to the token endpoint the parameter "edhoc_params". This in turn MUST include the "id" field, carrying a CBOR byte string containing the identifier of the token series to which the current, still valid access token shared with the RS belongs to. The POST request MAY omit the parameter "req_cnf".
 
-This identifier is assigned by the AS as discussed in {{as-c}}, and, together with other information such as audience (see Section 5.8.1 of {{I-D.ietf-ace-oauth-authz}}), can be used by the AS to determine the token dynasty to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH\_CRED\_C, AUTH\_CRED\_RS) associated with a still valid access token previously issued for C and the RS by the AS.
+This identifier is assigned by the AS as discussed in {{as-c}}, and, together with other information such as audience (see Section 5.8.1 of {{I-D.ietf-ace-oauth-authz}}), can be used by the AS to determine the token series to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH\_CRED\_C, AUTH\_CRED\_RS) associated with a still valid access token previously issued for C and the RS by the AS.
 
-The AS MUST verify that the received value identifies a token dynasty to which a still valid access token issued for C and the RS belongs to. If that is not the case, the Client-to-AS request MUST be declined with the error code "invalid_request" as defined in {{Section 5.8.3 of I-D.ietf-ace-oauth-authz}}.
+The AS MUST verify that the received value identifies a token series to which a still valid access token issued for C and the RS belongs to. If that is not the case, the Client-to-AS request MUST be declined with the error code "invalid_request" as defined in {{Section 5.8.3 of I-D.ietf-ace-oauth-authz}}.
 
 An example of such a request is shown in {{token-request-update}}.
 
@@ -308,7 +306,7 @@ The table below summarizes them, and specifies the CBOR value to use as abbrevia
 |              | Type |              |          |                     |
 +--------------+------+--------------+----------+---------------------+
 | id           | TBD  | bstr         |          | Identifier of a     |
-|              |      |              |          | dynasty of access   |
+|              |      |              |          | series of access    |
 |              |      |              |          | tokens              |
 +--------------+------+--------------+----------+---------------------+
 | methods      | TBD  | int / array  | EDHOC    | EDHOC methods       |

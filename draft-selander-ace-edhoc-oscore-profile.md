@@ -41,18 +41,12 @@ author:
 normative:
   RFC2119:
   RFC8174:
-  RFC6347:
   RFC6749:
-  RFC7250:
-  RFC7251:
   RFC7252:
   RFC7519:
   RFC7800:
-  RFC7925:
   RFC8126:
-  RFC8152:
   RFC8392:
-  RFC8422:
   RFC8610:
   RFC8613:
   RFC8747:
@@ -66,11 +60,7 @@ normative:
 
 informative:
   RFC4949:
-  RFC5869:
   RFC7231:
-  RFC7662:
-  RFC7748:
-  RFC8032:
   RFC8446:
   RFC9147:
   I-D.ietf-ace-oscore-profile:
@@ -94,7 +84,7 @@ This document defines the "coap_edhoc_oscore" profile of the ACE framework {{I-D
 
 Like in the "coap_oscore" profile {{I-D.ietf-ace-oscore-profile}}, also in this profile a client (C) and a resource server (RS) use the Constrained Application Protocol (CoAP) {{RFC7252}} to communicate, and Object Security for Constrained RESTful Environments (OSCORE) {{RFC8613}} to protect their communications. Besides, the processing of requests for specific protected resources is identical to what is defined in the "coap_oscore" profile.
 
-When using this profile, C accesses protected resources hosted at the RS with the use of an access token issued by a trusted authorization server (AS) and bound to an authentication credential of C. This differs from the "coap_oscore" profile, where the access token is bound to a symmetric key used to derive OSCORE keying material. As recommended in {{I-D.ietf-ace-oauth-authz}}, this document uses CBOR Web Tokens (CWTs) {{RFC8392}} as access tokens.
+When using this profile, C accesses protected resources hosted at the RS with the use of an access token issued by a trusted authorization server (AS) and bound to an authentication credential of C. This differs from the "coap_oscore" profile, where the access token is bound to a symmetric key used to derive OSCORE keying material. As recommended in {{I-D.ietf-ace-oauth-authz}}, this document recommends the use of CBOR Web Tokens (CWTs) {{RFC8392}} as access tokens.
 
 The authentication and authorization workflow requires C and the RS to have access to each other's authentication credentials. In particular, C obtains both an access token and an authentication credential of the RS from the AS, while the RS can obtain the access token for C (and the authentication credential of C included therin) through different possible options. If the RS successfully verifies the access token, then C and the RS run the Ephemeral Diffie-Hellman Over COSE (EDHOC) protocol {{I-D.ietf-lake-edhoc}}, with each peer using its own and the other peer's authentication credential.
 
@@ -144,13 +134,13 @@ Once C has retrieved the access token, C uploads it to the RS. To this end, ther
 
 * C posts the access token to the authz-info endpoint by using the mechanisms specified in Section 5.8 of {{I-D.ietf-ace-oauth-authz}}. If the access token is valid, the RS responds to the request with a 2.01 (Created) response, after which C initiates the EDHOC protocol by sending EDHOC message_1 to the RS. When using this profile, the communication with the authz-info endpoint is not protected, except for the update of access rights.
 
-* C initiates the EDHOC protocol by sending EDHOC message_1 to the RS, specifying the access token as External Authorization Data (EAD) in the field EAD_1 of EDHOC message_1 (see Section 3.8 {{I-D.ietf-lake-edhoc}}). If the access token is valid and the processing of EDHOC message_1 is successful, the RS responds with EDHOC message_2, thus continuing the EDHOC protocol. This alternative cannot be used for the update of access rights.
+* C initiates the EDHOC protocol by sending EDHOC message_1 to the RS, specifying the access token as External Authorization Data (EAD) in the EAD_1 field of EDHOC message_1 (see Section 3.8 {{I-D.ietf-lake-edhoc}}). If the access token is valid and the processing of EDHOC message_1 is successful, the RS responds with EDHOC message_2, thus continuing the EDHOC protocol. This alternative cannot be used for the update of access rights.
 
-When running the EDHOC protocol, C uses the authentication credential of the RS specified by the AS together with the access token, while the RS uses the authentication credential of C bound to and specified within the access token. If C and the RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per {{Section A.1 of I-D.ietf-lake-edhoc}}. Also, the RS associates the authentication credential of C with the derived OSCORE Security Context and with the access rights of C specified in the access token.
+When running the EDHOC protocol, C uses the authentication credential of the RS specified by the AS together with the access token, while the RS uses the authentication credential of C bound to and specified within the access token. If C and the RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per {{Section A.1 of I-D.ietf-lake-edhoc}}. Also, the RS associates the two used authentication credentials and the completed EDHOC execution with the derived Security Context. The latter is in turn associated with the access token and the access rights of C specified therein.
 
-From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The OSCORE Security Context is discarded when a token (whether the same or a different one) is used to successfully derive a new OSCORE Security Context for C, either by re-running the EDHOC protocol or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
+From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The Security Context is discarded when an access token (whether the same or a different one) is used to successfully derive a new Security Context for C, either by re-running EDHOC or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
 
-After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint that also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "token series" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token series. When the latest access token of a token series becomes invalid (e.g., when it expires or gets revoked), that token series ends.
+After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint. This request also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "token series" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token series. When the latest access token of a token series becomes invalid (e.g., when it expires or gets revoked), that token series ends.
 
 An overview of the profile flow for the "coap_edhoc_oscore" profile is given in {{protocol-overview}}. The names of messages coincide with those of {{I-D.ietf-ace-oauth-authz}} when applicable.
 
@@ -200,9 +190,11 @@ storage (latest)/               |                         |
 
 The following subsections describe the details of the POST request and response to the token endpoint between C and the AS.
 
-In this exchange, the AS provides C with the access token, together with a set of parameters that enable C to run EDHOC with the RS. These especially include the authorization credential of the RS, namely AUTH\_CRED\_RS, either transported by value or uniquely referred to.
+In this exchange, the AS provides C with the access token, together with a set of parameters that enable C to run EDHOC with the RS. These especially include the authorization credential of the RS, namely AUTH\_CRED\_RS, as transported by value or uniquely referred to.
 
-The proof-of-possession key (pop-key) bound to the access token and specified therein, either transported by value or uniquely referred to, MUST be the authentication credential of C, namely AUTH\_CRED\_C. This is provided by C to the AS in the POST request to the token endpoint, either transported by value or uniquely referred to, by means of the "req_cnf" parameter defined in {{I-D.ietf-ace-oauth-params}}.
+The proof-of-possession key (pop-key) bound to the access token and specified therein, as transported by value or uniquely referred to, MUST be the authentication credential of C, namely AUTH\_CRED\_C. This is provided by C to the AS in the POST request to the token endpoint, as transported by value or uniquely referred to, by means of the "req_cnf" parameter defined in {{I-D.ietf-ace-oauth-params}}.
+
+The request to the token endpoint and the corresponding response can include EDHOC\_Information, which is a CBOR map object defined in {{edhoc-parameters-object}}. This object is transported in the "edhoc\_info" parameter registered in {{iana-oauth-params}} and {{iana-oauth-cbor-mappings}}.
 
 ## C-to-AS: POST to token endpoint # {#c-as}
 
@@ -210,25 +202,25 @@ The client-to-AS request is specified in {{Section 5.8.1 of I-D.ietf-ace-oauth-a
 
 The client must send this POST request to the token endpoint over a secure channel that guarantees authentication, message integrity and confidentiality (see {{secure-comm-as}}).
 
-An example of such a request is shown in {{token-request}}. In this example, C specifies its own authentication credential by reference, as the hash of an X.509 certificate carried in the field "x5t" of the "req\_cnf" parameter. Typically, it is expected that C can in fact specify its own authentication credential by reference, since the AS is expected to obtain it during an early client registration process or during a previous secure association establishment with C.
+An example of such a request is shown in {{token-request}}. In this example, C specifies its own authentication credential by reference, as the hash of an X.509 certificate carried in the "x5t" field of the "req\_cnf" parameter. In fact, it is expected that C can typically specify its own authentication credential by reference, since the AS is expected to obtain the actual authentication credential during an early client registration process or during a previous secure association establishment with C.
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-    Header: POST (Code=0.02)
-    Uri-Host: "as.example.com"
-    Uri-Path: "token"
-    Content-Format: "application/ace+cbor"
-    Payload:
-    {
-      "audience" : "tempSensor4711",
-      "scope" : "read",
-      "req_cnf" : {
-        "x5t" : h'822E4879F2A41B510C1F9B'
-      }
-    }
+   Header: POST (Code=0.02)
+   Uri-Host: "as.example.com"
+   Uri-Path: "token"
+   Content-Format: "application/ace+cbor"
+   Payload:
+   {
+     "audience" : "tempSensor4711",
+     "scope" : "read",
+     "req_cnf" : {
+       "x5t" : h'822E4879F2A41B510C1F9B'
+     }
+   }
 ~~~~~~~~~~~~~~~~~~~~~~~
 {: #token-request title="Example of C-to-AS POST /token request for an access token."}
 
-If C wants to update its access rights without changing an existing OSCORE Security Context, it MUST include in its POST request to the token endpoint the parameter "edhoc_params". This in turn MUST include the "id" field, carrying a CBOR byte string containing the identifier of the token series to which the current, still valid access token shared with the RS belongs to. The POST request MAY omit the parameter "req_cnf".
+If C wants to update its access rights without changing an existing OSCORE Security Context, it MUST include EDHOC\_Information in its POST request to the token endpoint. In turn, EDHOC\_Information MUST include the "id" field, carrying a CBOR byte string containing the identifier of the token series to which the current, still valid access token shared with the RS belongs to. This POST request MUST omit the "req_cnf" parameter.
 
 This identifier is assigned by the AS as discussed in {{as-c}}, and, together with other information such as audience (see Section 5.8.1 of {{I-D.ietf-ace-oauth-authz}}), can be used by the AS to determine the token series to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH\_CRED\_C, AUTH\_CRED\_RS) associated with a still valid access token previously issued for C and the RS by the AS.
 
@@ -237,28 +229,235 @@ The AS MUST verify that the received value identifies a token series to which a 
 An example of such a request is shown in {{token-request-update}}.
 
 ~~~~~~~~~~~~~~~~~~~~~~~
-    Header: POST (Code=0.02)
-    Uri-Host: "as.example.com"
-    Uri-Path: "token"
-    Content-Format: "application/ace+cbor"
-    Payload:
-    {
-      "audience" : "tempSensor4711",
-      "scope" : "write",
-      "edhoc_params" : {
-         "id" : h'01'
-      }
-    }
+   Header: POST (Code=0.02)
+   Uri-Host: "as.example.com"
+   Uri-Path: "token"
+   Content-Format: "application/ace+cbor"
+   Payload:
+   {
+     "audience" : "tempSensor4711",
+     "scope" : "write",
+     "edhoc_info" : {
+        "id" : h'01'
+     }
+   }
 ~~~~~~~~~~~~~~~~~~~~~~~
 {: #token-request-update title="Example of C-to-AS POST /token request for updating access rights to an access token."}
 
 ## AS-to-C: Access Token # {#as-c}
 
-TBD
+After verifying the POST request to the token endpoint and that C is authorized to obtain an access token corresponding to its access token request, the AS responds as defined in {{Section 5.8.2 of I-D.ietf-ace-oauth-authz}}. If the request from C was invalid, or not authorized, the AS returns an error response as described in {{Section 5.8.3 of I-D.ietf-ace-oauth-authz}}.
 
-### The EDHOC_Parameters Object # {#edhoc-params-object}
+The AS can signal that the use of EDHOC and OSCORE as per this profile is REQUIRED for a specific access token, by including the "ace_profile" parameter with the value "coap_edhoc_oscore" in the access token response. This means that C MUST use EDHOC with the RS and derive an OSCORE Security Context, as specified in {{edhoc-exec}}. After that, C MUST use the established OSCORE Security Context to protect communications with the RS, when accessing protected resources at the RS according to the authorization information indicated in the access token. Usually, it is assumed that constrained devices will be pre-configured with the necessary profile, so that this kind of profile signaling can be omitted.
 
-TBD
+The AS MUST send the following data in the response to C.
+
+* The authentication credential of the RS, namely AUTH\_CRED\_RS. This is specified in the "rs\_cnf" parameter defined in {{I-D.ietf-ace-oauth-params}}. AUTH\_CRED\_RS can be transported by value or referred to by means of an appropriate identifier.
+
+   When issuing the first access token ever to a pair (C, RS) using a pair of corresponding authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS), it is typically expected that the response to C specifies AUTH\_CRED\_RS by value.
+
+   When later issuing further access tokens to the same pair (C, RS) using the same AUTH\_CRED\_RS, it is typically expected that the response to C specifies AUTH\_CRED\_RS by reference.
+
+* The identifier of the token series to which the issued access token belongs to. This is specified in the "id" field of EDHOC\_Information. All the access tokens belonging to the same token series are associated with the same identifier, which does not change throughout the series lifetime.
+
+   The AS assigns an identifier to a token series when issuing the first access token of that series. The identifier MUST be unique across all the currently active token series of the AS. A token series terminates when the latest issued access token in the series becomes invalid (e.g., when it expires or gets revoked).
+
+Additionally, the AS MAY send the following data in the same response to C. If present, these data MUST be included in the corresponding fields of EDHOC\_Information. Some of this information takes advantage of the knowledge that the AS may have about C and RS since their early registration process, with particular reference to what they support as EDHOC peers.
+
+* The EDHOC methods supported by both C and the RS (see {{Section 3.2 of I-D.ietf-lake-edhoc}}). This is specified in the "methods" field of EDHOC\_Information.
+
+* The EDHOC cipher suite (see {{Section 3.6 of I-D.ietf-lake-edhoc}}) to be used by C and the RS as selected cipher suite when running EDHOC. This is specified in the "cipher\_suites" field of EDHOC\_Information. If present, this MUST specify the EDHOC cipher suite which is most preferred by C and at the same time supported by both C and the RS.
+
+* Whether the RS supports or not the function EDHOC-KeyUpdate (see {{Section 4.2.2 of I-D.ietf-lake-edhoc}}). This is specified in the "key\_update" field of EDHOC\_Information.
+
+* Whether the RS supports or not EDHOC message\_4 (see {{Section 5.5 of I-D.ietf-lake-edhoc}}). This is specified in the "message\_4" field of EDHOC\_Information.
+
+* Whether the RS supports or not the combined EDHOC + OSCORE request defined in {{I-D.ietf-core-oscore-edhoc}}. This is specified in the "comb\_req" field of EDHOC\_Information.
+
+* The path component of the URI of the EDHOC resource at the RS, where C is expected to send EDHOC messages as CoAP requests. This is specified in the "uri\_path" field of EDHOC\_Information. If not specified, the URI path "/.well-known/edhoc" defined in {{Section 9.7 of I-D.ietf-lake-edhoc}}) is assumed.
+
+* The size in bytes of the OSCORE Master Secret to derive after the EDHOC execution (see {{Section A.1 of I-D.ietf-lake-edhoc}}) and to use for establishing an OSCORE Security Context. This is specified in the "osc\_ms\_len" field of EDHOC\_Information. If not specified, the default value from {{Section A.1 of I-D.ietf-lake-edhoc}} is assumed.
+
+* The size in bytes of the OSCORE Master Salt to derive after the EDHOC execution (see {{Section A.1 of I-D.ietf-lake-edhoc}}) and to use for establishing an OSCORE Security Context. This is specified in the "osc\_salt\_len" field of EDHOC\_Information. If not specified, the default value from {{Section A.1 of I-D.ietf-lake-edhoc}} is assumed.
+
+* The OSCORE version to use (see {{Section 5.4 of RFC8613}}). This is specified in the "osc\_version" field of EDHOC\_Information. If specified, the AS MUST indicate the highest OSCORE version supported by both C and the RS. If not specified, the default value of 1 (see {{Section 5.4 of RFC8613}}) is assumed.
+
+When issuing the first access token of a token series, the AS MUST specify the following data in the claims associated with the access token.
+
+* The same authentication credential of C that C specified in its POST request to the token endpoint (see {{c-as}}), namely AUTH\_CRED\_C. If the access token is a CWT, this information MUST be specified in the "cnf" claim.
+
+   In the access token, AUTH\_CRED\_C can be transported by value or referred to by means of an appropriate identifier, regardless of how C specified it in the request to the token endpoint. Thus, the specific field carried in the access token claim and specifying AUTH\_CRED\_C depends on the specific way used by the AS.
+
+   When issuing the first access token ever to a pair (C, RS) using a pair of corresponding authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS), it is typically expected that AUTH\_CRED\_C is specified by value.
+
+   When later issuing further access tokens to the same pair (C, RS) using the same AUTH\_CRED\_C, it is typically expected that AUTH\_CRED\_C is specified by reference.
+
+* The identifier of the token series, specified in the "id" field of EDHOC\_Information, and with the same value specified in the response to C from the token endpoint.
+
+Additionally, when issuing the first access token of a token series, the AS MAY specify the following data in the claims associated with the access token. If these data are specified in the response to C from the token endpoint, they MUST be included in the access token and specify the same values that they had in the response from the token endpoint.
+
+* The size in bytes of the OSCORE Master Secret to derive after the EDHOC execution and to use for establishing an OSCORE Security Context. If it is included, it is specified in the "osc\_ms\_len" field of EDHOC\_Information, and it has the same value that the "osc\_ms\_len" field has in the response to C. If it is not included, the default value from {{Section A.1 of I-D.ietf-lake-edhoc}} is assumed.
+
+* The size in bytes of the OSCORE Master Salt to derive after the EDHOC execution (see {{Section A.1 of I-D.ietf-lake-edhoc}}) and to use for establishing an OSCORE Security Context. If it is included, it is specified in the "osc\_salt\_len" field of EDHOC\_Information, and it has the same value that the "osc\_salt\_len" field has in the response to C. If it is not included, the default value from {{Section A.1 of I-D.ietf-lake-edhoc}} is assumed.
+
+* The OSCORE version to use (see {{Section 5.4 of RFC8613}}). This is specified in the "osc\_version" field of the "edhoc\_info" parameter. If it is included, it is specified in the "osc\_version" field of EDHOC\_Information, and it has the same value that the "osc\_version" field has in the response to C. If it is not included, the default value of 1 (see {{Section 5.4 of RFC8613}}) is assumed.
+
+When CWTs are used as access tokens, EDHOC\_Information MUST be transported in the "edhoc\_info" claim, defined in {{iana-token-cwt-claims}}.
+
+Since the access token does not contain secret information, only its integrity and source authentication are strictly necessary to ensure. Therefore, the AS can protect the access token with either of the means discussed in {{Section 6.1 of I-D.ietf-ace-oauth-authz}}. Nevertheless, when using this profile, it is RECOMMENDED that the access token is a CBOR web token (CWT) protected with COSE_Encrypt/COSE_Encrypt0 as specified in {{RFC8392}}.
+
+{{fig-token-response}} shows an example of an AS response. The "rs_cnf" parameter specifies the authentication credential of the RS, as an X.509 certificate tranported by value in the "x5chain" field. The access token and the authentication credential of the RS have been truncated for readability.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+   Header: Created (Code=2.01)
+      Content-Type: "application/ace+cbor"
+      Payload:
+      {
+        "access_token" : h'8343a1010aa2044c53 ...
+         (remainder of access token (CWT) omitted for brevity)',
+        "ace_profile" : "coap_edhoc_oscore",
+        "expires_in" : "3600",
+        "rs_cnf" : {
+          "x5chain" : h'3081ee3081a1a00302 ...'
+          (remainder of the access credential omitted for brevity)'
+        }
+        "edhoc_info" : {
+          "id" : h'01',
+          "methods" : [0, 1, 2, 3],
+          "cipher_suites": 0
+        }
+      }
+~~~~~~~~~~~~~~~~~~~~~~~
+{: #fig-token-response title="Example of AS-to-C Access Token response with EDHOC and OSCORE profile."}
+
+{{fig-token}} shows an example CWT Claims Set, including the relevant EDHOC parameters in the "edhoc\_info" claim. The "cnf" claim specifies the authentication credential of C, as an X.509 certificate tranported by value in the "x5chain" field. The authentication credential of C has been truncated for readability.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+   {
+    "aud" : "tempSensorInLivingRoom",
+    "iat" : "1360189224",
+    "exp" : "1360289224",
+    "scope" :  "temperature_g firmware_p",
+    "cnf" : {
+      "x5chain" : h'3081ee3081a1a00302 ...'
+    }
+    "edhoc_info" : {
+      "id" : h'01',
+      "methods" : [0, 1, 2, 3],
+      "cipher_suites": 0
+    }
+  }
+~~~~~~~~~~~~~~~~~~~~~~~
+{: #fig-token title="Example of CWT Claims Set with EDHOC parameters."}
+
+If C has requested an update to its access rights using the same OSCORE Security Context, which is valid and authorized, the AS MUST omit the "rs\_cnf" parameter in the response. Also, the access token MUST specify EDHOC\_Information, which MUST include the "id" field specifying the identifier of the token series.
+
+This identifier needs to be included in the access token in order for the RS to identify the correct authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS) and the completed EDHOC execution where they were used. This in turn allows the RS to determine the OSCORE Security Context already shared between C and the RS, and to associate it with the new access token superseding the current one.
+
+## The EDHOC_Information # {#edhoc-parameters-object}
+
+An EDHOC\_Information is an object including information that guides two peers towards executing the EDHOC protocol. In particular, the EDHOC\_Information is defined to be serialized and transported between nodes, as specified by this document, but it can also be used by other specifications if needed.
+
+The EDHOC\_Information can either be encoded as a JSON object or as a CBOR map.  The set of common fields that can appear in an EDHOC\_Information can be found in the IANA "EDHOC Information" registry (see {{iana-edhoc-parameters}}), defined for extensibility, and the initial set of parameters defined in this document is specified below. All parameters are optional.
+
+{{fig-cbor-key-edhoc-params}} provides a summary of the EDHOC\_Information parameters defined in this section.
+
+~~~~~~~~~~~
++---------------+------+--------------+----------+--------------------+
+| Name          | CBOR | CBOR value   | Registry | Description        |
+|               | Type |              |          |                    |
++---------------+------+--------------+----------+--------------------+
+| id            | 0    | bstr         |          | Identifier of      |
+|               |      |              |          | EDHOC execution    |
++---------------+------+--------------+----------+--------------------+
+| methods       | 1    | int /        | EDHOC    | Set of supported   |
+|               |      | array of int | Method   | EDHOC methods      |
+|               |      |              | Type     |                    |
+|               |      |              | Registry |                    |
++---------------+------+--------------+----------+--------------------+
+| cipher_suites | 2    | int /        | EDHOC    | Set of supported   |
+|               |      | array of int | Cipher   | EDHOC cipher       |
+|               |      |              | Suites   | suites             |
+|               |      |              | Registry |                    |
++---------------+------+--------------+----------+--------------------+
+| key_update    | 3    | simple value |          | Support for the    |
+|               |      | "true" /     |          | EDHOC-KeyUpdate    |
+|               |      | simple value |          | function           |
+|               |      | "false"      |          |                    |
++---------------+------+--------------+----------+--------------------+
+| message_4     | 4    | simple value |          | Support for EDHOC  |
+|               |      | "true" /     |          | message_4          |
+|               |      | simple value |          |                    |
++---------------+------+--------------+----------+--------------------+
+| comb_req      | 5    | simple value |          | Support for the    |
+|               |      | "true" /     |          | EDHOC + OSCORE     |
+|               |      | simple value |          | combined request   |
++---------------+------+--------------+----------+--------------------+
+| uri_path      | 6    | tstr         |          | URI-path of the    |
+|               |      |              |          | EDHOC resource     |
++---------------+------+--------------+----------+--------------------+
+| osc_ms_len    | 7    | uint         |          | Length in bytes of |
+|               |      |              |          | the OSCORE Master  |
+|               |      |              |          | Secret to derive   |
++---------------+------+--------------+----------+--------------------+
+| osc_salt_len  | 8    | uint         |          | Length in bytes of |
+|               |      |              |          | the OSCORE Master  |
+|               |      |              |          | Salt to derive     |
++---------------+------+--------------+----------+--------------------+
+| osc_version   | 9    | uint         |          | OSCORE version     |
+|               |      |              |          | number to use      |
++---------------+------+--------------+----------+--------------------+
+~~~~~~~~~~~
+{: #fig-cbor-key-edhoc-params title="EDHOC_Information Parameters" artwork-align="center"}
+
+* id: This parameter identifies an EDHOC execution and is encoded as a byte string. In JSON, the "id" value is a Base64 encoded byte string. In CBOR, the "id" type is a byte string, and has label 0.
+
+* methods: This parameter specifies a set of supported EDHOC methods (see {{Section 3.2 of I-D.ietf-core-oscore-edhoc}}). If the set is composed of a single EDHOC method, this is encoded as an integer. Otherwise, the set is encoded as an array of integers, where each array element encodes one EDHOC method. In JSON, the "methods" value is an integer or an array of integers. In CBOR, the "methods" is an integer or an array of integers, and has label 1.
+
+* cipher\_suites: This parameter specifies a set of supported EDHOC cipher suites (see {{Section 3.6 of I-D.ietf-core-oscore-edhoc}}). If the set is composed of a single EDHOC cipher suite, this is encoded as an integer. Otherwise, the set is encoded as an array of integers, where each array element encodes one EDHOC cipher suite. In JSON, the "cipher\_suites" value is an integer or an array of integers. In CBOR, the "cipher\_suites" is an integer or an array of integers, and has label 2.
+
+* key\_update: This parameter indicates whether the EDHOC-KeyUpdate function (see {{Section 4.2.2 of I-D.ietf-core-oscore-edhoc}}) is supported. In JSON, the "key\_update" value is a boolean. In CBOR, "key\_update" is the simple value "true" or "false", and has label 3.
+
+* message\_4: This parameter indicates whether the EDHOC message\_4 (see {{Section 5.5 of I-D.ietf-core-oscore-edhoc}}) is supported. In JSON, the "message\_4" value is a boolean. In CBOR, "message\_4" is the simple value "true" or "false", and has label 4.
+
+* comb\_req: This parameter indicates whether the combined EDHOC + OSCORE request defined in {{I-D.ietf-core-oscore-edhoc}}) is supported. In JSON, the "comb\_req" value is a boolean. In CBOR, "comb\_req" is the simple value "true" or "false", and has label 5.
+
+* uri\_path: This parameter specifies the path component of the URI of the EDHOC resource where EDHOC messages have to be sent as requests. In JSON, the "uri\_path" value is a string. In CBOR, "uri\_path" is text string, and has label 6.
+
+* osc\_ms\_len: This parameter specifies the size in bytes of the OSCORE Master Secret to derive after the EDHOC execution, as per {{Section A.1 of I-D.ietf-core-oscore-edhoc}}. In JSON, the "osc\_ms\_len" value is an integer. In CBOR, the "osc\_ms\_len" type is unsigned integer, and has label 7.
+
+* osc\_salt\_len: This parameter specifies the size in bytes of the OSCORE Master Salt to derive after the EDHOC execution, as per {{Section A.1 of I-D.ietf-core-oscore-edhoc}}. In JSON, the "osc\_salt\_len" value is an integer. In CBOR, the "osc\_salt\_len" type is unsigned integer, and has label 8.
+
+* osc\_version: This parameter specifies the OSCORE Version number that the two EDHOC peers have to use when using OSCORE. For more information about this parameter, see {{Section 5.4 of RFC8613}}. In JSON, the "osc\_version" value is an integer. In CBOR, the "osc\_version" type is unsigned integer, and has label 9.
+
+An example of JSON EDHOC_Information is given in {{fig-edhoc-info-json}}.
+
+~~~~~~~~~~~
+   "edhoc_info" : {
+       "id" : b64'AQ==',
+       "methods" : 1,
+       "cipher_suites" : 0
+   }
+~~~~~~~~~~~
+{: #fig-edhoc-info-json title="Example of JSON EDHOC\_Information"}
+
+The CDDL grammar describing the CBOR EDHOC_Information is:
+
+~~~~~~~~~~~
+EDHOC_Information = {
+   ? 0 => bstr,             ; id
+   ? 1 => int / array,      ; methods
+   ? 2 => int / array,      ; cipher_suites
+   ? 3 => true / false,     ; key_update
+   ? 4 => true / false,     ; message_4
+   ? 5 => true / false,     ; comb_req
+   ? 6 => tstr,             ; uri_path
+   ? 7 => uint,             ; osc_ms_len
+   ? 8 => uint,             ; osc_salt_len
+   ? 9 => uint,             ; osc_version
+   * int / tstr => any
+}
+~~~~~~~~~~~
 
 # Client-RS Communication # {#c-rs-comm}
 
@@ -292,64 +491,6 @@ TBD
 
 TBD
 
-# EDHOC Application Profile Parameters # {#key-edhoc-params}
-
-This specification defines a number of EDHOC application profile parameters that can be transported in the 'edhoc_params' parameter of a Token Response to the Client, or in the 'edhoc_params' claim of an access token.
-
-In the former case, when the response payload is encoded as a CBOR map, the response MUST use the Content-Format "application/ace+cbor" defined in {{I-D.ietf-ace-oauth-authz}}.
-
-The table below summarizes them, and specifies the CBOR value to use as abbreviation instead of the full descriptive name.
-
-~~~~~~~~~~~
-+--------------+------+--------------+----------+---------------------+
-| Name         | CBOR | CBOR value   | Registry | Description         |
-|              | Type |              |          |                     |
-+--------------+------+--------------+----------+---------------------+
-| id           | TBD  | bstr         |          | Identifier of a     |
-|              |      |              |          | series of access    |
-|              |      |              |          | tokens              |
-+--------------+------+--------------+----------+---------------------+
-| methods      | TBD  | int / array  | EDHOC    | EDHOC methods       |
-|              |      |              | Method   | possible to use     |
-|              |      |              | Type     | between the Client  |
-|              |      |              | Registry | and RS              |
-+--------------+------+--------------+----------+---------------------+
-| cipher_suite | TBD  | int          | EDHOC    | The EDHOC cipher    |
-|              |      |              | Cipher   | suite to use as     |
-|              |      |              | Suites   | selected cipher     |
-|              |      |              | Registry | suite               |
-+--------------+------+--------------+----------+---------------------+
-| osc_ms_len   | TBD  | uint         |          | Length in bytes of  |
-|              |      |              |          | the OSCORE Master   |
-|              |      |              |          | Secret to derive    |
-|              |      |              |          | with EDHOC-Exporter |
-+--------------+------+--------------+----------+---------------------+
-| osc_salt_len | TBD  | uint         |          | Length in bytes of  |
-|              |      |              |          | the OSCORE Master   |
-|              |      |              |          | Salt to derive      |
-|              |      |              |          | with EDHOC-Exporter |
-+--------------+------+--------------+----------+---------------------+
-| key_update   | TBD  | simple value |          | Indication on the   |
-|              |      | "true" /     |          | RS support for      |
-|              |      | simple value |          | EDHOC-KeyUpdate     |
-|              |      | "false"      |          |                     |
-+--------------+------+--------------+----------+---------------------+
-| message_4    | TBD  | simple value |          | Indication on the   |
-|              |      | "true" /     |          | RS support for      |
-|              |      | simple value |          | EDHOC message_4     |
-+--------------+------+--------------+----------+---------------------+
-| comb_req     | TBD  | simple value |          | Indication on the   |
-|              |      | "true" /     |          | RS support for the  |
-|              |      | simple value |          | EDHOC+OSCORE        |
-|              |      | "false"      |          | combined request    |
-+--------------+------+--------------+----------+---------------------+
-| uri_path     | TBD  | tstr         |          | URI-path of the     |
-|              |      |              |          | EDHOC resource at   |
-|              |      |              |          | the RS              |
-+--------------+------+--------------+----------+---------------------+
-~~~~~~~~~~~
-{: #fig-cbor-key-edhoc-params title="CBOR abbreviations for the EDHOC application profile parameters" artwork-align="center"}
-
 # Security Considerations
 
 TBD
@@ -381,7 +522,7 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 
 IANA is asked to add the following entries to the "OAuth Parameters" registry.
 
-* Name: "edhoc_params"
+* Name: "edhoc_info"
 * Parameter Usage Location: token request, token response
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
@@ -393,11 +534,11 @@ IANA is asked to add the following entries to the "OAuth Parameters" registry.
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
-## OAuth Parameters CBOR Mappings Registry ## {#iana-token-cbor-mappings}
+## OAuth Parameters CBOR Mappings Registry ## {#iana-oauth-cbor-mappings}
 
 IANA is asked to add the following entries to the "OAuth Parameters CBOR Mappings" following the procedure specified in {{I-D.ietf-ace-oauth-authz}}.
 
-* Name: "edhoc_params"
+* Name: "edhoc_info"
 * CBOR Key: TBD
 * Value Type: map
 * Specification Document(s): {{&SELF}}
@@ -413,8 +554,8 @@ IANA is asked to add the following entries to the "OAuth Parameters CBOR Mapping
 
 IANA is asked to add the following entries to the "JSON Web Token Claims" registry following the procedure specified in {{RFC7519}}.
 
-*  Claim Name: "edhoc_params"
-*  Claim Description: Parameters of the EDHOC application profile to use
+*  Claim Name: "edhoc_info"
+*  Claim Description: Information for EDHOC execution
 *  Change Controller: IETF
 *  Reference: {{&SELF}}
 
@@ -422,9 +563,9 @@ IANA is asked to add the following entries to the "JSON Web Token Claims" regist
 
 IANA is asked to add the following entries to the "CBOR Web Token Claims" registry following the procedure specified in {{RFC8392}}.
 
-* Claim Name: "edhoc_params"
-* Claim Description: Parameters of the EDHOC application profile to use
-* JWT Claim Name: "edhoc_params"
+* Claim Name: "edhoc_info"
+* Claim Description: Information for EDHOC execution
+* JWT Claim Name: "edhoc_info"
 * Claim Key: TBD
 * Claim Value Type(s): map
 * Change Controller: IESG
@@ -606,9 +747,9 @@ IANA is asked to add the following entries to the "CWT Confirmation Methods" reg
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
-## EDHOC Application Profile Parameters Registry # {#iana-edhoc-parameters}
+## EDHOC Information Registry # {#iana-edhoc-parameters}
 
-It is requested that IANA create a new registry entitled "EDHOC Application Profile Parameters" registry. The registry is to be created with registration policy Expert Review {{RFC8126}}. Guidelines for the experts are provided in {{iana-expert-review}}. It should be noted that in addition to the expert review, some portions of the registry require a specification, potentially on Standards Track, be supplied as well.
+It is requested that IANA create a new registry entitled "EDHOC Information" registry. The registry is to be created with registration policy Expert Review {{RFC8126}}. Guidelines for the experts are provided in {{iana-expert-review}}. It should be noted that in addition to the expert review, some portions of the registry require a specification, potentially on Standards Track, be supplied as well.
 
 The columns of the registry are:
 
@@ -628,7 +769,7 @@ The columns of the registry are:
 
 * Specification: A pointer to the public specification for the item, if one exists.
 
-This registry will be initially populated by the values in {{key-edhoc-params}}. The "Specification" column for all of these entries will be this document and {{I-D.ietf-core-oscore-edhoc}}.
+This registry will be initially populated by the values in {{fig-cbor-key-edhoc-params}}. The "Specification" column for all of these entries will be this document and {{I-D.ietf-core-oscore-edhoc}}.
 
 ## Expert Review Instructions # {#iana-expert-review}
 
@@ -717,7 +858,7 @@ M05 |<---------------------------------|                              |
     |  'ace_profile' =                 |                              |
     |             coap_edhoc_oscore    |                              |
     |                                  |                              |
-    |  'edhoc_params' specifies:       |                              |
+    |  'edhoc_info' specifies:         |                              |
     |     {                            |                              |
     |       id     : h'01',            |                              |
     |       suite  : 2,                |                              |
@@ -727,9 +868,9 @@ M05 |<---------------------------------|                              |
     |  In the access token:            |                              |
     |     * the 'cnf' claim specifies  |                              |
     |       AUTH_CRED_C by value       |                              |
-    |     * the 'edhoc_params' claim   |                              |
+    |     * the 'edhoc_info' claim     |                              |
     |       specifies the same as      |                              |
-    |       'edhoc_params' above       |                              |
+    |       'edhoc_info' above         |                              |
     |                                  |                              |
 
  // Possibly after chain verification, the Client adds AUTH_CRED_RS
@@ -824,7 +965,7 @@ M14 |<---------------------------------|                              |
     |  'ace_profile' =                 |                              |
     |             coap_edhoc_oscore    |                              |
     |                                  |                              |
-    |  'edhoc_params' specifies:       |                              |
+    |  'edhoc_info' specifies:         |                              |
     |     {                            |                              |
     |       id     : h'05',            |                              |
     |       suite  : 2,                |                              |
@@ -834,9 +975,9 @@ M14 |<---------------------------------|                              |
     |  In the access token:            |                              |
     |     * the 'cnf' claim specifies  |                              |
     |       AUTH_CRED_C by reference   |                              |
-    |     * the 'edhoc_params' claim   |                              |
+    |     * the 'edhoc_info' claim     |                              |
     |       specifies the same as      |                              |
-    |       'edhoc_params' above       |                              |
+    |       'edhoc_info' above         |                              |
     |                                  |                              |
     |                                  |                              |
     |  Token upload to /authz-info     |                              |
@@ -844,7 +985,7 @@ M14 |<---------------------------------|                              |
 M15 |---------------------------------------------------------------->|
     |                                  |                              |
     |                                  |                              |
-    |  2.01 (Created)                 |                              |
+    |  2.01 (Created)                  |                              |
     |  (unprotected message)           |                              |
 M16 |<----------------------------------------------------------------|
     |                                  |                              |
@@ -930,7 +1071,7 @@ M04 |<---------------------------------|                              |
     |  'ace_profile' =                 |                              |
     |             coap_edhoc_oscore    |                              |
     |                                  |                              |
-    |  'edhoc_params' specifies:       |                              |
+    |  'edhoc_info' specifies:         |                              |
     |     {                            |                              |
     |       id     : h'01',            |                              |
     |       suite  : 2,                |                              |
@@ -940,9 +1081,9 @@ M04 |<---------------------------------|                              |
     |  In the access token:            |                              |
     |     * the 'cnf' claim specifies  |                              |
     |       AUTH_CRED_C by value       |                              |
-    |     * the 'edhoc_params' claim   |                              |
+    |     * the 'edhoc_info' claim     |                              |
     |       specifies the same as      |                              |
-    |       'edhoc_params' above       |                              |
+    |       'edhoc_info' above         |                              |
     |                                  |                              |
 
  // Possibly after chain verification, the Client adds AUTH_CRED_RS
@@ -1030,7 +1171,7 @@ M10 |<---------------------------------|                              |
     |  'ace_profile' =                 |                              |
     |             coap_edhoc_oscore    |                              |
     |                                  |                              |
-    |  'edhoc_params' specifies:       |                              |
+    |  'edhoc_info' specifies:         |                              |
     |     {                            |                              |
     |       id     : h'05',            |                              |
     |       suite  : 2,                |                              |
@@ -1040,9 +1181,9 @@ M10 |<---------------------------------|                              |
     |  In the access token:            |                              |
     |     * the 'cnf' claim specifies  |                              |
     |       AUTH_CRED_C by reference   |                              |
-    |     * the 'edhoc_params' claim   |                              |
+    |     * the 'edhoc_info' claim     |                              |
     |       specifies the same as      |                              |
-    |       'edhoc_params' above       |                              |
+    |       'edhoc_info' above         |                              |
     |                                  |                              |
     |                                  |                              |
     |  Token upload to /authz-info     |                              |
@@ -1127,7 +1268,7 @@ M05 |                                  |----------------------------->|
     |                                  |     * the 'cnf' claim        |
     |                                  |       specifies AUTH_CRED_C  |
     |                                  |       by value               |
-    |                                  |     * the 'edhoc_params'     |
+    |                                  |     * the 'edhoc_info'       |
     |                                  |       claim specifies        |
     |                                  |         {                    |
     |                                  |           id     : h'01',    |
@@ -1157,7 +1298,7 @@ M07 |<---------------------------------|                              |
     |                                  |                              |
     |  'token_uploaded' = true         |                              |
     |                                  |                              |
-    |  'edhoc_params' specifies:       |                              |
+    |  'edhoc_info' specifies:         |                              |
     |     {                            |                              |
     |       id     : h'01',            |                              |
     |       suite  : 2,                |                              |
@@ -1242,7 +1383,7 @@ M14 |                                  |----------------------------->|
     |                                  |     * the 'cnf' claim        |
     |                                  |       specifies AUTH_CRED_C  |
     |                                  |       by reference           |
-    |                                  |     * the 'edhoc_params'     |
+    |                                  |     * the 'edhoc_info'       |
     |                                  |       claim specifies        |
     |                                  |         {                    |
     |                                  |           id     : h'05',    |
@@ -1267,7 +1408,7 @@ M16 |<---------------------------------|                              |
     |                                  |                              |
     |  'token_uploaded' = true         |                              |
     |                                  |                              |
-    |  'edhoc_params' specifies:       |                              |
+    |  'edhoc_info' specifies:         |                              |
     |     {                            |                              |
     |       id     : h'05',            |                              |
     |       suite  : 2,                |                              |

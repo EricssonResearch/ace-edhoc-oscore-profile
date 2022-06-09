@@ -140,7 +140,7 @@ When running the EDHOC protocol, C uses the authentication credential of the RS 
 
 From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The Security Context is discarded when an access token (whether the same or a different one) is used to successfully derive a new Security Context for C, either by re-running EDHOC or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
 
-After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint. This request also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is uniquely assigned by the AS to a "token series" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token series. When the latest access token of a token series becomes invalid (e.g., when it expires or gets revoked), that token series ends.
+After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint. This request also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is assigned by the AS to a "token series" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token series. When the latest access token of a token series becomes invalid (e.g., when it expires or gets revoked), that token series ends.
 
 An overview of the profile flow for the "coap_edhoc_oscore" profile is given in {{protocol-overview}}. The names of messages coincide with those of {{I-D.ietf-ace-oauth-authz}} when applicable.
 
@@ -258,9 +258,11 @@ The AS MUST send the following data in the response to C.
 
    When later issuing further access tokens to the same pair (C, RS) using the same AUTH\_CRED\_RS, it is typically expected that the response to C specifies AUTH\_CRED\_RS by reference.
 
-* The identifier of the token series to which the issued access token belongs to. This is specified in the "id" field of EDHOC\_Information. All the access tokens belonging to the same token series are associated with the same identifier, which does not change throughout the series lifetime.
+* The identifier of the token series to which the issued access token belongs to. This is specified in the "id" field of EDHOC\_Information.
 
-   The AS assigns an identifier to a token series when issuing the first access token of that series. The identifier MUST be unique across all the currently active token series of the AS. A token series terminates when the latest issued access token in the series becomes invalid (e.g., when it expires or gets revoked).
+   All the access tokens belonging to the same token series are associated with the same identifier, which does not change throughout the series lifetime. A token series terminates when the latest issued access token in the series becomes invalid (e.g., when it expires or gets revoked).
+
+   The AS assigns an identifier to a token series when issuing the first access token T of that series. When assigning the identifier, the AS MUST ensure that this was never used in a previous series of access tokens such that: i) they were issued for the same RS for which the access token T is being issued; and ii) they were bound to the same authentication credential AUTH\_CRED\_C of the requesting client to which the access token T is being issued (irrespectively of the exact way AUTH\_CRED\_C is specified in such access tokens).
 
 Additionally, the AS MAY send the following data in the same response to C. If present, these data MUST be included in the corresponding fields of EDHOC\_Information. Some of this information takes advantage of the knowledge that the AS may have about C and RS since their early registration process, with particular reference to what they support as EDHOC peers.
 
@@ -352,7 +354,7 @@ Since the access token does not contain secret information, only its integrity a
 
 If C has requested an update to its access rights using the same OSCORE Security Context, which is valid and authorized, the AS MUST omit the "rs\_cnf" parameter in the response. Also, the access token MUST specify EDHOC\_Information, which MUST include the "id" field specifying the identifier of the token series.
 
-This identifier needs to be included in the access token in order for the RS to identify the correct authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS) and the completed EDHOC execution where they were used. This in turn allows the RS to determine the OSCORE Security Context already shared between C and the RS, and to associate it with the new access token superseding the current one.
+This identifier needs to be included in the new access token in order for the RS to identify the old access token to supersede, as well as the OSCORE Security Context already shared between C and the RS and to be associated with the new access token.
 
 ## The EDHOC_Information # {#edhoc-parameters-object}
 

@@ -315,7 +315,7 @@ Table of Contents
    request to the token endpoint.  This request also includes an
    identifier, which allows the AS to find the correct data it has
    previously shared with C.  This specific identifier, encoded as a
-   byte string, is uniquely assigned by the AS to a "token series" (see
+   byte string, is assigned by the AS to a "token series" (see
    Section 1.1).  Upon a successful update of access rights, the new
    issued access token becomes the latest one of its token series.  When
    the latest access token of a token series becomes invalid (e.g., when
@@ -497,15 +497,23 @@ Table of Contents
 
    *  The identifier of the token series to which the issued access
       token belongs to.  This is specified in the "id" field of
-      EDHOC_Information.  All the access tokens belonging to the same
-      token series are associated with the same identifier, which does
-      not change throughout the series lifetime.
+      EDHOC_Information.
+
+      All the access tokens belonging to the same token series are
+      associated with the same identifier, which does not change
+      throughout the series lifetime.  A token series terminates when
+      the latest issued access token in the series becomes invalid
+      (e.g., when it expires or gets revoked).
 
       The AS assigns an identifier to a token series when issuing the
-      first access token of that series.  The identifier MUST be unique
-      across all the currently active token series of the AS.  A token
-      series terminates when the latest issued access token in the
-      series becomes invalid (e.g., when it expires or gets revoked).
+      first access token T of that series.  When assigning the
+      identifier, the AS MUST ensure that this was never used in a
+      previous series of access tokens such that: i) they were issued
+      for the same RS for which the access token T is being issued; and
+      ii) they were bound to the same authentication credential
+      AUTH_CRED_C of the requesting client to which the access token T
+      is being issued (irrespectively of the exact way AUTH_CRED_C is
+      specified in such access tokens).
 
    Additionally, the AS MAY send the following data in the same response
    to C.  If present, these data MUST be included in the corresponding
@@ -691,12 +699,10 @@ Table of Contents
    MUST specify EDHOC_Information, which MUST include the "id" field
    specifying the identifier of the token series.
 
-   This identifier needs to be included in the access token in order for
-   the RS to identify the correct authentication credentials
-   (AUTH_CRED_C, AUTH_CRED_RS) and the completed EDHOC execution where
-   they were used.  This in turn allows the RS to determine the OSCORE
-   Security Context already shared between C and the RS, and to
-   associate it with the new access token superseding the current one.
+   This identifier needs to be included in the new access token in order
+   for the RS to identify the old access token to supersede, as well as
+   the OSCORE Security Context already shared between C and the RS and
+   to be associated with the new access token.
 
 3.3.  The EDHOC_Information
 

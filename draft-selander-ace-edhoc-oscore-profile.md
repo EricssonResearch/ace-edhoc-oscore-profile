@@ -577,13 +577,15 @@ Once successfully completed the EDHOC execution, C and RS have both derived the 
 
 * If, in the access token response received from the AS (see {{c-as}}) and in the access token, the "osc\_version" field of the EDHOC\_Information was included, then C and the RS MUST derive the OSCORE Security Context, and later use it to protect their communications, consistently with the OSCORE version specified in the "osc\_version" field.
 
+* Given AUTH\_CRED\_C the authentication credential of C used as CRED\_I in the completed EDHOC execution, the RS associates the derived OSCORE Security Context with the stored access token bound to AUTH\_CRED\_I as pop-key (regardless of whether AUTH\_CRED\_I is specified by value or by reference in the access token claims).
+
 If C supports it, C MAY use the EDHOC + OSCORE combined request defined in {{I-D.ietf-core-oscore-edhoc}}, as also shown by the example in {{example-with-optimization}}. In such a case, both EDHOC message\_3 and the first OSCORE-protected application request to a protected resource are sent to the RS as combined together in a single OSCORE-protected CoAP request, thus saving one round trip. This requires C to derive the OSCORE Security Context with RS already after having successfully processed the received EDHOC message\_2. If, in the access token response received from the AS (see {{c-as}}), the "comb\_req" field of the EDHOC\_Information was included and specified the CBOR simple value "false" (0xf4), then C MUST NOT use the EDHOC + OSCORE combined request with the RS.
 
 ## Access Rights Verification # {#access-rights-verif}
 
 The RS MUST follow the procedures defined in {{Section 5.10.2 of I-D.ietf-ace-oauth-authz}}. That is, if the RS receives an OSCORE-protected request targeting a protected resource from C, then the RS processes the request according to {{RFC8613}}, when Version 1 of OSCORE is used. Future specifications may define new versions of OSCORE, that the AS can indicate C and the RS to use by means of the "osc\_version" field of EDHOC\_Information (see {{c-as-comm}}).
 
-If OSCORE verification succeeds and the target resource requires authorization, the RS retrieves the authorization information using the access token associated with the Security Context. Then, the RS must verify that the authorization information covers the target resource and the action intended by C on it.
+If OSCORE verification succeeds and the target resource requires authorization, the RS retrieves the authorization information using the access token associated with the OSCORE Security Context. Then, the RS must verify that the authorization information covers the target resource and the action intended by C on it.
 
 # Secure Communication with the AS # {#secure-comm-as}
 

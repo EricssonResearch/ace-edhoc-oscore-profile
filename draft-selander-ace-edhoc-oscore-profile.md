@@ -541,7 +541,9 @@ If both the conditions above hold, the RS MUST replace the old access token T\_O
 
 Otherwise, the RS MUST respond with a 4.01 (Unauthorized) error response. The RS may provide additional information in the payload of the error response, in order to clarify what went wrong.
 
-## EDHOC Execution and OSCORE Setup # {#edhoc-exec}
+As specified in {{Section 5.10.1 of I-D.ietf-ace-oauth-authz}}, when receiving an updated access token with updated authorization information from C (see {{c-rs}}), it is recommended that the RS overwrites the previous access token. That is, only the latest authorization information in the access token received by the RS is valid. This simplifies the process needed by the RS to keep track of authorization information for a given client.
+
+## EDHOC Execution and Setup of OSCORE Security Context # {#edhoc-exec}
 
 In order to mutually authenticate and establish a long-term secret PRK\_OUT with forward secrecy, C and the RS run the EDHOC protocol {{I-D.ietf-lake-edhoc}}. In particular, C acts as EDHOC Initiator thus sending EDHOC message_1, while the RS acts as EDHOC Responder.
 

@@ -581,7 +581,9 @@ If C supports it, C MAY use the EDHOC + OSCORE combined request defined in {{I-D
 
 ## Access Rights Verification # {#access-rights-verif}
 
-TBD
+The RS MUST follow the procedures defined in {{Section 5.10.2 of I-D.ietf-ace-oauth-authz}}. That is, if the RS receives an OSCORE-protected request targeting a protected resource from C, then the RS processes the request according to {{RFC8613}}, when Version 1 of OSCORE is used. Future specifications may define new versions of OSCORE, that the AS can indicate C and the RS to use by means of the "osc\_version" field of EDHOC\_Information (see {{c-as-comm}}).
+
+If OSCORE verification succeeds and the target resource requires authorization, the RS retrieves the authorization information using the access token associated with the Security Context. Then, the RS must verify that the authorization information covers the target resource and the action intended by C on it.
 
 # Secure Communication with the AS # {#secure-comm-as}
 

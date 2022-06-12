@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 11 December 2022                                      M. Tiloca
+Expires: 14 December 2022                                      M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                             9 June 2022
+                                                            12 June 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 December 2022.
+   This Internet-Draft will expire on 14 December 2022.
 
 Copyright Notice
 
@@ -81,7 +81,7 @@ Table of Contents
    2.  Protocol Overview
    3.  Client-AS Communication
      3.1.  C-to-AS: POST to token endpoint
-     3.2.  AS-to-C: Access Token
+     3.2.  AS-to-C: Access Token Response
      3.3.  The EDHOC_Information
    4.  Client-RS Communication
      4.1.  C-to-RS: POST to authz-info endpoint
@@ -101,8 +101,9 @@ Table of Contents
      10.5.  CBOR Web Token Claims Registry
      10.6.  JWT Confirmation Methods Registry
      10.7.  CWT Confirmation Methods Registry
-     10.8.  EDHOC Information Registry
-     10.9.  Expert Review Instructions
+     10.8.  EDHOC External Authorization Data Registry
+     10.9.  EDHOC Information Registry
+     10.10. Expert Review Instructions
    11. References
      11.1.  Normative References
      11.2.  Informative References
@@ -233,10 +234,11 @@ Table of Contents
       token becomes invalid (e.g., due to its expiration or revocation),
       the token series it belongs to ends.
 
-   Concise Binary Object Representation (CBOR) [RFC8949] and Concise
-   Data Definition Language (CDDL) [RFC8610] are used in this document.
-   CDDL predefined type names, especially bstr for CBOR byte strings and
-   tstr for CBOR text strings, are used extensively in this document.
+   Concise Binary Object Representation (CBOR) [RFC8949][RFC8742] and
+   Concise Data Definition Language (CDDL) [RFC8610] are used in this
+   document.  CDDL predefined type names, especially bstr for CBOR byte
+   strings and tstr for CBOR text strings, are used extensively in this
+   document.
 
    Examples throughout this document are expressed in CBOR diagnostic
    notation without the tag and value abbreviations.
@@ -458,7 +460,7 @@ Table of Contents
        Figure 3: Example of C-to-AS POST /token request for updating
                      access rights to an access token.
 
-3.2.  AS-to-C: Access Token
+3.2.  AS-to-C: Access Token Response
 
    After verifying the POST request to the token endpoint and that C is
    authorized to obtain an access token corresponding to its access
@@ -479,21 +481,8 @@ Table of Contents
    constrained devices will be pre-configured with the necessary
    profile, so that this kind of profile signaling can be omitted.
 
-   The AS MUST send the following data in the response to C.
-
-   *  The authentication credential of the RS, namely AUTH_CRED_RS.
-      This is specified in the "rs_cnf" parameter defined in
-      [I-D.ietf-ace-oauth-params].  AUTH_CRED_RS can be transported by
-      value or referred to by means of an appropriate identifier.
-
-      When issuing the first access token ever to a pair (C, RS) using a
-      pair of corresponding authentication credentials (AUTH_CRED_C,
-      AUTH_CRED_RS), it is typically expected that the response to C
-      specifies AUTH_CRED_RS by value.
-
-      When later issuing further access tokens to the same pair (C, RS)
-      using the same AUTH_CRED_RS, it is typically expected that the
-      response to C specifies AUTH_CRED_RS by reference.
+   When issuing any access token of a token series, the AS MUST send the
+   following data in the response to C.
 
    *  The identifier of the token series to which the issued access
       token belongs to.  This is specified in the "id" field of
@@ -515,12 +504,29 @@ Table of Contents
       is being issued (irrespectively of the exact way AUTH_CRED_C is
       specified in such access tokens).
 
-   Additionally, the AS MAY send the following data in the same response
-   to C.  If present, these data MUST be included in the corresponding
-   fields of EDHOC_Information.  Some of this information takes
-   advantage of the knowledge that the AS may have about C and RS since
-   their early registration process, with particular reference to what
-   they support as EDHOC peers.
+   When issuing the first access token of a token series, the AS MUST
+   send the following data in the response to C.
+
+   *  The authentication credential of the RS, namely AUTH_CRED_RS.
+      This is specified in the "rs_cnf" parameter defined in
+      [I-D.ietf-ace-oauth-params].  AUTH_CRED_RS can be transported by
+      value or referred to by means of an appropriate identifier.
+
+      When issuing the first access token ever to a pair (C, RS) using a
+      pair of corresponding authentication credentials (AUTH_CRED_C,
+      AUTH_CRED_RS), it is typically expected that the response to C
+      specifies AUTH_CRED_RS by value.
+
+      When later issuing further access tokens to the same pair (C, RS)
+      using the same AUTH_CRED_RS, it is typically expected that the
+      response to C specifies AUTH_CRED_RS by reference.
+
+   When issuing the first access token of a token series, the AS MAY
+   send the following data in the response to C.  If present, these data
+   MUST be included in the corresponding fields of EDHOC_Information.
+   Some of this information takes advantage of the knowledge that the AS
+   may have about C and RS since their early registration process, with
+   particular reference to what they support as EDHOC peers.
 
    *  The EDHOC methods supported by both C and the RS (see Section 3.2
       of [I-D.ietf-lake-edhoc]).  This is specified in the "methods"
@@ -571,9 +577,12 @@ Table of Contents
       supported by both C and the RS.  If not specified, the default
       value of 1 (see Section 5.4 of [RFC8613]) is assumed.
 
-   When issuing the first access token of a token series, the AS MUST
-   specify the following data in the claims associated with the access
-   token.
+   When issuing any access token of a token series, the AS MUST specify
+   the following data in the claims associated with the access token.
+
+   *  The identifier of the token series, specified in the "id" field of
+      EDHOC_Information, and with the same value specified in the
+      response to C from the token endpoint.
 
    *  The same authentication credential of C that C specified in its
       POST request to the token endpoint (see Section 3.1), namely
@@ -595,16 +604,12 @@ Table of Contents
       using the same AUTH_CRED_C, it is typically expected that
       AUTH_CRED_C is specified by reference.
 
-   *  The identifier of the token series, specified in the "id" field of
-      EDHOC_Information, and with the same value specified in the
-      response to C from the token endpoint.
-
-   Additionally, when issuing the first access token of a token series,
-   the AS MAY specify the following data in the claims associated with
-   the access token.  If these data are specified in the response to C
-   from the token endpoint, they MUST be included in the access token
-   and specify the same values that they had in the response from the
-   token endpoint.
+   When issuing the first access token of a token series, the AS MAY
+   specify the following data in the claims associated with the access
+   token.  If these data are specified in the response to C from the
+   token endpoint, they MUST be included in the access token and specify
+   the same values that they have in the response from the token
+   endpoint.
 
    *  The size in bytes of the OSCORE Master Secret to derive after the
       EDHOC execution and to use for establishing an OSCORE Security
@@ -630,6 +635,34 @@ Table of Contents
       value that the "osc_version" field has in the response to C.  If
       it is not included, the default value of 1 (see Section 5.4 of
       [RFC8613]) is assumed.
+
+   When issuing the first access token of a token series, the AS can
+   take either of the two possible options.
+
+   *  The AS provides the access token to C, by specifying it in the
+      "access_token" parameter of the access token response.  In such a
+      case, the access token response MAY include the parameter
+      "access_token", which MUST encode the CBOR simple value "false"
+      (0xf4).
+
+   *  The AS does not provide the access token to C.  Rather, the AS
+      uploads the access token to the authz-info endpoint at the RS,
+      exactly like C would do, and as defined in Section 4.1 and
+      Section 4.2.  Then, when replying to C with the access token
+      response as defined above, the response MUST NOT include the
+      parameter "access_token", and MUST include the parameter
+      "token_uploaded" encoding the CBOR simple value "true" (0xf5).
+      This is shown by the example in Appendix A.3.
+
+      Note that, in case C and the RS have already completed an EDHOC
+      execution leveraging a previous access token series, using this
+      approach implies that C and the RS have to re-run the EDHOC
+      protocol.  That is, they cannot more efficiently make use of the
+      EDHOC-KeyUpdate function, as defined in Section 7.
+
+      Also note that this approach is not applicable when issuing access
+      tokens following the first one in the same token series, i.e.,
+      when updating access rights.
 
    When CWTs are used as access tokens, EDHOC_Information MUST be
    transported in the "edhoc_info" claim, defined in Section 10.5.
@@ -694,15 +727,22 @@ Table of Contents
          Figure 5: Example of CWT Claims Set with EDHOC parameters.
 
    If C has requested an update to its access rights using the same
-   OSCORE Security Context, which is valid and authorized, the AS MUST
-   omit the "rs_cnf" parameter in the response.  Also, the access token
-   MUST specify EDHOC_Information, which MUST include the "id" field
-   specifying the identifier of the token series.
+   OSCORE Security Context, which is valid and authorized, then:
 
-   This identifier needs to be included in the new access token in order
-   for the RS to identify the old access token to supersede, as well as
-   the OSCORE Security Context already shared between C and the RS and
-   to be associated with the new access token.
+   *  The response MUST NOT include the "rs_cnf" parameter.
+
+   *  The EDHOC_Information in the response MUST include only the "id"
+      field, specifying the identifier of the token series.
+
+   *  The EDHOC_Information in the access token MUST include only the
+      "id" field, specifying the identifier of the token series.  In
+      particular, if the access token is a CWT, the "edhoc_info" claim
+      MUST include only the "id" field.
+
+   This identifier of the token series needs to be included in the new
+   access token in order for the RS to identify the old access token to
+   supersede, as well as the OSCORE Security Context already shared
+   between C and the RS and to be associated with the new access token.
 
 3.3.  The EDHOC_Information
 
@@ -715,7 +755,7 @@ Table of Contents
    The EDHOC_Information can either be encoded as a JSON object or as a
    CBOR map.  The set of common fields that can appear in an
    EDHOC_Information can be found in the IANA "EDHOC Information"
-   registry (see Section 10.8), defined for extensibility, and the
+   registry (see Section 10.9), defined for extensibility, and the
    initial set of parameters defined in this document is specified
    below.  All parameters are optional.
 
@@ -774,7 +814,7 @@ Table of Contents
       string.  In CBOR, the "id" type is a byte string, and has label 0.
 
    *  methods: This parameter specifies a set of supported EDHOC methods
-      (see Section 3.2 of [I-D.ietf-core-oscore-edhoc]).  If the set is
+      (see Section 3.2 of [I-D.ietf-lake-edhoc]).  If the set is
       composed of a single EDHOC method, this is encoded as an integer.
       Otherwise, the set is encoded as an array of integers, where each
       array element encodes one EDHOC method.  In JSON, the "methods"
@@ -782,24 +822,24 @@ Table of Contents
       "methods" is an integer or an array of integers, and has label 1.
 
    *  cipher_suites: This parameter specifies a set of supported EDHOC
-      cipher suites (see Section 3.6 of [I-D.ietf-core-oscore-edhoc]).
-      If the set is composed of a single EDHOC cipher suite, this is
-      encoded as an integer.  Otherwise, the set is encoded as an array
-      of integers, where each array element encodes one EDHOC cipher
-      suite.  In JSON, the "cipher_suites" value is an integer or an
-      array of integers.  In CBOR, the "cipher_suites" is an integer or
-      an array of integers, and has label 2.
+      cipher suites (see Section 3.6 of [I-D.ietf-lake-edhoc]).  If the
+      set is composed of a single EDHOC cipher suite, this is encoded as
+      an integer.  Otherwise, the set is encoded as an array of
+      integers, where each array element encodes one EDHOC cipher suite.
+      In JSON, the "cipher_suites" value is an integer or an array of
+      integers.  In CBOR, the "cipher_suites" is an integer or an array
+      of integers, and has label 2.
 
    *  key_update: This parameter indicates whether the EDHOC-KeyUpdate
-      function (see Section 4.2.2 of [I-D.ietf-core-oscore-edhoc]) is
+      function (see Section 4.2.2 of [I-D.ietf-lake-edhoc]) is
       supported.  In JSON, the "key_update" value is a boolean.  In
       CBOR, "key_update" is the simple value "true" or "false", and has
       label 3.
 
    *  message_4: This parameter indicates whether the EDHOC message_4
-      (see Section 5.5 of [I-D.ietf-core-oscore-edhoc]) is supported.
-      In JSON, the "message_4" value is a boolean.  In CBOR, "message_4"
-      is the simple value "true" or "false", and has label 4.
+      (see Section 5.5 of [I-D.ietf-lake-edhoc]) is supported.  In JSON,
+      the "message_4" value is a boolean.  In CBOR, "message_4" is the
+      simple value "true" or "false", and has label 4.
 
    *  comb_req: This parameter indicates whether the combined EDHOC +
       OSCORE request defined in [I-D.ietf-core-oscore-edhoc]) is
@@ -813,13 +853,13 @@ Table of Contents
 
    *  osc_ms_len: This parameter specifies the size in bytes of the
       OSCORE Master Secret to derive after the EDHOC execution, as per
-      Appendix A.1 of [I-D.ietf-core-oscore-edhoc].  In JSON, the
-      "osc_ms_len" value is an integer.  In CBOR, the "osc_ms_len" type
-      is unsigned integer, and has label 7.
+      Appendix A.1 of [I-D.ietf-lake-edhoc].  In JSON, the "osc_ms_len"
+      value is an integer.  In CBOR, the "osc_ms_len" type is unsigned
+      integer, and has label 7.
 
    *  osc_salt_len: This parameter specifies the size in bytes of the
       OSCORE Master Salt to derive after the EDHOC execution, as per
-      Appendix A.1 of [I-D.ietf-core-oscore-edhoc].  In JSON, the
+      Appendix A.1 of [I-D.ietf-lake-edhoc].  In JSON, the
       "osc_salt_len" value is an integer.  In CBOR, the "osc_salt_len"
       type is unsigned integer, and has label 8.
 
@@ -857,19 +897,307 @@ Table of Contents
 
 4.  Client-RS Communication
 
-   TBD
+   The following subsections describe the exchanges between C and the
+   RS, which comprise the token uploading to the RS, and the execution
+   of the EDHOC protocol.  Note that, as defined in Section 3.2, the AS
+   may not have provided C with the access token, and have rather
+   uploaded the access token to the authz-info endpoint at the RS on
+   behalf of C.
+
+   In order to upload the access token to the RS, C can send a POST
+   request to the authz-info endpoint at the RS.  This is detailed in
+   Section 4.1 and Section 4.2, and it is shown by the example in
+   Appendix A.1.
+
+   Alternatively, C can upload the access token while executing the
+   EDHOC protocol, by transporting the access token in the EAD_1 field
+   of the first EDHOC message sent to the RS.  This is further discussed
+   in Section 4.3, and it is shown by the example in Appendix A.2.
+
+   In either case, following the uploading of the access token, C and
+   the RS run the EDHOC protocol to completion, by exchanging POST
+   requests and related responses to a dedicated EDHOC resource at the
+   RS (see Section 4.3).  Once completed the EDHOC execution, C and the
+   RS have agreed on a common secret PRK_OUT (see Section 4.1.3 of
+   [I-D.ietf-lake-edhoc]), from which they establish an OSCORE Security
+   Context (see Section 4.3).  After that, C and the RS use the
+   established OSCORE Security Context to protect their communications
+   when accessing protected resources at the RS, as per the access
+   rights specified in the access token (see Section 4.4).
+
+   Note that, by means of the respective authentication credentials, C
+   and the RS are mutually authenticated once they have successfully
+   completed the execution of the EDHOC protocol.
+
+   As to proof-of-possession, the RS always gains knowledge that C has
+   PRK_OUT at the end of the successful EDHOC execution.  Instead, C
+   gains knowledge that the RS has PRK_OUT either when receiving and
+   successfully verifying the optional EDHOC message_4 from the RS, or
+   when successully verifying a response from the RS protected with the
+   generated OSCORE Security Context.
 
 4.1.  C-to-RS: POST to authz-info endpoint
 
-   TBD
+   The access token can be uploaded to the RS by using the authz-info
+   endpoint at the RS.  To this end, C MUST use CoAP and the
+   Authorization Information endpoint described in Section 5.10.1 of
+   [I-D.ietf-ace-oauth-authz] in order to transport the access token.
+
+   That is, C sends a POST request to the authz-info endpoint at the RS,
+   with the request payload conveying the access token without any CBOR
+   wrapping.  As per Section 5.10.1 of [I-D.ietf-ace-oauth-authz], the
+   Content-Format of the POST request has to reflect the format of the
+   transported access token.  In particular, if the access token is a
+   CWT, the content-format MUST be "application/cwt".
+
+   The communication with the authz-info endpoint does not have to be
+   protected, except for the update of access rights case described
+   below.
+
+   Note that C may be required to re-POST the access token in order to
+   complete an access request to a protected resource, since the RS may
+   delete a stored access token (and associated OSCORE Security Context)
+   at any time, for example due to all storage space being consumed.
+   This situation is detected by C when it receives an AS Request
+   Creation Hints response from the RS (see Section 5.3 of
+   [I-D.ietf-ace-oauth-authz]).  After reposting the same access token,
+   C and the RS run the EDHOC protocol again, or instead rely on the
+   more efficient method leveraging the EDHOC-KeyUpdate function (see
+   Section 7).  In either case, C and the RS will derive a new OSCORE
+   Security Context to be used for protecting their communications from
+   then on.
+
+   Also, C may want to update the OSCORE Security Context currently
+   shared with the RS.  To this end, C can rely on either of the
+   following options.
+
+   *  Re-POST the access token, after which C and the RS run the EDHOC
+      protocol again, or instead rely on the more efficient method
+      leveraging the EDHOC-KeyUpdate function (see Section 7).  After
+      that, C and the RS derive a new OSCORE Security Context.
+
+   *  Run the OSCORE key update protocol KUDOS defined in
+      [I-D.ietf-core-oscore-key-update], which yields a new OSCORE
+      Security Context.
+
+   In either case, C and the RS have established a new OSCORE Security
+   Context that replaces the current one and will be used for protecting
+   their communications from then on.  In particular, the RS MUST
+   associate the new OSCORE Security Context with the current (just re-
+   posted) access token.  Note that, unless C and the RS re-run the
+   EDHOC protocol, they preserve their same OSCORE identifiers, i.e.,
+   their OSCORE Sender/Recipient IDs.
+
+   If C has already posted a valid access token, has already established
+   an OSCORE Security Context with the RS, and wants to update its
+   access rights, then C can do so by posting a new access token to the
+   /authz-info endpoint, as described above.  The new access token
+   contains the updated access rights for C to access protected
+   resources at the RS, and C has to obtain it from the AS as a new
+   access token in the same token series of the current one (see
+   Section 3.1 and Section 3.2).  When posting the new access token to
+   the authz-info endpoint, C MUST protect the POST request using the
+   current OSCORE Security Context shared with the RS.  After successful
+   verification (see Section 4.2), the RS will replace the old access
+   token with the new one, while preserving the same OSCORE Security
+   Context.  In particular, C and the RS do not re-run the EDHOC
+   protocol and they do not establish a new OSCORE Security Context.
 
 4.2.  RS-to-C: 2.01 (Created)
 
-   TBD
+   Upon receiving an access token from C, the RS MUST follow the
+   procedures defined in Section 5.10.1 of [I-D.ietf-ace-oauth-authz].
+   That is, the RS must verify the validity of the access token.  The RS
+   may make an introspection request (see Section 5.9.1 of
+   [I-D.ietf-ace-oauth-authz]) to validate the access token.
+
+   If the access token is valid, the RS proceeds as follows.
+
+   The RS checks whether it is already storing the authentication
+   credential of C, namely AUTH_CRED_C, specified as pop-key in the
+   access token by value or reference.  In such a case, the RS stores
+   the access token and MUST reply to the POST request with a 2.01
+   (Created) response.
+
+   Otherwise, the RS retrieves AUTH_CRED_C, e.g., from the access token
+   if the authentication credential is specified therein by value, or
+   from a further trusted source pointed to by the AUTH_CRED_C
+   identifier included in the access token.  After that, the RS
+   validates the actual AUTH_CRED_C.  In case of successful validation,
+   the RS stores AUTH_CRED_C as a valid authentication credential.
+   Then, the RS stores the access token and MUST reply to the POST
+   request with a 2.01 (Created) response.
+
+   If the RS does not find an already stored AUTH_CRED_C, or fails to
+   retrieve it or to validate it, then the RS MUST respond with an error
+   response code equivalent to the CoAP code 4.00 (Bad Request).  The RS
+   may provide additional information in the payload of the error
+   response, in order to clarify what went wrong.
+
+   Instead, if the access token is valid but it is associated with
+   claims that the RS cannot process (e.g., an unknown scope), or if any
+   of the expected parameters is missing (e.g., any of the mandatory
+   parameters from the AS or the identifier "id"), or if any parameters
+   received in the EDHOC_Information is unrecognized, then the RS MUST
+   respond with an error response code equivalent to the CoAP code 4.00
+   (Bad Request).  In the latter two cases, the RS may provide
+   additional information in the payload of the error response, in order
+   to clarify what went wrong.
+
+   When an access token becomes invalid (e.g., due to its expiration or
+   revocation), the RS MUST delete the access token and the associated
+   OSCORE Security Context, and MUST notify C with an error response
+   with code 4.01 (Unauthorized) for any long running request, as
+   specified in Section 5.8.3 of [I-D.ietf-ace-oauth-authz].
+
+   If the RS receives an access token in an OSCORE protected request, it
+   means that C is requesting an update of access rights.  In such a
+   case, the RS MUST check that both the following conditions hold.
+
+   *  The RS checks whether it stores an access token T_OLD, such that
+      the "id" field of EDHOC_Identifier matches the "id" field of
+      EDHOC_Identifier in the new access token T_NEW.
+
+   *  The RS checks whether the OSCORE Security Context CTX used to
+      protect the request matches the OSCORE Security Context associated
+      with the stored access token T_OLD.
+
+   If both the conditions above hold, the RS MUST replace the old access
+   token T_OLD with the new access token T_NEW, and associate T_NEW with
+   the OSCORE Security Context CTX.  Then, the RS MUST respond with a
+   2.01 (Created) response protected with the same OSCORE Security
+   Context, with no payload.
+
+   Otherwise, the RS MUST respond with a 4.01 (Unauthorized) error
+   response.  The RS may provide additional information in the payload
+   of the error response, in order to clarify what went wrong.
 
 4.3.  EDHOC Execution and OSCORE Setup
 
-   TBD
+   In order to mutually authenticate and establish a long-term secret
+   PRK_OUT with forward secrecy, C and the RS run the EDHOC protocol
+   [I-D.ietf-lake-edhoc].  In particular, C acts as EDHOC Initiator thus
+   sending EDHOC message_1, while the RS acts as EDHOC Responder.
+
+   As per Appendix A.2 of [I-D.ietf-lake-edhoc], C sends EDHOC message_1
+   and EDHOC message_3 to an EDHOC resource at the RS, as CoAP POST
+   requests.  Also the RS sends EDHOC message_2 and (optionally) EDHOC
+   message_4 as 2.04 (Changed) CoAP responses.  If, in the access token
+   response received from the AS (see Section 3.1), the "uri_path" field
+   of the EDHOC_Information was included, then C MUST target the EDHOC
+   resource at the RS with the URI path specified in the "uri_path"
+   field.
+
+   In order to seamlessly run EDHOC, clients do not have to first upload
+   to the RS an access token whose scope explicitly indicates authorized
+   access to the EDHOC resource.  At the same time, the RS has to ensure
+   that attackers cannot perform requests on the EDHOC resource, other
+   than sending EDHOC messages.  Specifically, it SHOULD NOT be possible
+   to perform anything else than POST on an EDHOC resource.
+
+   When preparing EDHOC message_1, C performs the following steps, in
+   additions to those defined in Section 5.2.1 of [I-D.ietf-lake-edhoc].
+
+   *  If, in the access token response received from the AS (see
+      Section 3.1), the "methods" field of the EDHOC_Information was
+      included, then C MUST specify one of those EDHOC methods in the
+      METHOD field of EDHOC message_1.  That is, one of the EDHOC
+      methods specified in the "methods" field of EDHOC_Information MUST
+      be the EDHOC method used when running EDHOC with the RS.
+
+   *  If, in the access token response received from the AS (see
+      Section 3.1), the "cipher_suites" field of the EDHOC_Information
+      was included, then C MUST specify the EDHOC cipher suite therein
+      in the SUITES_I field of EDHOC message_1.  That is, the EDHOC
+      cipher suite specified in the "cipher_suites" field of
+      EDHOC_Information MUST be the selected cipher suite when running
+      EDHOC with the RS.
+
+   *  Rather than first uploading the access token to the authz-info
+      endpoint at the RS as described in Section 4.1, C MAY include the
+      access token in the EAD_1 field of EDHOC message_1 (see
+      Section 3.8 of [I-D.ietf-lake-edhoc]).  This is shown by the
+      example in Appendix A.2.
+
+      In such a case, as per Section 3.8 of [I-D.ietf-lake-edhoc], C
+      adds the pair EAD_ACCESS_TOKEN = (ead_label, ead_value) to the
+      EAD_1 field.  In particular, ead_label is the integer value TBD
+      registered in Section 10.8 of this document, while ead_value is a
+      CBOR byte string with value the access token.  That is, the value
+      of the CBOR byte string is the content of the "access_token" field
+      of the access token response from the AS (see Section 3.2).
+
+      If EDHOC message_1 includes the pair EAD_ACCESS_TOKEN within the
+      field EAD_1, then the RS MUST process the access token carried out
+      in ead_value as specified in Section 4.2.  If such a process
+      fails, the RS MUST reply to C as specified in Section 4.2, it MUST
+      discontinue the EDHOC protocol, and it MUST NOT send an EDHOC
+      error message (see Section 6 of [I-D.ietf-lake-edhoc]).  The RS
+      MUST have successfully completed the processing of the access
+      token before continuing the EDHOC execution by sending EDHOC
+      message_2.
+
+      Note that the EAD_1 field of EDHOC message_1 cannot carry an
+      access token for the update of access rights, but rather only an
+      access token issued as the first of a token series.
+
+   In EDHOC message_2, the authentication credential CRED_R indicated by
+   the message field ID_CRED_R is the authentication credential of the
+   RS, namely AUTH_CRED_RS, that C obtained from the AS.  The processing
+   of EDHOC message_2 is defined in detail in Section 5.3 of
+   [I-D.ietf-lake-edhoc].
+
+   In EDHOC message_3, the authentication credential CRED_I indicated by
+   the message field ID_CRED_I is the authentication credential of C,
+   namely AUTH_CRED_C, i.e., the PoP key bound to the access token and
+   specified therein.  The processing of EDHOC message_3 is defined in
+   detail in Section 5.4 of [I-D.ietf-lake-edhoc].
+
+   Once successfully completed the EDHOC execution, C and RS have both
+   derived the long-term secret PRK_OUT (see Section 4.1.3 of
+   [I-D.ietf-lake-edhoc]), from which they both derive the key
+   PRK_Exporter (see Section 4.2.1 of [I-D.ietf-lake-edhoc]).  Then, C
+   and the RS derive an OSCORE Security Context, as defined in
+   Appendix A.1 of [I-D.ietf-lake-edhoc].  In addition, the following
+   applies.
+
+   *  If, in the access token response received from the AS (see
+      Section 3.1) and in the access token, the "osc_ms_size" field of
+      the EDHOC_Information was included, then C and the RS MUST use the
+      value specified in the "osc_ms_size" field as length in bytes of
+      the OSCORE Master Secret.  That is, the value of the "osc_ms_size"
+      field MUST be used as value for the oscore_key_length parameter of
+      the EDHOC-Exporter function when deriving the OSCORE Master Secret
+      (see Appendix A.1 of [I-D.ietf-lake-edhoc]).
+
+   *  If, in the access token response received from the AS (see
+      Section 3.1) and in the access token, the "osc_salt_size" field of
+      the EDHOC_Information was included, then C and the RS MUST use the
+      value specified in the "osc_salt_size" field as length in bytes of
+      the OSCORE Master Salt.  That is, the value of the "osc_salt_size"
+      field MUST be used as value for the oscore_salt_length parameter
+      of the EDHOC-Exporter function when deriving the OSCORE Master
+      Salt (see Appendix A.1 of [I-D.ietf-lake-edhoc]).
+
+   *  If, in the access token response received from the AS (see
+      Section 3.1) and in the access token, the "osc_version" field of
+      the EDHOC_Information was included, then C and the RS MUST derive
+      the OSCORE Security Context, and later use it to protect their
+      communications, consistently with the OSCORE version specified in
+      the "osc_version" field.
+
+   If C supports it, C MAY use the EDHOC + OSCORE combined request
+   defined in [I-D.ietf-core-oscore-edhoc], as also shown by the example
+   in Appendix A.2.  In such a case, both EDHOC message_3 and the first
+   OSCORE-protected application request to a protected resource are sent
+   to the RS as combined together in a single OSCORE-protected CoAP
+   request, thus saving one round trip.  This requires C to derive the
+   OSCORE Security Context with RS already after having successfully
+   processed the received EDHOC message_2.  If, in the access token
+   response received from the AS (see Section 3.1), the "comb_req" field
+   of the EDHOC_Information was included and specified the CBOR simple
+   value "false" (0xf4), then C MUST NOT use the EDHOC + OSCORE combined
+   request with the RS.
 
 4.4.  Access Rights Verification
 
@@ -914,7 +1242,7 @@ Table of Contents
       and authorization in a constrained environment by establishing an
       OSCORE Security Context [RFC8613] between resource-constrained
       nodes, through the execution of the authenticated key
-      establishment protocol EDHOC [I-D.ietf-core-oscore-edhoc].
+      establishment protocol EDHOC [I-D.ietf-lake-edhoc].
 
    *  Profile ID: TBD (value between 1 and 255)
 
@@ -1264,12 +1592,25 @@ Table of Contents
 
    *  Specification Document(s): [RFC-XXXX]
 
-10.8.  EDHOC Information Registry
+10.8.  EDHOC External Authorization Data Registry
+
+   IANA is asked to add the following entry to the "EDHOC External
+   Authorization Data" defined in Section 9.5 of [I-D.ietf-lake-edhoc].
+
+   *  Label: TBD
+
+   *  Message: EDHOC message_1
+
+   *  Description: "ead_value" specifies an access token
+
+   *  Reference: [RFC-XXXX]
+
+10.9.  EDHOC Information Registry
 
    It is requested that IANA create a new registry entitled "EDHOC
    Information" registry.  The registry is to be created with
    registration policy Expert Review [RFC8126].  Guidelines for the
-   experts are provided in Section 10.9.  It should be noted that in
+   experts are provided in Section 10.10.  It should be noted that in
    addition to the expert review, some portions of the registry require
    a specification, potentially on Standards Track, be supplied as well.
 
@@ -1310,9 +1651,9 @@ Table of Contents
 
    This registry will be initially populated by the values in Figure 6.
    The "Specification" column for all of these entries will be this
-   document and [I-D.ietf-core-oscore-edhoc].
+   document and [I-D.ietf-lake-edhoc].
 
-10.9.  Expert Review Instructions
+10.10.  Expert Review Instructions
 
    The IANA registry established in this document is defined to use the
    registration policy Expert Review.  This section gives some general
@@ -1447,6 +1788,10 @@ Table of Contents
               (OSCORE)", RFC 8613, DOI 10.17487/RFC8613, July 2019,
               <https://www.rfc-editor.org/rfc/rfc8613>.
 
+   [RFC8742]  Bormann, C., "Concise Binary Object Representation (CBOR)
+              Sequences", RFC 8742, DOI 10.17487/RFC8742, February 2020,
+              <https://www.rfc-editor.org/rfc/rfc8742>.
+
    [RFC8747]  Jones, M., Seitz, L., Selander, G., Erdtman, S., and H.
               Tschofenig, "Proof-of-Possession Key Semantics for CBOR
               Web Tokens (CWTs)", RFC 8747, DOI 10.17487/RFC8747, March
@@ -1466,6 +1811,13 @@ Table of Contents
               Internet-Draft, draft-ietf-ace-oscore-profile-19, 6 May
               2021, <https://datatracker.ietf.org/doc/html/draft-ietf-
               ace-oscore-profile-19>.
+
+   [I-D.ietf-core-oscore-key-update]
+              Höglund, R. and M. Tiloca, "Key Update for OSCORE
+              (KUDOS)", Work in Progress, Internet-Draft, draft-ietf-
+              core-oscore-key-update-01, 7 March 2022,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-core-
+              oscore-key-update-01>.
 
    [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
               FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
@@ -1758,7 +2110,7 @@ A.2.  Workflow with Optimizations
    additionally relying on the two following optimizations.
 
    *  The access token is not separately uploaded to the /authz-info
-      endpoint at the RS, but rather included in the EAD_1 parameter of
+      endpoint at the RS, but rather included in the EAD_1 field of
       EDHOC message_1 sent by the Client to the RS.
 
    *  The Client uses the EDHOC+OSCORE request defined in

@@ -86,7 +86,7 @@ Table of Contents
    4.  Client-RS Communication
      4.1.  C-to-RS: POST to authz-info endpoint
      4.2.  RS-to-C: 2.01 (Created)
-     4.3.  EDHOC Execution and OSCORE Setup
+     4.3.  EDHOC Execution and Setup of OSCORE Security Context
      4.4.  Access Rights Verification
    5.  Secure Communication with the AS
    6.  Discarding the Security Context
@@ -1072,7 +1072,15 @@ Table of Contents
    response.  The RS may provide additional information in the payload
    of the error response, in order to clarify what went wrong.
 
-4.3.  EDHOC Execution and OSCORE Setup
+   As specified in Section 5.10.1 of [I-D.ietf-ace-oauth-authz], when
+   receiving an updated access token with updated authorization
+   information from C (see Section 4.1), it is recommended that the RS
+   overwrites the previous access token.  That is, only the latest
+   authorization information in the access token received by the RS is
+   valid.  This simplifies the process needed by the RS to keep track of
+   authorization information for a given client.
+
+4.3.  EDHOC Execution and Setup of OSCORE Security Context
 
    In order to mutually authenticate and establish a long-term secret
    PRK_OUT with forward secrecy, C and the RS run the EDHOC protocol

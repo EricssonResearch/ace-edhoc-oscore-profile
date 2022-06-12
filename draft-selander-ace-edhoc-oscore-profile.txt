@@ -1194,6 +1194,12 @@ Table of Contents
       communications, consistently with the OSCORE version specified in
       the "osc_version" field.
 
+   *  Given AUTH_CRED_C the authentication credential of C used as
+      CRED_I in the completed EDHOC execution, the RS associates the
+      derived OSCORE Security Context with the stored access token bound
+      to AUTH_CRED_I as pop-key (regardless of whether AUTH_CRED_I is
+      specified by value or by reference in the access token claims).
+
    If C supports it, C MAY use the EDHOC + OSCORE combined request
    defined in [I-D.ietf-core-oscore-edhoc], as also shown by the example
    in Appendix A.2.  In such a case, both EDHOC message_3 and the first
@@ -1219,9 +1225,9 @@ Table of Contents
 
    If OSCORE verification succeeds and the target resource requires
    authorization, the RS retrieves the authorization information using
-   the access token associated with the Security Context.  Then, the RS
-   must verify that the authorization information covers the target
-   resource and the action intended by C on it.
+   the access token associated with the OSCORE Security Context.  Then,
+   the RS must verify that the authorization information covers the
+   target resource and the action intended by C on it.
 
 5.  Secure Communication with the AS
 

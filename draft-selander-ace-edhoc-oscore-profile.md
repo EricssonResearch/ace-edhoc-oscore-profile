@@ -497,7 +497,7 @@ As to proof-of-possession, the RS always gains knowledge that C has PRK\_OUT at 
 
 ## C-to-RS: POST to authz-info endpoint # {#c-rs}
 
-The access token can be uploaded to the RS by using the authz-info endpoint at the RS. To this end, C MUST use CoAP and the Authorization Information endpoint described in {{Section 5.10.1 of I-D.ietf-ace-oauth-authz}} in order to transport the access token.
+The access token can be uploaded to the RS by using the authz-info endpoint at the RS. To this end, C MUST use CoAP {{RFC7252}} and the Authorization Information endpoint described in {{Section 5.10.1 of I-D.ietf-ace-oauth-authz}} in order to transport the access token.
 
 That is, C sends a POST request to the authz-info endpoint at the RS, with the request payload conveying the access token without any CBOR wrapping. As per {{Section 5.10.1 of I-D.ietf-ace-oauth-authz}}, the Content-Format of the POST request has to reflect the format of the transported access token. In particular, if the access token is a CWT, the content-format MUST be "application/cwt".
 
@@ -589,7 +589,11 @@ If OSCORE verification succeeds and the target resource requires authorization, 
 
 # Secure Communication with the AS # {#secure-comm-as}
 
-TBD
+As specified in the ACE framework (see {{Section 5.9 of I-D.ietf-ace-oauth-authz}}), the requesting entity (RS and/or C) and the AS communicates via the introspection or token endpoint. When using this profile, the use of CoAP {{RFC7252}} and OSCORE {{RFC8613}} for this communication is RECOMMENDED. Other protocols fulfilling the security requirements defined in {{Section 5 of I-D.ietf-ace-oauth-authz}} (such as HTTP and DTLS or TLS) MAY be used instead.
+
+If OSCORE is used, the requesting entity and the AS need to have a OSCORE Security Context in place. While this can be pre-installed, the requesting entity and the AS can establish such an OSCORE Security Context, for example, by running the EDHOC protocol, as shown between C and the AS by the examples in {{example-without-optimization}}, {{example-with-optimization}} and {{example-without-optimization-as-posting}}. The requesting entity and the AS communicate through the introspection endpoint as specified in {{Section 5.9 of I-D.ietf-ace-oauth-authz}} and through the token endpoint as specified in {{Section 5.8 of I-D.ietf-ace-oauth-authz}}.
+
+Furthermore, as defined in {{as-c}} and shown by the example in {{example-without-optimization-as-posting}}, the AS may upload the access token to the authz-info endpoint at the RS, on behalf of C. In such a case, that exchange between the AS and the RS is not protected, just like when C uploads the access token to the RS by itself.
 
 # Discarding the Security Context # {#discard-context}
 

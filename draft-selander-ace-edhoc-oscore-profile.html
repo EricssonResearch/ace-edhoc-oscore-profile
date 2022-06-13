@@ -1891,7 +1891,7 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
 </div>
 <p id="section-5-22">Once they have exchanged N1 and N2, both C and the RS proceed as follows.<a href="#section-5-22" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-5-23">
-<li id="section-5-23.1">C and the RS build a CBOR byte string, whose value is the concatenation of the two nonces N1 and N2, in this order.<a href="#section-5-23.1" class="pilcrow">¶</a>
+<li id="section-5-23.1">C and the RS build a CBOR byte string, whose value is the concatenation of the two nonces N1 and N2, in this order. With reference to the examples in <a href="#fig-post-edhoc-key-update" class="xref">Figure 8</a> and <a href="#fig-rs-c-edhoc-key-update" class="xref">Figure 9</a>, the concatenation of N1 and N2 is 0x018a278f7faab55a25a8991cd700ac01, which yields the CBOR byte string 0x50 018a278f7faab55a25a8991cd700ac01.<a href="#section-5-23.1" class="pilcrow">¶</a>
 </li>
         <li id="section-5-23.2">C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH_CRED_C was used as CRED_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.<a href="#section-5-23.2" class="pilcrow">¶</a>
 </li>

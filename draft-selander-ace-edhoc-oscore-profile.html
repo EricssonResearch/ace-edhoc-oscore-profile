@@ -1036,7 +1036,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Selander, et al.</td>
-<td class="center">Expires 14 December 2022</td>
+<td class="center">Expires 15 December 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1049,12 +1049,12 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-selander-ace-edhoc-oscore-profile-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2022-06-12" class="published">12 June 2022</time>
+<time datetime="2022-06-13" class="published">13 June 2022</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-12-14">14 December 2022</time></dd>
+<dd class="expires"><time datetime="2022-12-15">15 December 2022</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1114,7 +1114,7 @@ A resource-constrained server can use this profile to delegate management of aut
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 14 December 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 15 December 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1186,13 +1186,13 @@ A resource-constrained server can use this profile to delegate management of aut
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-secure-communication-with-t" class="xref">Secure Communication with the AS</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-use-of-edhoc-keyupdate" class="xref">Use of EDHOC-KeyUpdate</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-discarding-the-security-con" class="xref">Discarding the Security Context</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-secure-communication-with-t" class="xref">Secure Communication with the AS</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-use-of-edhoc-keyupdate" class="xref">Use of EDHOC-KeyUpdate</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-discarding-the-security-con" class="xref">Discarding the Security Context</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
@@ -1327,7 +1327,7 @@ appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">�
 </li>
       </ul>
 <p id="section-2-6">When running the EDHOC protocol, C uses the authentication credential of the RS specified by the AS together with the access token, while the RS uses the authentication credential of C bound to and specified within the access token. If C and the RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#appendix-A.1" class="relref">Appendix A.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. Also, the RS associates the two used authentication credentials and the completed EDHOC execution with the derived Security Context. The latter is in turn associated with the access token and the access rights of C specified therein.<a href="#section-2-6" class="pilcrow">¶</a></p>
-<p id="section-2-7">From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The Security Context is discarded when an access token (whether the same or a different one) is used to successfully derive a new Security Context for C, either by re-running EDHOC or by exchanging nonces and using the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 7</a>).<a href="#section-2-7" class="pilcrow">¶</a></p>
+<p id="section-2-7">From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The Security Context is discarded when an access token (whether the same or a different one) is used to successfully derive a new Security Context for C, either by re-running EDHOC or by exchanging nonces and using the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 5</a>).<a href="#section-2-7" class="pilcrow">¶</a></p>
 <p id="section-2-8">After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint. This request also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is assigned by the AS to a "token series" (see <a href="#terminology" class="xref">Section 1.1</a>). Upon a successful update of access rights, the new issued access token becomes the latest one of its token series. When the latest access token of a token series becomes invalid (e.g., when it expires or gets revoked), that token series ends.<a href="#section-2-8" class="pilcrow">¶</a></p>
 <p id="section-2-9">An overview of the profile flow for the "coap_edhoc_oscore" profile is given in <a href="#protocol-overview" class="xref">Figure 1</a>. The names of messages coincide with those of <span>[<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> when applicable.<a href="#section-2-9" class="pilcrow">¶</a></p>
 <span id="name-protocol-overview-2"></span><div id="protocol-overview">
@@ -1393,7 +1393,7 @@ storage (latest)/               |                         |
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-c-to-as-post-to-token-endpo" class="section-name selfRef">C-to-AS: POST to token endpoint</a>
         </h3>
 <p id="section-3.1-1">The client-to-AS request is specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.8.1" class="relref">Section 5.8.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<p id="section-3.1-2">The client must send this POST request to the token endpoint over a secure channel that guarantees authentication, message integrity and confidentiality (see <a href="#secure-comm-as" class="xref">Section 5</a>).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">The client must send this POST request to the token endpoint over a secure channel that guarantees authentication, message integrity and confidentiality (see <a href="#secure-comm-as" class="xref">Section 6</a>).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.1-3">An example of such a request is shown in <a href="#token-request" class="xref">Figure 2</a>. In this example, C specifies its own authentication credential by reference, as the hash of an X.509 certificate carried in the "x5t" field of the "req_cnf" parameter. In fact, it is expected that C can typically specify its own authentication credential by reference, since the AS is expected to obtain the actual authentication credential during an early client registration process or during a previous secure association establishment with C.<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <span id="name-example-of-c-to-as-post-tok"></span><div id="token-request">
 <figure id="figure-2">
@@ -1523,7 +1523,7 @@ When later issuing further access tokens to the same pair (C, RS) using the same
           <li class="normal" id="section-3.2-14.2">
             <p id="section-3.2-14.2.1">The AS does not provide the access token to C. Rather, the AS uploads the access token to the authz-info endpoint at the RS, exactly like C would do, and as defined in <a href="#c-rs" class="xref">Section 4.1</a> and <a href="#rs-c" class="xref">Section 4.2</a>. Then, when replying to C with the access token response as defined above, the response MUST NOT include the parameter "access_token", and MUST include the parameter "token_uploaded" encoding the CBOR simple value "true" (0xf5). This is shown by the example in <a href="#example-without-optimization-as-posting" class="xref">Appendix A.3</a>.<a href="#section-3.2-14.2.1" class="pilcrow">¶</a></p>
 <p id="section-3.2-14.2.2">
-Note that, in case C and the RS have already completed an EDHOC execution leveraging a previous access token series, using this approach implies that C and the RS have to re-run the EDHOC protocol. That is, they cannot more efficiently make use of the EDHOC-KeyUpdate function, as defined in <a href="#edhoc-key-update" class="xref">Section 7</a>.<a href="#section-3.2-14.2.2" class="pilcrow">¶</a></p>
+Note that, in case C and the RS have already completed an EDHOC execution leveraging a previous access token series, using this approach implies that C and the RS have to re-run the EDHOC protocol. That is, they cannot more efficiently make use of the EDHOC-KeyUpdate function, as defined in <a href="#edhoc-key-update" class="xref">Section 5</a>.<a href="#section-3.2-14.2.2" class="pilcrow">¶</a></p>
 <p id="section-3.2-14.2.3">
 Also note that this approach is not applicable when issuing access tokens following the first one in the same token series, i.e., when updating access rights.<a href="#section-3.2-14.2.3" class="pilcrow">¶</a></p>
 </li>
@@ -1726,7 +1726,7 @@ EDHOC_Information = {
 <p id="section-4-1">The following subsections describe the exchanges between C and the RS, which comprise the token uploading to the RS, and the execution of the EDHOC protocol. Note that, as defined in <a href="#as-c" class="xref">Section 3.2</a>, the AS may not have provided C with the access token, and have rather uploaded the access token to the authz-info endpoint at the RS on behalf of C.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <p id="section-4-2">In order to upload the access token to the RS, C can send a POST request to the authz-info endpoint at the RS. This is detailed in <a href="#c-rs" class="xref">Section 4.1</a> and <a href="#rs-c" class="xref">Section 4.2</a>, and it is shown by the example in <a href="#example-without-optimization" class="xref">Appendix A.1</a>.<a href="#section-4-2" class="pilcrow">¶</a></p>
 <p id="section-4-3">Alternatively, C can upload the access token while executing the EDHOC protocol, by transporting the access token in the EAD_1 field of the first EDHOC message sent to the RS. This is further discussed in <a href="#edhoc-exec" class="xref">Section 4.3</a>, and it is shown by the example in <a href="#example-with-optimization" class="xref">Appendix A.2</a>.<a href="#section-4-3" class="pilcrow">¶</a></p>
-<p id="section-4-4">In either case, following the uploading of the access token, C and the RS run the EDHOC protocol to completion, by exchanging POST requests and related responses to a dedicated EDHOC resource at the RS (see <a href="#edhoc-exec" class="xref">Section 4.3</a>). Once completed the EDHOC execution, C and the RS have agreed on a common secret PRK_OUT (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.1.3" class="relref">Section 4.1.3</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), from which they establish an OSCORE Security Context (see <a href="#edhoc-exec" class="xref">Section 4.3</a>). After that, C and the RS use the established OSCORE Security Context to protect their communications when accessing protected resources at the RS, as per the access rights specified in the access token (see <a href="#access-rights-verif" class="xref">Section 4.4</a>).<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-4">In either case, following the uploading of the access token, C and the RS run the EDHOC protocol to completion, by exchanging POST requests and related responses to a dedicated EDHOC resource at the RS (see <a href="#edhoc-exec" class="xref">Section 4.3</a>). Once completed the EDHOC execution, C and the RS have agreed on a common secret key PRK_OUT (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.1.3" class="relref">Section 4.1.3</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), from which they establish an OSCORE Security Context (see <a href="#edhoc-exec" class="xref">Section 4.3</a>). After that, C and the RS use the established OSCORE Security Context to protect their communications when accessing protected resources at the RS, as per the access rights specified in the access token (see <a href="#access-rights-verif" class="xref">Section 4.4</a>).<a href="#section-4-4" class="pilcrow">¶</a></p>
 <p id="section-4-5">Note that, by means of the respective authentication credentials, C and the RS are mutually authenticated once they have successfully completed the execution of the EDHOC protocol.<a href="#section-4-5" class="pilcrow">¶</a></p>
 <p id="section-4-6">As to proof-of-possession, the RS always gains knowledge that C has PRK_OUT at the end of the successful EDHOC execution. Instead, C gains knowledge that the RS has PRK_OUT either when receiving and successfully verifying the optional EDHOC message_4 from the RS, or when successully verifying a response from the RS protected with the generated OSCORE Security Context.<a href="#section-4-6" class="pilcrow">¶</a></p>
 <div id="c-rs">
@@ -1737,10 +1737,10 @@ EDHOC_Information = {
 <p id="section-4.1-1">The access token can be uploaded to the RS by using the authz-info endpoint at the RS. To this end, C MUST use CoAP <span>[<a href="#RFC7252" class="xref">RFC7252</a>]</span> and the Authorization Information endpoint described in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.10.1" class="relref">Section 5.10.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> in order to transport the access token.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">That is, C sends a POST request to the authz-info endpoint at the RS, with the request payload conveying the access token without any CBOR wrapping. As per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.10.1" class="relref">Section 5.10.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>, the Content-Format of the POST request has to reflect the format of the transported access token. In particular, if the access token is a CWT, the content-format MUST be "application/cwt".<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">The communication with the authz-info endpoint does not have to be protected, except for the update of access rights case described below.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
-<p id="section-4.1-4">Note that C may be required to re-POST the access token in order to complete an access request to a protected resource, since the RS may delete a stored access token (and associated OSCORE Security Context) at any time, for example due to all storage space being consumed. This situation is detected by C when it receives an AS Request Creation Hints response from the RS (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.3" class="relref">Section 5.3</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>). After reposting the same access token, C and the RS run the EDHOC protocol again, or instead rely on the more efficient method leveraging the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 7</a>). In either case, C and the RS will derive a new OSCORE Security Context to be used for protecting their communications from then on.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">Note that C may be required to re-POST the access token in order to complete an access request to a protected resource, since the RS may delete a stored access token (and associated OSCORE Security Context) at any time, for example due to all storage space being consumed. This situation is detected by C when it receives an AS Request Creation Hints response from the RS (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.3" class="relref">Section 5.3</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>). After reposting the same access token, C and the RS run the EDHOC protocol again, or instead rely on the more efficient method leveraging the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 5</a>). In either case, C and the RS will derive a new OSCORE Security Context to be used for protecting their communications from then on.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 <p id="section-4.1-5">Also, C may want to update the OSCORE Security Context currently shared with the RS. To this end, C can rely on either of the following options.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.1-6.1">Re-POST the access token, after which C and the RS run the EDHOC protocol again, or instead rely on the more efficient method leveraging the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 7</a>). After that, C and the RS derive a new OSCORE Security Context.<a href="#section-4.1-6.1" class="pilcrow">¶</a>
+<li class="normal" id="section-4.1-6.1">Re-POST the access token, after which C and the RS run the EDHOC protocol again, or instead rely on the more efficient method leveraging the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 5</a>). After that, C and the RS derive a new OSCORE Security Context.<a href="#section-4.1-6.1" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-4.1-6.2">Run the OSCORE key update protocol KUDOS defined in <span>[<a href="#I-D.ietf-core-oscore-key-update" class="xref">I-D.ietf-core-oscore-key-update</a>]</span>, which yields a new OSCORE Security Context.<a href="#section-4.1-6.2" class="pilcrow">¶</a>
 </li>
@@ -1778,7 +1778,7 @@ EDHOC_Information = {
         <h3 id="name-edhoc-execution-and-setup-o">
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-edhoc-execution-and-setup-o" class="section-name selfRef">EDHOC Execution and Setup of OSCORE Security Context</a>
         </h3>
-<p id="section-4.3-1">In order to mutually authenticate and establish a long-term secret PRK_OUT with forward secrecy, C and the RS run the EDHOC protocol <span>[<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In particular, C acts as EDHOC Initiator thus sending EDHOC message_1, while the RS acts as EDHOC Responder.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-1">In order to mutually authenticate and establish a long-term secret key PRK_OUT with forward secrecy, C and the RS run the EDHOC protocol <span>[<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In particular, C acts as EDHOC Initiator thus sending EDHOC message_1, while the RS acts as EDHOC Responder.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 <p id="section-4.3-2">As per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#appendix-A.2" class="relref">Appendix A.2</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>, C sends EDHOC message_1 and EDHOC message_3 to an EDHOC resource at the RS, as CoAP POST requests. Also the RS sends EDHOC message_2 and (optionally) EDHOC message_4 as 2.04 (Changed) CoAP responses. If, in the access token response received from the AS (see <a href="#c-as" class="xref">Section 3.1</a>), the "uri_path" field of the EDHOC_Information was included, then C MUST target the EDHOC resource at the RS with the URI path specified in the "uri_path" field.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
 <p id="section-4.3-3">In order to seamlessly run EDHOC, clients do not have to first upload to the RS an access token whose scope explicitly indicates authorized access to the EDHOC resource. At the same time, the RS has to ensure that attackers cannot perform requests on the EDHOC resource, other than sending EDHOC messages. Specifically, it SHOULD NOT be possible to perform anything else than POST on an EDHOC resource.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
 <p id="section-4.3-4">When preparing EDHOC message_1, C performs the following steps, in additions to those defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-5.2.1" class="relref">Section 5.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>.<a href="#section-4.3-4" class="pilcrow">¶</a></p>
@@ -1799,7 +1799,7 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
         </ul>
 <p id="section-4.3-6">In EDHOC message_2, the authentication credential CRED_R indicated by the message field ID_CRED_R is the authentication credential of the RS, namely AUTH_CRED_RS, that C obtained from the AS. The processing of EDHOC message_2 is defined in detail in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-5.3" class="relref">Section 5.3</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>.<a href="#section-4.3-6" class="pilcrow">¶</a></p>
 <p id="section-4.3-7">In EDHOC message_3, the authentication credential CRED_I indicated by the message field ID_CRED_I is the authentication credential of C, namely AUTH_CRED_C, i.e., the PoP key bound to the access token and specified therein. The processing of EDHOC message_3 is defined in detail in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-5.4" class="relref">Section 5.4</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>.<a href="#section-4.3-7" class="pilcrow">¶</a></p>
-<p id="section-4.3-8">Once successfully completed the EDHOC execution, C and RS have both derived the long-term secret PRK_OUT (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.1.3" class="relref">Section 4.1.3</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), from which they both derive the key PRK_Exporter (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>). Then, C and the RS derive an OSCORE Security Context, as defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#appendix-A.1" class="relref">Appendix A.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In addition, the following applies.<a href="#section-4.3-8" class="pilcrow">¶</a></p>
+<p id="section-4.3-8">Once successfully completed the EDHOC execution, C and RS have both derived the long-term secret key PRK_OUT (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.1.3" class="relref">Section 4.1.3</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), from which they both derive the key PRK_Exporter (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>). Then, C and the RS derive an OSCORE Security Context, as defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#appendix-A.1" class="relref">Appendix A.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In addition, the following applies.<a href="#section-4.3-8" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.3-9.1">If, in the access token response received from the AS (see <a href="#c-as" class="xref">Section 3.1</a>) and in the access token, the "osc_ms_size" field of the EDHOC_Information was included, then C and the RS MUST use the value specified in the "osc_ms_size" field as length in bytes of the OSCORE Master Secret. That is, the value of the "osc_ms_size" field MUST be used as value for the oscore_key_length parameter of the EDHOC-Exporter function when deriving the OSCORE Master Secret (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#appendix-A.1" class="relref">Appendix A.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>).<a href="#section-4.3-9.1" class="pilcrow">¶</a>
 </li>
@@ -1824,28 +1824,104 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
 </div>
 </section>
 </div>
-<div id="secure-comm-as">
+<div id="edhoc-key-update">
 <section id="section-5">
-      <h2 id="name-secure-communication-with-t">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-secure-communication-with-t" class="section-name selfRef">Secure Communication with the AS</a>
+      <h2 id="name-use-of-edhoc-keyupdate">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-use-of-edhoc-keyupdate" class="section-name selfRef">Use of EDHOC-KeyUpdate</a>
       </h2>
-<p id="section-5-1">As specified in the ACE framework (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.9" class="relref">Section 5.9</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>), the requesting entity (RS and/or C) and the AS communicates via the introspection or token endpoint. When using this profile, the use of CoAP <span>[<a href="#RFC7252" class="xref">RFC7252</a>]</span> and OSCORE <span>[<a href="#RFC8613" class="xref">RFC8613</a>]</span> for this communication is RECOMMENDED. Other protocols fulfilling the security requirements defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5" class="relref">Section 5</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> (such as HTTP and DTLS or TLS) MAY be used instead.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">If OSCORE is used, the requesting entity and the AS need to have a OSCORE Security Context in place. While this can be pre-installed, the requesting entity and the AS can establish such an OSCORE Security Context, for example, by running the EDHOC protocol, as shown between C and the AS by the examples in <a href="#example-without-optimization" class="xref">Appendix A.1</a>, <a href="#example-with-optimization" class="xref">Appendix A.2</a> and <a href="#example-without-optimization-as-posting" class="xref">Appendix A.3</a>. The requesting entity and the AS communicate through the introspection endpoint as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.9" class="relref">Section 5.9</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> and through the token endpoint as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.8" class="relref">Section 5.8</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>.<a href="#section-5-2" class="pilcrow">¶</a></p>
-<p id="section-5-3">Furthermore, as defined in <a href="#as-c" class="xref">Section 3.2</a> and shown by the example in <a href="#example-without-optimization-as-posting" class="xref">Appendix A.3</a>, the AS may upload the access token to the authz-info endpoint at the RS, on behalf of C. In such a case, that exchange between the AS and the RS is not protected, just like when C uploads the access token to the RS by itself.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-1">Once successully completed an EDHOC execution, C and the RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and the RS, namely AUTH_CRED_C and AUTH_CRED_RS are valid. This especially consists in preserving the secret key PRK_OUT attained at the end of the EDHOC execution.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">Then, in case C has to establish a new Security Context with the RS, they may choose to not re-run the EDHOC protocol, but rather to more efficiently rely on the EDHOC-KeyUpdate function, if they support it. This applies to the following cases.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-3.1">C has to upload to the RS the newly obtained, first access token of a new token series, as an unprotected POST request to the authz-info endpoint at the RS. This is the case after the latest access token of the previous token series has become invalid (e.g., it expired or got revoked), and thus the RS has deleted it together with the associated OSCORE Security Context (see <a href="#discard-context" class="xref">Section 7</a>).<a href="#section-5-3.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-5-3.2">C re-uploads to the RS the current access token shared with the RS, i.e., the latest access token in the current token series, as an unprotected POST request to the authz-info endpoint at the RS. Like in <a href="#c-rs" class="xref">Section 4.1</a>, this is the case when C simply wants to replace the current OSCORE Security Context with a new one, and associate it with the same current, re-uploaded access token.<a href="#section-5-3.2" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-5-4">In either case, C and the RS have to establish a new OSCORE Security Context and to associate it with the (re-)uploaded access token. If, in the access token response received from the AS (see Section 3.1), the "key_update" field of the EDHOC_Information was included and specified the CBOR simple value "false" (0xf4), then C MUST NOT use the approach defined in the following, and rather run the EDHOC protocol with the RS after the access token has been uploaded (see <a href="#edhoc-exec" class="xref">Section 4.3</a>).<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">When using this approach, C and the RS perform the following actions.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-6">C MUST generate a nonce value N1 vary unlikely to have been used with the same pair of authentication credentials (AUTH_CRED_C, AUTH_CRED_RS). This profile RECOMMENDS using a 64-bit long random number as the nonce's value. C MUST store the nonce N1 as long as the response from the RS is not received and the access token related to it is still valid (to the best of C's knowledge).<a href="#section-5-6" class="pilcrow">¶</a></p>
+<p id="section-5-7">C MUST use CoAP <span>[<a href="#RFC7252" class="xref">RFC7252</a>]</span> and the Authorization Information resource as described in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.10.1" class="relref">Section 5.10.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> to transport the access token and N1 to the RS.<a href="#section-5-7" class="pilcrow">¶</a></p>
+<p id="section-5-8">Note that, unlike what is defined in <a href="#c-rs" class="xref">Section 4.1</a>, the use of the payload and of the Content-Format is different from what is described in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.10.1" class="relref">Section 5.10.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>, where only the access token is transported and without any CBOR wrapping. That is, C MUST wrap the access token and N1 in a CBOR map, and MUST use the Content-Format "application/ace+cbor" defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-8.16" class="relref">Section 8.16</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>. The CBOR map MUST specify the access token using the "access_token" parameter, and N1 using the "nonce1" parameter defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oscore-profile-19#section-4.1.1" class="relref">Section 4.1.1</a> of [<a href="#I-D.ietf-ace-oscore-profile" class="xref">I-D.ietf-ace-oscore-profile</a>]</span>.<a href="#section-5-8" class="pilcrow">¶</a></p>
+<p id="section-5-9">The communication with the authz-info endpoint at the RS MUST NOT be protected. This approach is not applicable when C uploads to the RS for the first time an access token to update access rights (which rather requires protected communication and does not result in deriving a new OSCORE Security Context).<a href="#section-5-9" class="pilcrow">¶</a></p>
+<p id="section-5-10"><a href="#fig-post-edhoc-key-update" class="xref">Figure 8</a> shows an example of the POST request sent by C to the RS. The access token has been truncated for readability.<a href="#section-5-10" class="pilcrow">¶</a></p>
+<span id="name-example-of-c-to-rs-post-aut"></span><div id="fig-post-edhoc-key-update">
+<figure id="figure-8">
+        <div class="alignLeft art-text artwork" id="section-5-11.1">
+<pre>
+   Header: POST (Code=0.02)
+   Uri-Host: "rs.example.com"
+   Uri-Path: "authz-info"
+   Content-Format: "application/ace+cbor"
+   Payload:
+     {
+       "access_token": h'8343a1010aa2044c53 ...
+        (remainder of access token (CWT) omitted for brevity)',
+       "nonce1": h'018a278f7faab55a'
+     }
+</pre>
+</div>
+<figcaption><a href="#figure-8" class="selfRef">Figure 8</a>:
+<a href="#name-example-of-c-to-rs-post-aut" class="selfRef">Example of C-to-RS POST /authz-info request using CWT and EDHOC-KeyUpdate</a>
+        </figcaption></figure>
+</div>
+<p id="section-5-12">Upon receiving the POST request from C, the RS MUST follow the procedures defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.10.1" class="relref">Section 5.10.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>. That is, the RS must verify the validity of the access token. The RS may make an introspection request (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.9.1" class="relref">Section 5.9.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>) to validate the access token.<a href="#section-5-12" class="pilcrow">¶</a></p>
+<p id="section-5-13">If the access token is valid, the RS proceeds as follows.<a href="#section-5-13" class="pilcrow">¶</a></p>
+<p id="section-5-14">The RS checks whether it is already storing the authentication credential of C, namely AUTH_CRED_C, specified as pop-key in the access token by value or reference.<a href="#section-5-14" class="pilcrow">¶</a></p>
+<p id="section-5-15">If the RS does not find AUTH_CRED_C among the stored authentication credentials, the RS retrieves AUTH_CRED_C, e.g., from the access token if the authentication credential is specified therein by value, or from a further trusted source pointed to by the AUTH_CRED_C identifier included in the access token. After that, the RS validates the actual AUTH_CRED_C. In case of successful validation, the RS stores AUTH_CRED_C as a valid authentication credential.<a href="#section-5-15" class="pilcrow">¶</a></p>
+<p id="section-5-16">If the RS does not find an already stored AUTH_CRED_C, or fails to retrieve it or to validate it, then the RS MUST respond with an error response code equivalent to the CoAP code 4.00 (Bad Request). The RS may provide additional information in the payload of the error response, in order to clarify what went wrong.<a href="#section-5-16" class="pilcrow">¶</a></p>
+<p id="section-5-17">If the access token is valid but it is associated with claims that the RS cannot process (e.g., an unknown scope), or if any of the expected parameters is missing (e.g., any of the mandatory parameters from the AS or the identifier "id"), or if any parameters received in the EDHOC_Information is unrecognized, then the RS MUST respond with an error response code equivalent to the CoAP code 4.00 (Bad Request). In the latter two cases, the RS may provide additional information in the payload of the error response, in order to clarify what went wrong.<a href="#section-5-17" class="pilcrow">¶</a></p>
+<p id="section-5-18">If the RS does not find the stored state of a completed EDHOC execution where the authentication credential AUTH_CRED_C was used as CRED_I, then the RS MUST respond with an error response code equivalent to the CoAP code 4.00 (Bad Request). The RS may provide additional information in the payload of the error response, in order to clarify what went wrong.<a href="#section-5-18" class="pilcrow">¶</a></p>
+<p id="section-5-19">Otherwise, if all the steps above are successful, the RS stores the access token and MUST generate a nonce N2 very unlikely to have been previously used with the same pair of authentication credentials (AUTH_CRED_C, AUTH_CRED_RS). This profile RECOMMENDS using a 64-bit long random number as the nonce's value. Then, the RS MUST reply to the POST request with a 2.01 (Created) response, for which the RS MUST use the Content-Format "application/ace+cbor" defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-8.14" class="relref">Section 8.14</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>. The payload of the response MUST be a CBOR map, which MUST specify N2 using the "nonce2" parameter defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oscore-profile-19#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-ace-oscore-profile" class="xref">I-D.ietf-ace-oscore-profile</a>]</span>.<a href="#section-5-19" class="pilcrow">¶</a></p>
+<p id="section-5-20"><a href="#fig-rs-c-edhoc-key-update" class="xref">Figure 9</a> shows an example of the response sent by the RS to C.<a href="#section-5-20" class="pilcrow">¶</a></p>
+<span id="name-example-of-rs-to-c-201-crea"></span><div id="fig-rs-c-edhoc-key-update">
+<figure id="figure-9">
+        <div class="alignLeft art-text artwork" id="section-5-21.1">
+<pre>
+   Header: Created (Code=2.01)
+   Content-Format: "application/ace+cbor"
+   Payload:
+     {
+       "nonce2": h'25a8991cd700ac01'
+     }
+</pre>
+</div>
+<figcaption><a href="#figure-9" class="selfRef">Figure 9</a>:
+<a href="#name-example-of-rs-to-c-201-crea" class="selfRef">Example of RS-to-C 2.01 (Created) response using EDHOC-KeyUpdate</a>
+        </figcaption></figure>
+</div>
+<p id="section-5-22">Once they have exchanged N1 and N2, both C and the RS proceed as follows.<a href="#section-5-22" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5-23">
+<li id="section-5-23.1">C and the RS build a CBOR byte string, whose value is the concatenation of the two nonces N1 and N2, in this order.<a href="#section-5-23.1" class="pilcrow">¶</a>
+</li>
+        <li id="section-5-23.2">C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH_CRED_C was used as CRED_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.<a href="#section-5-23.2" class="pilcrow">¶</a>
+</li>
+        <li id="section-5-23.3">With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.2" class="relref">Section 4.2.2</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), specifying the CBOR byte string built at step 1 as "context" argument. This results in updating the secret key PRK_OUT to be considered from here on for this EDHOC state.<a href="#section-5-23.3" class="pilcrow">¶</a>
+</li>
+        <li id="section-5-23.4">With reference to the same EDHOC state as above, C and the RS update the secret key PRK_Exporter as per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In particular, the key PRK_OUT derived at step 3 is specified as "PRK_out" argument. This results in updating the secret key PRK_Exporter to be considered from here on for this EDHOC state.<a href="#section-5-23.4" class="pilcrow">¶</a>
+</li>
+        <li id="section-5-23.5">C and the RS establish a new OSCORE Security Context as defined in <a href="#edhoc-exec" class="xref">Section 4.3</a>, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.<a href="#section-5-23.5" class="pilcrow">¶</a>
+</li>
+        <li id="section-5-23.6">The RS associates the posted access token with the OSCORE Security Context established at step 5. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.<a href="#section-5-23.6" class="pilcrow">¶</a>
+</li>
+        <li id="section-5-23.7">Hereafter, C and the RS use the OSCORE Security Context established at step 5 to protect their communications.<a href="#section-5-23.7" class="pilcrow">¶</a>
+</li>
+      </ol>
+</section>
+</div>
+<div id="secure-comm-as">
+<section id="section-6">
+      <h2 id="name-secure-communication-with-t">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-secure-communication-with-t" class="section-name selfRef">Secure Communication with the AS</a>
+      </h2>
+<p id="section-6-1">As specified in the ACE framework (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.9" class="relref">Section 5.9</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>), the requesting entity (RS and/or C) and the AS communicates via the introspection or token endpoint. When using this profile, the use of CoAP <span>[<a href="#RFC7252" class="xref">RFC7252</a>]</span> and OSCORE <span>[<a href="#RFC8613" class="xref">RFC8613</a>]</span> for this communication is RECOMMENDED. Other protocols fulfilling the security requirements defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5" class="relref">Section 5</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> (such as HTTP and DTLS or TLS) MAY be used instead.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">If OSCORE is used, the requesting entity and the AS need to have a OSCORE Security Context in place. While this can be pre-installed, the requesting entity and the AS can establish such an OSCORE Security Context, for example, by running the EDHOC protocol, as shown between C and the AS by the examples in <a href="#example-without-optimization" class="xref">Appendix A.1</a>, <a href="#example-with-optimization" class="xref">Appendix A.2</a> and <a href="#example-without-optimization-as-posting" class="xref">Appendix A.3</a>. The requesting entity and the AS communicate through the introspection endpoint as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.9" class="relref">Section 5.9</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> and through the token endpoint as specified in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.8" class="relref">Section 5.8</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">Furthermore, as defined in <a href="#as-c" class="xref">Section 3.2</a> and shown by the example in <a href="#example-without-optimization-as-posting" class="xref">Appendix A.3</a>, the AS may upload the access token to the authz-info endpoint at the RS, on behalf of C. In such a case, that exchange between the AS and the RS is not protected, just like when C uploads the access token to the RS by itself.<a href="#section-6-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="discard-context">
-<section id="section-6">
-      <h2 id="name-discarding-the-security-con">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-discarding-the-security-con" class="section-name selfRef">Discarding the Security Context</a>
-      </h2>
-<p id="section-6-1">TBD<a href="#section-6-1" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="edhoc-key-update">
 <section id="section-7">
-      <h2 id="name-use-of-edhoc-keyupdate">
-<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-use-of-edhoc-keyupdate" class="section-name selfRef">Use of EDHOC-KeyUpdate</a>
+      <h2 id="name-discarding-the-security-con">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-discarding-the-security-con" class="section-name selfRef">Discarding the Security Context</a>
       </h2>
 <p id="section-7-1">TBD<a href="#section-7-1" class="pilcrow">¶</a></p>
 </section>
@@ -2375,6 +2451,10 @@ The value MUST be unique. The value can be a positive integer, a negative intege
         <dd>
 <span class="refAuthor">Seitz, L.</span>, <span class="refTitle">"Additional OAuth Parameters for Authorization in Constrained Environments (ACE)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-ace-oauth-params-16</span>, <time datetime="2021-09-07" class="refDate">7 September 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-params-16">https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-params-16</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="I-D.ietf-ace-oscore-profile">[I-D.ietf-ace-oscore-profile]</dt>
+        <dd>
+<span class="refAuthor">Palombini, F.</span>, <span class="refAuthor">Seitz, L.</span>, <span class="refAuthor">Selander, G.</span>, and <span class="refAuthor">M. Gunnarsson</span>, <span class="refTitle">"OSCORE Profile of the Authentication and Authorization for Constrained Environments Framework"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-ace-oscore-profile-19</span>, <time datetime="2021-05-06" class="refDate">6 May 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oscore-profile-19">https://datatracker.ietf.org/doc/html/draft-ietf-ace-oscore-profile-19</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="I-D.ietf-core-oscore-edhoc">[I-D.ietf-core-oscore-edhoc]</dt>
         <dd>
 <span class="refAuthor">Palombini, F.</span>, <span class="refAuthor">Tiloca, M.</span>, <span class="refAuthor">Hoeglund, R.</span>, <span class="refAuthor">Hristozov, S.</span>, and <span class="refAuthor">G. Selander</span>, <span class="refTitle">"Profiling EDHOC for CoAP and OSCORE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-core-oscore-edhoc-03</span>, <time datetime="2022-03-07" class="refDate">7 March 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-edhoc-03">https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-edhoc-03</a>&gt;</span>. </dd>
@@ -2450,10 +2530,6 @@ The value MUST be unique. The value can be a positive integer, a negative intege
 <a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
-<dt id="I-D.ietf-ace-oscore-profile">[I-D.ietf-ace-oscore-profile]</dt>
-        <dd>
-<span class="refAuthor">Palombini, F.</span>, <span class="refAuthor">Seitz, L.</span>, <span class="refAuthor">Selander, G.</span>, and <span class="refAuthor">M. Gunnarsson</span>, <span class="refTitle">"OSCORE Profile of the Authentication and Authorization for Constrained Environments Framework"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-ace-oscore-profile-19</span>, <time datetime="2021-05-06" class="refDate">6 May 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oscore-profile-19">https://datatracker.ietf.org/doc/html/draft-ietf-ace-oscore-profile-19</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="I-D.ietf-core-oscore-key-update">[I-D.ietf-core-oscore-key-update]</dt>
         <dd>
 <span class="refAuthor">Höglund, R.</span> and <span class="refAuthor">M. Tiloca</span>, <span class="refTitle">"Key Update for OSCORE (KUDOS)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-core-oscore-key-update-01</span>, <time datetime="2022-03-07" class="refDate">7 March 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-key-update-01">https://datatracker.ietf.org/doc/html/draft-ietf-core-oscore-key-update-01</a>&gt;</span>. </dd>

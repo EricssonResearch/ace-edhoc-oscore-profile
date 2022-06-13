@@ -655,7 +655,7 @@ Otherwise, if all the steps above are successful, the RS stores the access token
 
 Once they have exchanged N1 and N2, both C and the RS proceed as follows.
 
-1. C and the RS build a CBOR byte string, whose value is the concatenation of the two nonces N1 and N2, in this order.
+1. C and the RS build a CBOR byte string, whose value is the concatenation of the two nonces N1 and N2, in this order. With reference to the examples in {{fig-post-edhoc-key-update}} and {{fig-rs-c-edhoc-key-update}}, the concatenation of N1 and N2 is 0x018a278f7faab55a25a8991cd700ac01, which yields the CBOR byte string 0x50 018a278f7faab55a25a8991cd700ac01.
 
 2. C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH\_CRED\_C was used as CRED\_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.
 

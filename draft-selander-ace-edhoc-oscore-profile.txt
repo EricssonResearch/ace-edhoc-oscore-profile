@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 15 December 2022                                      M. Tiloca
+Expires: 16 December 2022                                      M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                            13 June 2022
+                                                            14 June 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 December 2022.
+   This Internet-Draft will expire on 16 December 2022.
 
 Copyright Notice
 
@@ -375,7 +375,7 @@ Table of Contents
    These especially include the authorization credential of the RS,
    namely AUTH_CRED_RS, as transported by value or uniquely referred to.
 
-   The proof-of-possession key (pop-key) bound to the access token and
+   The proof-of-possession key (PoP-key) bound to the access token and
    specified therein, as transported by value or uniquely referred to,
    MUST be the authentication credential of C, namely AUTH_CRED_C.  This
    is provided by C to the AS in the POST request to the token endpoint,
@@ -1014,7 +1014,7 @@ Table of Contents
    If the access token is valid, the RS proceeds as follows.
 
    The RS checks whether it is already storing the authentication
-   credential of C, namely AUTH_CRED_C, specified as pop-key in the
+   credential of C, namely AUTH_CRED_C, specified as PoP-key in the
    access token by value or reference.  In such a case, the RS stores
    the access token and MUST reply to the POST request with a 2.01
    (Created) response.
@@ -1197,7 +1197,7 @@ Table of Contents
    *  Given AUTH_CRED_C the authentication credential of C used as
       CRED_I in the completed EDHOC execution, the RS associates the
       derived OSCORE Security Context with the stored access token bound
-      to AUTH_CRED_I as pop-key (regardless of whether AUTH_CRED_I is
+      to AUTH_CRED_I as PoP-key (regardless of whether AUTH_CRED_I is
       specified by value or by reference in the access token claims).
 
    If C supports it, C MAY use the EDHOC + OSCORE combined request
@@ -1271,10 +1271,11 @@ Table of Contents
 
    C MUST generate a nonce value N1 vary unlikely to have been used with
    the same pair of authentication credentials (AUTH_CRED_C,
-   AUTH_CRED_RS).  This profile RECOMMENDS using a 64-bit long random
-   number as the nonce's value.  C MUST store the nonce N1 as long as
-   the response from the RS is not received and the access token related
-   to it is still valid (to the best of C's knowledge).
+   AUTH_CRED_RS).  When using this profile, it is RECOMMENDED to use a
+   64-bit long random number as the nonce's value.  C MUST store the
+   nonce N1 as long as the response from the RS is not received and the
+   access token related to it is still valid (to the best of C's
+   knowledge).
 
    C MUST use CoAP [RFC7252] and the Authorization Information resource
    as described in Section 5.10.1 of [I-D.ietf-ace-oauth-authz] to
@@ -1322,7 +1323,7 @@ Table of Contents
    If the access token is valid, the RS proceeds as follows.
 
    The RS checks whether it is already storing the authentication
-   credential of C, namely AUTH_CRED_C, specified as pop-key in the
+   credential of C, namely AUTH_CRED_C, specified as PoP-key in the
    access token by value or reference.
 
    If the RS does not find AUTH_CRED_C among the stored authentication
@@ -1359,13 +1360,14 @@ Table of Contents
    Otherwise, if all the steps above are successful, the RS stores the
    access token and MUST generate a nonce N2 very unlikely to have been
    previously used with the same pair of authentication credentials
-   (AUTH_CRED_C, AUTH_CRED_RS).  This profile RECOMMENDS using a 64-bit
-   long random number as the nonce's value.  Then, the RS MUST reply to
-   the POST request with a 2.01 (Created) response, for which the RS
-   MUST use the Content-Format "application/ace+cbor" defined in
-   Section 8.14 of [I-D.ietf-ace-oauth-authz].  The payload of the
-   response MUST be a CBOR map, which MUST specify N2 using the "nonce2"
-   parameter defined in Section 4.2.1 of [I-D.ietf-ace-oscore-profile].
+   (AUTH_CRED_C, AUTH_CRED_RS).  When using this profile, it is
+   RECOMMENDED to use a 64-bit long random number as the nonce's value.
+   Then, the RS MUST reply to the POST request with a 2.01 (Created)
+   response, for which the RS MUST use the Content-Format "application/
+   ace+cbor" defined in Section 8.14 of [I-D.ietf-ace-oauth-authz].  The
+   payload of the response MUST be a CBOR map, which MUST specify N2
+   using the "nonce2" parameter defined in Section 4.2.1 of
+   [I-D.ietf-ace-oscore-profile].
 
    Figure 9 shows an example of the response sent by the RS to C.
 
@@ -1507,7 +1509,71 @@ Table of Contents
 
 8.  Security Considerations
 
-   TBD
+   This document specifies a profile for the Authentication and
+   Authorization for Constrained Environments (ACE) framework
+   [I-D.ietf-ace-oauth-authz].  Thus, the general security
+   considerations from the ACE framework also apply to this profile.
+
+   Furthermore, the security considerations from OSCORE [RFC8613] and
+   from EDHOC [I-D.ietf-lake-edhoc] also apply to this specific use of
+   the OSCORE and EDHOC protocols.
+
+   As previously stated, once completed the EDHOC execution, C and the
+   RS are mutually authenticated through their respective authentication
+   credentials, whose retrieval has been facilitated by the AS.  Also
+   once completed the EDHOC execution, C and the RS have established a
+   long-term secret key PRK_OUT enjoying forward secrecy.  This is in
+   turn used by C and the RS to establish an OSCORE Security Context.
+
+   Furthermore, the RS achieves confirmation that C has PRK_OUT (proof-
+   of-possession) when completing the EDHOC execution.  Rather, C
+   achieves confirmation that the RS has PRK_OUT (proof-of-possession)
+   either when receiving the optional EDHOC message_4 from the RS, or
+   when successfully verifying a response from the RS protected with the
+   established OSCORE Security Context.
+
+   OSCORE is designed to secure point-to-point communication, providing
+   a secure binding between a request and the corresponding response(s).
+   Thus, the basic OSCORE protocol is not intended for use in point-to-
+   multipoint communication (e.g., enforced via multicast or a publish-
+   subscribe model).  Implementers of this profile should make sure that
+   their use case of OSCORE corresponds to the expected one, in order to
+   prevent weakening the security assurances provided by OSCORE.
+
+   As defined in Section 5, C can (re-)post an access token to the RS
+   and contextually exchange two nonces N1 and N2, in order to
+   efficiently use the EDHOC-KeyUpdate function rather than re-running
+   the EDHOC protocol with the RS.  The use of nonces guarantees
+   uniqueness of the new PRK_OUT derived by running EDHOC_KeyUpdate.
+   Consequently, it ensures uniqueness of the AEAD (nonce, key) pairs
+   later used by C and RS, when protecting their communications with the
+   OSCORE Security Context established after updating PRK_OUT.  Thus, it
+   is REQUIRED that the exchanged nonces are not reused with the same
+   pair of authentication credentials (AUTH_CRED_C, AUTH_CRED_RS), even
+   in case of reboot.  When using this profile, it is RECOMMENDED to use
+   a 64-bit long random numbers as a nonce's value.  Considering the
+   birthday paradox, the average collision for each nonce will happen
+   after 2^32 messages, which amounts to considerably more issued access
+   token than it would be expected for intended applications.  If
+   applications use something else, such as a counter, they need to
+   guarantee that reboot and loss of state on either node does not yield
+   reuse of nonces.  If that is not guaranteed, nodes are susceptible to
+   reuse of AEAD (nonce, key) pairs, especially since an on-path
+   attacker can cause the use of a previously exchanged nonce N1 by
+   replaying the corresponding C-to-RS message.
+
+   When using this profile, it is RECOMMENDED that the RS stores only
+   one access token per client.  The use of multiple access tokens for a
+   single client increases the strain on the RS, since it must consider
+   every access token associated with the client and calculate the
+   actual permissions that that client has.  Also, access tokens
+   indicating different or disjoint permissions from each other may lead
+   the RS to enforce wrong permissions.  If one of the access tokens
+   expires earlier than others, the resulting permissions may offer
+   insufficient protection.  Developers SHOULD avoid using multiple
+   access tokens for a same client.  Furthermore, the RS MUST NOT store
+   more than one access token per client per PoP-key (i.e., per client's
+   authentication credential).
 
 9.  Privacy Considerations
 

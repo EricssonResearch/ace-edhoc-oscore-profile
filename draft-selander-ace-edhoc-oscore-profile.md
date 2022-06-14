@@ -691,6 +691,8 @@ C MUST discard the current OSCORE Security Context shared with the RS when any o
 
 * C receives a nonce N2 in the 2.01 (Created) response to an unprotected POST request to the authz-info endpoint at the RS, when re-posting a still valid access token associated to the existing OSCORE Security context together with a nonce N1, in order to trigger the use of the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
 
+* The authentication credential of C (of the RS) becomes invalid (e.g., due to expiration or revocation), and it was used as CRED\_I (CRED\_R) in the EDHOC execution whose PRK\_OUT was used to establish the OSCORE Security Context.
+
 The RS MUST discard the current OSCORE Security Context shared with C when any of the following occurs:
 
 * The OSCORE Sender Sequence Number space of the RS gets exhausted.
@@ -698,6 +700,8 @@ The RS MUST discard the current OSCORE Security Context shared with C when any o
 * The access token associated with the OSCORE Security Context becomes invalid, for example due to expiration or revocation.
 
 * The current OSCORE Security Context shared with C has been successfully replaced  with a newer one, following an unprotected POST request to the authz-info endpoint at the RS that re-posted a still valid access token together with a nonce N1, in order to trigger the use of the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
+
+* The authentication credential of C (of the RS) becomes invalid (e.g., due to expiration or revocation), and it was used as CRED\_I (CRED\_R) in the EDHOC execution whose PRK\_OUT was used to establish the OSCORE Security Context.
 
 After a new access token is successfully uploaded to the RS, and a new OSCORE Security Context is established between C and the RS, messages still in transit that were protected with the previous OSCORE Security Context might not be successfully verified by the recipient, since the old OSCORE Security Context might have been discarded. This means that messages sent shortly before C has uploaded the new access token to the RS might not be successfully accepted by the recipient.
 

@@ -725,7 +725,17 @@ When using this profile, it is RECOMMENDED that the RS stores only one access to
 
 # Privacy Considerations
 
-TBD
+This document specifies a profile for the Authentication and Authorization for Constrained Environments (ACE) framework {{I-D.ietf-ace-oauth-authz}}. Thus, the general privacy considerations from the ACE framework also apply to this profile.
+
+Furthermore, the privacy considerations from OSCORE {{RFC8613}} and from EDHOC {{I-D.ietf-lake-edhoc}} also apply to this specific use of the OSCORE and EDHOC protocols.
+
+An unprotected response to an unauthorized request may disclose information about the RS and/or its existing relationship with C. It is advisable to include as little information as possible in an unencrypted response. When an OSCORE Security Context already exists between C and the RS, more detailed information may be included.
+
+Except for the case where C attempts to update its access rights, the (encrypted) access token is sent in an unprotected POST request to the authz-info endpoint at the RS. Thus, if C uses the same single access token from multiple locations, it can risk being tracked by the access token's value even when the access token is encrypted.
+
+As defined in {{edhoc-key-update}}, C can (re-)post an access token to the RS and contextually exchange two nonces N1 and N2, in order to efficiently use the EDHOC-KeyUpdate function rather than re-running the EDHOC protocol with the RS. Since the exchanged nonces are also sent in the clear, using random nonces is best for privacy, as opposed to, e.g., a counter that might leak some information about C.
+
+The identifiers used in OSCORE, i.e., the OSCORE Sender/Recipient IDs, are negotiated by C and RS during the EDHOC execution. That is, the EDHOC Connection Identifier C\_I of C is going to be the OSCORE Recipient ID of C (the OSCORE Sender ID of the RS). Conversely, the EDHOC Connection Identifier C\_R of the RS is going to be the OSCORE Recipient ID of the RS (the OSCORE Sender ID of C). These OSCORE identifiers are privacy sensitive (see {{Section 12.8 of RFC8613}}). In particular, they could reveal information about C, or may be used for correlating different requests from C, e.g., across different networks that C has joined and left over time. This can be mitigated if C and the RS dynamically update their OSCORE identifiers, e.g., by using the method defined in {{I-D.ietf-core-oscore-key-update}}.
 
 # IANA Considerations
 

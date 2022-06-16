@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 16 December 2022                                      M. Tiloca
+Expires: 18 December 2022                                      M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                            14 June 2022
+                                                            16 June 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 December 2022.
+   This Internet-Draft will expire on 18 December 2022.
 
 Copyright Notice
 
@@ -787,10 +787,12 @@ Table of Contents
  | message_4     | 4    | simple value |          | Support for EDHOC  |
  |               |      | "true" /     |          | message_4          |
  |               |      | simple value |          |                    |
+ |               |      | "false"      |          |                    |
  +---------------+------+--------------+----------+--------------------+
  | comb_req      | 5    | simple value |          | Support for the    |
  |               |      | "true" /     |          | EDHOC + OSCORE     |
  |               |      | simple value |          | combined request   |
+ |               |      | "false"      |          |                    |
  +---------------+------+--------------+----------+--------------------+
  | uri_path      | 6    | tstr         |          | URI-path of the    |
  |               |      |              |          | EDHOC resource     |

@@ -1,10 +1,11 @@
 ---
-coding: utf-8
+v: 3
 
 title: Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for Constrained Environments (OSCORE) Profile for Authentication and Authorization for Constrained Environments (ACE)
 abbrev: CoAP-EDHOC-OSCORE
 docname: draft-selander-ace-edhoc-oscore-profile-latest
 category: std
+submissiontype: IETF
 
 ipr: trust200902
 area: Security
@@ -13,6 +14,8 @@ keyword: Internet-Draft
 
 stand_alone: yes
 pi: [toc, sortrefs, symrefs]
+
+coding: utf-8
 
 author:
 -
@@ -410,10 +413,12 @@ The EDHOC\_Information can either be encoded as a JSON object or as a CBOR map. 
 | message_4     | 4    | simple value |          | Support for EDHOC  |
 |               |      | "true" /     |          | message_4          |
 |               |      | simple value |          |                    |
+|               |      | "false"      |          |                    |
 +---------------+------+--------------+----------+--------------------+
 | comb_req      | 5    | simple value |          | Support for the    |
 |               |      | "true" /     |          | EDHOC + OSCORE     |
 |               |      | simple value |          | combined request   |
+|               |      | "false"      |          |                    |
 +---------------+------+--------------+----------+--------------------+
 | uri_path      | 6    | tstr         |          | URI-path of the    |
 |               |      |              |          | EDHOC resource     |

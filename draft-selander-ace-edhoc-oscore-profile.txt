@@ -1199,7 +1199,7 @@ Table of Contents
    *  Given AUTH_CRED_C the authentication credential of C used as
       CRED_I in the completed EDHOC execution, the RS associates the
       derived OSCORE Security Context with the stored access token bound
-      to AUTH_CRED_I as PoP-key (regardless of whether AUTH_CRED_I is
+      to AUTH_CRED_C as PoP-key (regardless of whether AUTH_CRED_C is
       specified by value or by reference in the access token claims).
 
    If C supports it, C MAY use the EDHOC + OSCORE combined request

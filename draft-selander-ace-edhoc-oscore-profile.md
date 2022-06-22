@@ -512,7 +512,7 @@ Also, C may want to update the OSCORE Security Context currently shared with the
 
 * Re-POST the access token, after which C and the RS run the EDHOC protocol again, or instead rely on the more efficient method leveraging the EDHOC-KeyUpdate function (see {{edhoc-key-update}}). After that, C and the RS derive a new OSCORE Security Context.
 
-* Run the OSCORE key update protocol KUDOS defined in {{I-D.ietf-core-oscore-key-update}}, which yields a new OSCORE Security Context.
+* Run the OSCORE key update protocol KUDOS defined in {{I-D.ietf-core-oscore-key-update}}, if it is supported by both C and the RS. A successful execution of KUDOS also yields a new OSCORE Security Context. However, running the KUDOS protocol is lighter than relying on the previous approach, especially since it does not require to re-post the current access token.
 
 In either case, C and the RS have established a new OSCORE Security Context that replaces the current one and will be used for protecting their communications from then on. In particular, the RS MUST associate the new OSCORE Security Context with the current (just re-posted) access token. Note that, unless C and the RS re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.
 

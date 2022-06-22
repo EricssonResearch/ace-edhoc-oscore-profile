@@ -527,8 +527,8 @@ Table of Contents
    send the following data in the response to C.  If present, these data
    MUST be included in the corresponding fields of EDHOC_Information.
    Some of this information takes advantage of the knowledge that the AS
-   may have about C and RS since their early registration process, with
-   particular reference to what they support as EDHOC peers.
+   may have about C and the RS since their early registration process,
+   with particular reference to what they support as EDHOC peers.
 
    *  The EDHOC methods supported by both C and the RS (see Section 3.2
       of [I-D.ietf-lake-edhoc]).  This is specified in the "methods"
@@ -1164,8 +1164,8 @@ Table of Contents
    specified therein.  The processing of EDHOC message_3 is defined in
    detail in Section 5.4 of [I-D.ietf-lake-edhoc].
 
-   Once successfully completed the EDHOC execution, C and RS have both
-   derived the long-term secret key PRK_OUT (see Section 4.1.3 of
+   Once successfully completed the EDHOC execution, C and the RS have
+   both derived the long-term secret key PRK_OUT (see Section 4.1.3 of
    [I-D.ietf-lake-edhoc]), from which they both derive the key
    PRK_Exporter (see Section 4.2.1 of [I-D.ietf-lake-edhoc]).  Then, C
    and the RS derive an OSCORE Security Context, as defined in
@@ -1557,21 +1557,22 @@ Table of Contents
    the EDHOC protocol with the RS.  The use of nonces guarantees
    uniqueness of the new PRK_OUT derived by running EDHOC_KeyUpdate.
    Consequently, it ensures uniqueness of the AEAD (nonce, key) pairs
-   later used by C and RS, when protecting their communications with the
-   OSCORE Security Context established after updating PRK_OUT.  Thus, it
-   is REQUIRED that the exchanged nonces are not reused with the same
-   pair of authentication credentials (AUTH_CRED_C, AUTH_CRED_RS), even
-   in case of reboot.  When using this profile, it is RECOMMENDED to use
-   a 64-bit long random numbers as a nonce's value.  Considering the
-   birthday paradox, the average collision for each nonce will happen
-   after 2^32 messages, which amounts to considerably more issued access
-   token than it would be expected for intended applications.  If
-   applications use something else, such as a counter, they need to
-   guarantee that reboot and loss of state on either node does not yield
-   reuse of nonces.  If that is not guaranteed, nodes are susceptible to
-   reuse of AEAD (nonce, key) pairs, especially since an on-path
-   attacker can cause the use of a previously exchanged nonce N1 by
-   replaying the corresponding C-to-RS message.
+   later used by C and the RS, when protecting their communications with
+   the OSCORE Security Context established after updating PRK_OUT.
+   Thus, it is REQUIRED that the exchanged nonces are not reused with
+   the same pair of authentication credentials (AUTH_CRED_C,
+   AUTH_CRED_RS), even in case of reboot.  When using this profile, it
+   is RECOMMENDED to use a 64-bit long random numbers as a nonce's
+   value.  Considering the birthday paradox, the average collision for
+   each nonce will happen after 2^32 messages, which amounts to
+   considerably more issued access token than it would be expected for
+   intended applications.  If applications use something else, such as a
+   counter, they need to guarantee that reboot and loss of state on
+   either node does not yield reuse of nonces.  If that is not
+   guaranteed, nodes are susceptible to reuse of AEAD (nonce, key)
+   pairs, especially since an on-path attacker can cause the use of a
+   previously exchanged nonce N1 by replaying the corresponding C-to-RS
+   message.
 
    When using this profile, it is RECOMMENDED that the RS stores only
    one access token per client.  The use of multiple access tokens for a
@@ -1617,17 +1618,18 @@ Table of Contents
    opposed to, e.g., a counter that might leak some information about C.
 
    The identifiers used in OSCORE, i.e., the OSCORE Sender/Recipient
-   IDs, are negotiated by C and RS during the EDHOC execution.  That is,
-   the EDHOC Connection Identifier C_I of C is going to be the OSCORE
-   Recipient ID of C (the OSCORE Sender ID of the RS).  Conversely, the
-   EDHOC Connection Identifier C_R of the RS is going to be the OSCORE
-   Recipient ID of the RS (the OSCORE Sender ID of C).  These OSCORE
-   identifiers are privacy sensitive (see Section 12.8 of [RFC8613]).
-   In particular, they could reveal information about C, or may be used
-   for correlating different requests from C, e.g., across different
-   networks that C has joined and left over time.  This can be mitigated
-   if C and the RS dynamically update their OSCORE identifiers, e.g., by
-   using the method defined in [I-D.ietf-core-oscore-key-update].
+   IDs, are negotiated by C and the RS during the EDHOC execution.  That
+   is, the EDHOC Connection Identifier C_I of C is going to be the
+   OSCORE Recipient ID of C (the OSCORE Sender ID of the RS).
+   Conversely, the EDHOC Connection Identifier C_R of the RS is going to
+   be the OSCORE Recipient ID of the RS (the OSCORE Sender ID of C).
+   These OSCORE identifiers are privacy sensitive (see Section 12.8 of
+   [RFC8613]).  In particular, they could reveal information about C, or
+   may be used for correlating different requests from C, e.g., across
+   different networks that C has joined and left over time.  This can be
+   mitigated if C and the RS dynamically update their OSCORE
+   identifiers, e.g., by using the method defined in
+   [I-D.ietf-core-oscore-key-update].
 
 10.  IANA Considerations
 
@@ -2252,7 +2254,7 @@ Appendix A.  Examples
 
    *  Appendix A.2 makes use of the optimizations defined in this
       specification, hence reducing the roundtrips of the interactions
-      between the Client and RS.
+      between the Client and the RS.
 
    *  Appendix A.3 does not make use of any optimization, but consider
       an alternative workflow where the AS uploads the access token to

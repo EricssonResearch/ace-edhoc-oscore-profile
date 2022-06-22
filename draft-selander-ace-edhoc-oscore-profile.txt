@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 18 December 2022                                      M. Tiloca
+Expires: 24 December 2022                                      M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                            16 June 2022
+                                                            22 June 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 18 December 2022.
+   This Internet-Draft will expire on 24 December 2022.
 
 Copyright Notice
 
@@ -310,7 +310,9 @@ Table of Contents
    The Security Context is discarded when an access token (whether the
    same or a different one) is used to successfully derive a new
    Security Context for C, either by re-running EDHOC or by exchanging
-   nonces and using the EDHOC-KeyUpdate function (see Section 5).
+   nonces and using the EDHOC-KeyUpdate function (see Section 5).  In
+   particular, when supporting this profile, both C and the RS MUST
+   support the EDHOC-KeyUpdate function.
 
    After the whole message exchange has taken place, C can contact the
    AS to request an update of its access rights, by sending a similar
@@ -538,10 +540,6 @@ Table of Contents
       EDHOC_Information.  If present, this MUST specify the EDHOC cipher
       suite which is most preferred by C and at the same time supported
       by both C and the RS.
-
-   *  Whether the RS supports or not the function EDHOC-KeyUpdate (see
-      Section 4.2.2 of [I-D.ietf-lake-edhoc]).  This is specified in the
-      "key_update" field of EDHOC_Information.
 
    *  Whether the RS supports or not EDHOC message_4 (see Section 5.5 of
       [I-D.ietf-lake-edhoc]).  This is specified in the "message_4"
@@ -1240,10 +1238,14 @@ Table of Contents
    preserving the secret key PRK_OUT attained at the end of the EDHOC
    execution.
 
-   Then, in case C has to establish a new Security Context with the RS,
-   they may choose to not re-run the EDHOC protocol, but rather to more
-   efficiently rely on the EDHOC-KeyUpdate function, if they support it.
-   This applies to the following cases.
+   Then, in case C has to establish a new OSCORE Security Context with
+   the RS, they may not re-run the EDHOC protocol, but rather more
+   efficiently rely on the EDHOC-KeyUpdate function, defined in
+   Section 4.2.2 of [I-D.ietf-lake-edhoc].  When supporting this
+   profile, both C and the RS MUST support the EDHOC-KeyUpdate function.
+
+   Establishing a new OSCORE Security Context by levaraging the EDHOC-
+   KeyUpdate function is possible in the following cases.
 
    *  C has to upload to the RS the newly obtained, first access token
       of a new token series, as an unprotected POST request to the
@@ -1261,13 +1263,7 @@ Table of Contents
       associate it with the same current, re-uploaded access token.
 
    In either case, C and the RS have to establish a new OSCORE Security
-   Context and to associate it with the (re-)uploaded access token.  If,
-   in the access token response received from the AS (see Section 3.1),
-   the "key_update" field of the EDHOC_Information was included and
-   specified the CBOR simple value "false" (0xf4), then C MUST NOT use
-   the approach defined in the following, and rather run the EDHOC
-   protocol with the RS after the access token has been uploaded (see
-   Section 4.3).
+   Context and to associate it with the (re-)uploaded access token.
 
    When using this approach, C and the RS perform the following actions.
 

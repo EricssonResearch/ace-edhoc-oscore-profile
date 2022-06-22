@@ -143,7 +143,7 @@ Once C has retrieved the access token, C uploads it to the RS. To this end, ther
 
 When running the EDHOC protocol, C uses the authentication credential of the RS specified by the AS together with the access token, while the RS uses the authentication credential of C bound to and specified within the access token. If C and the RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per {{Section A.1 of I-D.ietf-lake-edhoc}}. Also, the RS associates the two used authentication credentials and the completed EDHOC execution with the derived Security Context. The latter is in turn associated with the access token and the access rights of C specified therein.
 
-From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The Security Context is discarded when an access token (whether the same or a different one) is used to successfully derive a new Security Context for C, either by re-running EDHOC or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
+From then on, C effectively gains authorized and secure access to protected resources on the RS, for as long as the access token is valid. Until then, C can communicate with the RS by sending a request protected with the established OSCORE Security Context above. The Security Context is discarded when an access token (whether the same or a different one) is used to successfully derive a new Security Context for C, either by re-running EDHOC or by exchanging nonces and using the EDHOC-KeyUpdate function (see {{edhoc-key-update}}). In particular, when supporting this profile, both C and the RS MUST support the EDHOC-KeyUpdate function.
 
 After the whole message exchange has taken place, C can contact the AS to request an update of its access rights, by sending a similar request to the token endpoint. This request also includes an identifier, which allows the AS to find the correct data it has previously shared with C. This specific identifier, encoded as a byte string, is assigned by the AS to a "token series" (see {{terminology}}). Upon a successful update of access rights, the new issued access token becomes the latest one of its token series. When the latest access token of a token series becomes invalid (e.g., when it expires or gets revoked), that token series ends.
 
@@ -276,8 +276,6 @@ When issuing the first access token of a token series, the AS MAY send the follo
 * The EDHOC methods supported by both C and the RS (see {{Section 3.2 of I-D.ietf-lake-edhoc}}). This is specified in the "methods" field of EDHOC\_Information.
 
 * The EDHOC cipher suite (see {{Section 3.6 of I-D.ietf-lake-edhoc}}) to be used by C and the RS as selected cipher suite when running EDHOC. This is specified in the "cipher\_suites" field of EDHOC\_Information. If present, this MUST specify the EDHOC cipher suite which is most preferred by C and at the same time supported by both C and the RS.
-
-* Whether the RS supports or not the function EDHOC-KeyUpdate (see {{Section 4.2.2 of I-D.ietf-lake-edhoc}}). This is specified in the "key\_update" field of EDHOC\_Information.
 
 * Whether the RS supports or not EDHOC message\_4 (see {{Section 5.5 of I-D.ietf-lake-edhoc}}). This is specified in the "message\_4" field of EDHOC\_Information.
 
@@ -596,13 +594,15 @@ If OSCORE verification succeeds and the target resource requires authorization, 
 
 Once successully completed an EDHOC execution, C and the RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and the RS, namely AUTH\_CRED\_C and AUTH\_CRED\_RS are valid. This especially consists in preserving the secret key PRK\_OUT attained at the end of the EDHOC execution.
 
-Then, in case C has to establish a new Security Context with the RS, they may choose to not re-run the EDHOC protocol, but rather to more efficiently rely on the EDHOC-KeyUpdate function, if they support it. This applies to the following cases.
+Then, in case C has to establish a new OSCORE Security Context with the RS, they may not re-run the EDHOC protocol, but rather more efficiently rely on the EDHOC-KeyUpdate function, defined in {{Section 4.2.2 of I-D.ietf-lake-edhoc}}. When supporting this profile, both C and the RS MUST support the EDHOC-KeyUpdate function.
+
+Establishing a new OSCORE Security Context by levaraging the EDHOC-KeyUpdate function is possible in the following cases.
 
 * C has to upload to the RS the newly obtained, first access token of a new token series, as an unprotected POST request to the authz-info endpoint at the RS. This is the case after the latest access token of the previous token series has become invalid (e.g., it expired or got revoked), and thus the RS has deleted it together with the associated OSCORE Security Context (see {{discard-context}}).
 
 * C re-uploads to the RS the current access token shared with the RS, i.e., the latest access token in the current token series, as an unprotected POST request to the authz-info endpoint at the RS. Like in {{c-rs}}, this is the case when C simply wants to replace the current OSCORE Security Context with a new one, and associate it with the same current, re-uploaded access token.
 
-In either case, C and the RS have to establish a new OSCORE Security Context and to associate it with the (re-)uploaded access token. If, in the access token response received from the AS (see Section 3.1), the "key\_update" field of the EDHOC_Information was included and specified the CBOR simple value "false" (0xf4), then C MUST NOT use the approach defined in the following, and rather run the EDHOC protocol with the RS after the access token has been uploaded (see {{edhoc-exec}}).
+In either case, C and the RS have to establish a new OSCORE Security Context and to associate it with the (re-)uploaded access token.
 
 When using this approach, C and the RS perform the following actions.
 

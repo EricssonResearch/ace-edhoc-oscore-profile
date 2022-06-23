@@ -1222,7 +1222,7 @@ M12 |<----------------------------------------------------------------|
 
  // Later on, the access token expires ...
  //  - The Client and RS delete their OSCORE Security Context and
- //    terminate the EDHOC session used to derive it (unless the same
+ //    purge the EDHOC session used to derive it (unless the same
  //    session is also used for other reasons).
  //  - The RS retains AUTH_CRED_C as still valid,
  //    and the AS knows about it.
@@ -1330,7 +1330,7 @@ The example below builds on the example in {{example-without-optimization}}, whi
 
 These two optimizations used together result in the most efficient interaction between the Client and RS, as consisting of only two roundtrips to upload the access token, run EDHOC and access the protected resource at the RS.
 
-Also, a further optimization is used upon uploading a second access token to the RS, following the expiration of the first one. That is, after posting the second access token, the Client and RS do not run EDHOC again, but rather EDHOC-KeyUpdate() and EDHOC-Exporter() building on the same EDHOC session established before.
+Also, a further optimization is used upon uploading a second access token to the RS, following the expiration of the first one. That is, after posting the second access token, the Client and RS do not run EDHOC again, but rather EDHOC-KeyUpdate() and EDHOC-Exporter() building on the same, previously completed EDHOC execution.
 
 ~~~~~~~~~~~~~~~~~~~~~~~
     C                                 AS                             RS
@@ -1428,9 +1428,8 @@ M08 |<----------------------------------------------------------------|
     |                                  |                              |
 
  // Later on, the access token expires ...
- //  - The Client and RS delete their OSCORE Security Context and
- //    terminate the EDHOC session used to derive it (unless the same
- //    session is also used for other reasons).
+ //  - The Client and RS delete their OSCORE Security Context
+ //    but do not purge the EDHOC session used to derive it.
  //  - The RS retains AUTH_CRED_C as still valid,
  //    and the AS knows about it.
  //  - The Client retains AUTH_CRED_RS as still valid,
@@ -1642,7 +1641,7 @@ M12 |<----------------------------------------------------------------|
 
  // Later on, the access token expires ...
  //  - The Client and RS delete their OSCORE Security Context and
- //    terminate the EDHOC session used to derive it (unless the same
+ //    purge the EDHOC session used to derive it (unless the same
  //    session is also used for other reasons).
  //  - The RS retains AUTH_CRED_C as still valid,
  //    and the AS knows about it.

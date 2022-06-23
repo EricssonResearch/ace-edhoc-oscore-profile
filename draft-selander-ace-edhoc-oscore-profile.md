@@ -658,21 +658,64 @@ Otherwise, if all the steps above are successful, the RS stores the access token
 ~~~~~~~~~~~~~~~~~~~~~~~
 {: #fig-rs-c-edhoc-key-update title="Example of RS-to-C 2.01 (Created) response using EDHOC-KeyUpdate"}
 
-Once they have exchanged N1 and N2, both C and the RS proceed as follows.
+Once they have exchanged N1 and N2, both C and the RS build a CBOR byte string EXTENDED\_NONCE as follows.
 
-1. C and the RS build a CBOR byte string, whose value is the concatenation of the two nonces N1 and N2, in this order. With reference to the examples in {{fig-post-edhoc-key-update}} and {{fig-rs-c-edhoc-key-update}}, the concatenation of N1 and N2 is 0x018a278f7faab55a25a8991cd700ac01, which yields the CBOR byte string 0x50 018a278f7faab55a25a8991cd700ac01.
+First, RAW\_STRING is prepared as the concatenation of N1 and N2, in this order: RAW\_STRING = N1 \| N2, where \| denotes byte string concatenation, and N1 and N2 are the two nonces encoded as CBOR byte strings. Then, the resulting RAW\_STRING is wrapped into the CBOR byte string EXTENDED\_NONCE.
 
-2. C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH\_CRED\_C was used as CRED\_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.
+An example is given in {{fig-edhoc-key-update-string}}, with reference to the values of N1 and N2 shown in {{fig-post-edhoc-key-update}} and {{fig-rs-c-edhoc-key-update}}.
 
-3. With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see {{Section 4.2.2 of I-D.ietf-lake-edhoc}}), specifying the CBOR byte string built at step 1 as "context" argument. This results in updating the secret key PRK\_OUT to be considered from here on for this EDHOC state.
+~~~~~~~~~~~~~~~~~~~~~~~
+   N1 and N2 expressed in CBOR diagnostic notation
+   N1 = h'018a278f7faab55a'
+   N2 = h'25a8991cd700ac01'
 
-4. With reference to the same EDHOC state as above, C and the RS update the secret key PRK\_Exporter as per {{Section 4.2.1 of I-D.ietf-lake-edhoc}}. In particular, the key PRK\_OUT derived at step 3 is specified as "PRK\_out" argument. This results in updating the secret key PRK\_Exporter to be considered from here on for this EDHOC state.
+   N1 and N2 as CBOR encoded byte strings
+   N1 = 0x48018a278f7faab55a
+   N2 = 0x4825a8991cd700ac01
 
-5. C and the RS establish a new OSCORE Security Context as defined in {{edhoc-exec}}, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.
+   RAW_STRING = 0x48 018a278f7faab55a 48 25a8991cd700ac01
 
-6. The RS associates the posted access token with the OSCORE Security Context established at step 5. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.
+   EXTENDED_NONCE expressed in CBOR diagnostic notation
+   EXTENDED_NONCE = h'48018a278f7faab55a4825a8991cd700ac01'
 
-7. Hereafter, C and the RS use the OSCORE Security Context established at step 5 to protect their communications.
+   EXTENDED_NONCE as CBOR encoded byte string
+   EXTENDED_NONCE = 0x52 48018a278f7faab55a4825a8991cd700ac01
+~~~~~~~~~~~~~~~~~~~~~~~
+{: #fig-edhoc-key-update-string title="Example of EXTENDED_NONCE construction, with N1 and N2 encoded in CBOR"}
+
+If JSON is used instead of CBOR, then RAW\_STRING is the Base64 encoding of the concatenation of the same parameters, each of them prefixed by their size encoded in 1 byte. When using JSON, the nonces have a maximum size of 255 bytes. An example is given in {{fig-edhoc-key-update-string-json}}, where the nonces and RAW\_STRING are encoded in Base64.
+
+~~~~~~~~~~~~~~~~~~~~~~~
+   N1 and N2 values
+   N1 = 0x018a278f7faab55a (8 bytes)
+   N2 = 0x25a8991cd700ac01 (8 bytes)
+
+   Input to Base64 encoding:
+   0x08 018a278f7faab55a 08 25a8991cd700ac01
+
+   RAW_STRING = b64'CAGKJ49/qrVaCCWomRzXAKwB'
+
+   EXTENDED_NONCE expressed in CBOR diagnostic notation
+   EXTENDED_NONCE = h'08018a278f7faab55a0825a8991cd700ac01'
+
+   EXTENDED_NONCE as CBOR encoded byte string
+   EXTENDED_NONCE = 0x52 08018a278f7faab55a0825a8991cd700ac01
+~~~~~~~~~~~~~~~~~~~~~~~
+{: #fig-edhoc-key-update-string-json title="Example of EXTENDED_NONCE construction, with N1 and N2 encoded in JSON"}
+
+Once computed the CBOR byte string CBOR\_STRING, both C and the RS perform the following steps.
+
+1. C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH\_CRED\_C was used as CRED\_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.
+
+2. With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see {{Section 4.2.2 of I-D.ietf-lake-edhoc}}), specifying the CBOR byte string EXTENDED\_NONCE as "context" argument. This results in updating the secret key PRK\_OUT to be considered from here on for this EDHOC state.
+
+3. With reference to the same EDHOC state as above, C and the RS update the secret key PRK\_Exporter as per {{Section 4.2.1 of I-D.ietf-lake-edhoc}}. In particular, the key PRK\_OUT derived at step 3 is specified as "PRK\_out" argument. This results in updating the secret key PRK\_Exporter to be considered from here on for this EDHOC state.
+
+4. C and the RS establish a new OSCORE Security Context as defined in {{edhoc-exec}}, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.
+
+5. The RS associates the posted access token with the OSCORE Security Context established at step 5. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.
+
+6. Hereafter, C and the RS use the OSCORE Security Context established at step 5 to protect their communications.
 
 # Secure Communication with the AS # {#secure-comm-as}
 

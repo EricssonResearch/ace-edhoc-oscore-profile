@@ -1036,7 +1036,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Selander, et al.</td>
-<td class="center">Expires 24 December 2022</td>
+<td class="center">Expires 25 December 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1049,12 +1049,12 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-selander-ace-edhoc-oscore-profile-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2022-06-22" class="published">22 June 2022</time>
+<time datetime="2022-06-23" class="published">23 June 2022</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-12-24">24 December 2022</time></dd>
+<dd class="expires"><time datetime="2022-12-25">25 December 2022</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1114,7 +1114,7 @@ A resource-constrained server can use this profile to delegate management of aut
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 December 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 25 December 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1890,21 +1890,72 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
 <a href="#name-example-of-rs-to-c-201-crea" class="selfRef">Example of RS-to-C 2.01 (Created) response using EDHOC-KeyUpdate</a>
         </figcaption></figure>
 </div>
-<p id="section-5-23">Once they have exchanged N1 and N2, both C and the RS proceed as follows.<a href="#section-5-23" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-5-24">
-<li id="section-5-24.1">C and the RS build a CBOR byte string, whose value is the concatenation of the two nonces N1 and N2, in this order. With reference to the examples in <a href="#fig-post-edhoc-key-update" class="xref">Figure 8</a> and <a href="#fig-rs-c-edhoc-key-update" class="xref">Figure 9</a>, the concatenation of N1 and N2 is 0x018a278f7faab55a25a8991cd700ac01, which yields the CBOR byte string 0x50 018a278f7faab55a25a8991cd700ac01.<a href="#section-5-24.1" class="pilcrow">¶</a>
+<p id="section-5-23">Once they have exchanged N1 and N2, both C and the RS build a CBOR byte string EXTENDED_NONCE as follows.<a href="#section-5-23" class="pilcrow">¶</a></p>
+<p id="section-5-24">First, RAW_STRING is prepared as the concatenation of N1 and N2, in this order: RAW_STRING = N1 | N2, where | denotes byte string concatenation, and N1 and N2 are the two nonces encoded as CBOR byte strings. Then, the resulting RAW_STRING is wrapped into the CBOR byte string EXTENDED_NONCE.<a href="#section-5-24" class="pilcrow">¶</a></p>
+<p id="section-5-25">An example is given in <a href="#fig-edhoc-key-update-string" class="xref">Figure 10</a>, with reference to the values of N1 and N2 shown in <a href="#fig-post-edhoc-key-update" class="xref">Figure 8</a> and <a href="#fig-rs-c-edhoc-key-update" class="xref">Figure 9</a>.<a href="#section-5-25" class="pilcrow">¶</a></p>
+<span id="name-example-of-extended_nonce-c"></span><div id="fig-edhoc-key-update-string">
+<figure id="figure-10">
+        <div class="alignLeft art-text artwork" id="section-5-26.1">
+<pre>
+   N1 and N2 expressed in CBOR diagnostic notation
+   N1 = h'018a278f7faab55a'
+   N2 = h'25a8991cd700ac01'
+
+   N1 and N2 as CBOR encoded byte strings
+   N1 = 0x48018a278f7faab55a
+   N2 = 0x4825a8991cd700ac01
+
+   RAW_STRING = 0x48 018a278f7faab55a 48 25a8991cd700ac01
+
+   EXTENDED_NONCE expressed in CBOR diagnostic notation
+   EXTENDED_NONCE = h'48018a278f7faab55a4825a8991cd700ac01'
+
+   EXTENDED_NONCE as CBOR encoded byte string
+   EXTENDED_NONCE = 0x52 48018a278f7faab55a4825a8991cd700ac01
+</pre>
+</div>
+<figcaption><a href="#figure-10" class="selfRef">Figure 10</a>:
+<a href="#name-example-of-extended_nonce-c" class="selfRef">Example of EXTENDED_NONCE construction, with N1 and N2 encoded in CBOR</a>
+        </figcaption></figure>
+</div>
+<p id="section-5-27">If JSON is used instead of CBOR, then RAW_STRING is the Base64 encoding of the concatenation of the same parameters, each of them prefixed by their size encoded in 1 byte. When using JSON, the nonces have a maximum size of 255 bytes. An example is given in <a href="#fig-edhoc-key-update-string-json" class="xref">Figure 11</a>, where the nonces and RAW_STRING are encoded in Base64.<a href="#section-5-27" class="pilcrow">¶</a></p>
+<span id="name-example-of-extended_nonce-co"></span><div id="fig-edhoc-key-update-string-json">
+<figure id="figure-11">
+        <div class="alignLeft art-text artwork" id="section-5-28.1">
+<pre>
+   N1 and N2 values
+   N1 = 0x018a278f7faab55a (8 bytes)
+   N2 = 0x25a8991cd700ac01 (8 bytes)
+
+   Input to Base64 encoding:
+   0x08 018a278f7faab55a 08 25a8991cd700ac01
+
+   RAW_STRING = b64'CAGKJ49/qrVaCCWomRzXAKwB'
+
+   EXTENDED_NONCE expressed in CBOR diagnostic notation
+   EXTENDED_NONCE = h'08018a278f7faab55a0825a8991cd700ac01'
+
+   EXTENDED_NONCE as CBOR encoded byte string
+   EXTENDED_NONCE = 0x52 08018a278f7faab55a0825a8991cd700ac01
+</pre>
+</div>
+<figcaption><a href="#figure-11" class="selfRef">Figure 11</a>:
+<a href="#name-example-of-extended_nonce-co" class="selfRef">Example of EXTENDED_NONCE construction, with N1 and N2 encoded in JSON</a>
+        </figcaption></figure>
+</div>
+<p id="section-5-29">Once computed the CBOR byte string CBOR_STRING, both C and the RS perform the following steps.<a href="#section-5-29" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-5-30">
+<li id="section-5-30.1">C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH_CRED_C was used as CRED_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.<a href="#section-5-30.1" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-24.2">C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH_CRED_C was used as CRED_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.<a href="#section-5-24.2" class="pilcrow">¶</a>
+        <li id="section-5-30.2">With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.2" class="relref">Section 4.2.2</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), specifying the CBOR byte string EXTENDED_NONCE as "context" argument. This results in updating the secret key PRK_OUT to be considered from here on for this EDHOC state.<a href="#section-5-30.2" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-24.3">With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.2" class="relref">Section 4.2.2</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), specifying the CBOR byte string built at step 1 as "context" argument. This results in updating the secret key PRK_OUT to be considered from here on for this EDHOC state.<a href="#section-5-24.3" class="pilcrow">¶</a>
+        <li id="section-5-30.3">With reference to the same EDHOC state as above, C and the RS update the secret key PRK_Exporter as per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In particular, the key PRK_OUT derived at step 3 is specified as "PRK_out" argument. This results in updating the secret key PRK_Exporter to be considered from here on for this EDHOC state.<a href="#section-5-30.3" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-24.4">With reference to the same EDHOC state as above, C and the RS update the secret key PRK_Exporter as per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In particular, the key PRK_OUT derived at step 3 is specified as "PRK_out" argument. This results in updating the secret key PRK_Exporter to be considered from here on for this EDHOC state.<a href="#section-5-24.4" class="pilcrow">¶</a>
+        <li id="section-5-30.4">C and the RS establish a new OSCORE Security Context as defined in <a href="#edhoc-exec" class="xref">Section 4.3</a>, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.<a href="#section-5-30.4" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-24.5">C and the RS establish a new OSCORE Security Context as defined in <a href="#edhoc-exec" class="xref">Section 4.3</a>, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.<a href="#section-5-24.5" class="pilcrow">¶</a>
+        <li id="section-5-30.5">The RS associates the posted access token with the OSCORE Security Context established at step 5. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.<a href="#section-5-30.5" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-24.6">The RS associates the posted access token with the OSCORE Security Context established at step 5. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.<a href="#section-5-24.6" class="pilcrow">¶</a>
-</li>
-        <li id="section-5-24.7">Hereafter, C and the RS use the OSCORE Security Context established at step 5 to protect their communications.<a href="#section-5-24.7" class="pilcrow">¶</a>
+        <li id="section-5-30.6">Hereafter, C and the RS use the OSCORE Security Context established at step 5 to protect their communications.<a href="#section-5-30.6" class="pilcrow">¶</a>
 </li>
       </ol>
 </section>

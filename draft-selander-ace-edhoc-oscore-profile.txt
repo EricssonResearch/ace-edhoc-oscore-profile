@@ -309,10 +309,11 @@ Table of Contents
    request protected with the established OSCORE Security Context above.
    The Security Context is discarded when an access token (whether the
    same or a different one) is used to successfully derive a new
-   Security Context for C, either by re-running EDHOC or by exchanging
-   nonces and using the EDHOC-KeyUpdate function (see Section 5).  In
+   Security Context for C, either by exchanging nonces and using the
+   EDHOC-KeyUpdate function (see Section 5), or by re-running EDHOC.  In
    particular, when supporting this profile, both C and the RS MUST
-   support the EDHOC-KeyUpdate function.
+   support the EDHOC-KeyUpdate function, and they MUST use it if the
+   outcome of their previously completed EDHOC execution is still valid.
 
    After the whole message exchange has taken place, C can contact the
    AS to request an update of its access rights, by sending a similar
@@ -960,20 +961,27 @@ Table of Contents
    at any time, for example due to all storage space being consumed.
    This situation is detected by C when it receives an AS Request
    Creation Hints response from the RS (see Section 5.3 of
-   [I-D.ietf-ace-oauth-authz]).  After reposting the same access token,
-   C and the RS run the EDHOC protocol again, or instead rely on the
-   more efficient method leveraging the EDHOC-KeyUpdate function (see
-   Section 5).  In either case, C and the RS will derive a new OSCORE
-   Security Context to be used for protecting their communications from
-   then on.
+   [I-D.ietf-ace-oauth-authz]).
+
+   After re-posting the same access token, C and the RS MUST rely on the
+   method leveraging the EDHOC-KeyUpdate function (see Section 5),
+   unless the outcome of their previously completed EDHOC execution is
+   not valid anymore (e.g., due to expiration of either authentication
+   credential).  In case they are fundamentally prevented from using the
+   method based on the EDHOC-KeyUpdate function, C and the RS run the
+   EDHOC protocol again.  In either case, C and the RS will derive a new
+   OSCORE Security Context to be used for protecting their
+   communications from then on.
 
    Also, C may want to update the OSCORE Security Context currently
    shared with the RS.  To this end, C can rely on either of the
    following options.
 
-   *  Re-POST the access token, after which C and the RS run the EDHOC
-      protocol again, or instead rely on the more efficient method
-      leveraging the EDHOC-KeyUpdate function (see Section 5).  After
+   *  Re-POST the access token, after which C and the RS either rely on
+      the method leveraging the EDHOC-KeyUpdate function and defined in
+      Section 5, or run the EDHOC protocol again.  As discussed above, C
+      and the RS MUST use the method based on the EDHOC-KeyUpdate
+      function, unless fundamentally prevented from doing so.  After
       that, C and the RS derive a new OSCORE Security Context.
 
    *  Run the OSCORE key update protocol KUDOS defined in
@@ -1241,11 +1249,13 @@ Table of Contents
    preserving the secret key PRK_OUT attained at the end of the EDHOC
    execution.
 
-   Then, in case C has to establish a new OSCORE Security Context with
-   the RS, they may not re-run the EDHOC protocol, but rather more
-   efficiently rely on the EDHOC-KeyUpdate function, defined in
-   Section 4.2.2 of [I-D.ietf-lake-edhoc].  When supporting this
-   profile, both C and the RS MUST support the EDHOC-KeyUpdate function.
+   In case C has to establish a new OSCORE Security Context with the RS,
+   and as long as the outcome of their previously completed EDHOC
+   execution is still valid, C and the RS MUST rely on the EDHOC-
+   KeyUpdate function defined in Section 4.2.2 of [I-D.ietf-lake-edhoc]
+   as further specified in the rest of this section, rather than re-
+   running the EDHOC protocol.  When supporting this profile, both C and
+   the RS MUST support the EDHOC-KeyUpdate function.
 
    Establishing a new OSCORE Security Context by levaraging the EDHOC-
    KeyUpdate function is possible in the following cases.

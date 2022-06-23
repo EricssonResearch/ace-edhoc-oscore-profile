@@ -709,13 +709,13 @@ Once computed the CBOR byte string CBOR\_STRING, both C and the RS perform the f
 
 2. With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see {{Section 4.2.2 of I-D.ietf-lake-edhoc}}), specifying the CBOR byte string EXTENDED\_NONCE as "context" argument. This results in updating the secret key PRK\_OUT to be considered from here on for this EDHOC state.
 
-3. With reference to the same EDHOC state as above, C and the RS update the secret key PRK\_Exporter as per {{Section 4.2.1 of I-D.ietf-lake-edhoc}}. In particular, the key PRK\_OUT derived at step 3 is specified as "PRK\_out" argument. This results in updating the secret key PRK\_Exporter to be considered from here on for this EDHOC state.
+3. With reference to the same EDHOC state as above, C and the RS update the secret key PRK\_Exporter as per {{Section 4.2.1 of I-D.ietf-lake-edhoc}}. In particular, the key PRK\_OUT derived at step 2 is specified as "PRK\_out" argument. This results in updating the secret key PRK\_Exporter to be considered from here on for this EDHOC state.
 
 4. C and the RS establish a new OSCORE Security Context as defined in {{edhoc-exec}}, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.
 
-5. The RS associates the posted access token with the OSCORE Security Context established at step 5. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.
+5. The RS associates the posted access token with the OSCORE Security Context established at step 4. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.
 
-6. Hereafter, C and the RS use the OSCORE Security Context established at step 5 to protect their communications.
+6. Hereafter, C and the RS use the OSCORE Security Context established at step 4 to protect their communications.
 
 # Secure Communication with the AS # {#secure-comm-as}
 

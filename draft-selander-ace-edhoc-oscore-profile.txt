@@ -2473,7 +2473,7 @@ A.1.  Workflow without Optimizations
 
   // Later on, the access token expires ...
   //  - The Client and RS delete their OSCORE Security Context and
-  //    terminate the EDHOC session used to derive it (unless the same
+  //    purge the EDHOC session used to derive it (unless the same
   //    session is also used for other reasons).
   //  - The RS retains AUTH_CRED_C as still valid,
   //    and the AS knows about it.
@@ -2592,7 +2592,7 @@ A.2.  Workflow with Optimizations
    token to the RS, following the expiration of the first one.  That is,
    after posting the second access token, the Client and RS do not run
    EDHOC again, but rather EDHOC-KeyUpdate() and EDHOC-Exporter()
-   building on the same EDHOC session established before.
+   building on the same, previously completed EDHOC execution.
 
      C                                 AS                             RS
      |                                  |                              |
@@ -2689,9 +2689,8 @@ A.2.  Workflow with Optimizations
      |                                  |                              |
 
   // Later on, the access token expires ...
-  //  - The Client and RS delete their OSCORE Security Context and
-  //    terminate the EDHOC session used to derive it (unless the same
-  //    session is also used for other reasons).
+  //  - The Client and RS delete their OSCORE Security Context
+  //    but do not purge the EDHOC session used to derive it.
   //  - The RS retains AUTH_CRED_C as still valid,
   //    and the AS knows about it.
   //  - The Client retains AUTH_CRED_RS as still valid,
@@ -2904,7 +2903,7 @@ A.3.  Workflow without Optimizations (AS token posting)
 
   // Later on, the access token expires ...
   //  - The Client and RS delete their OSCORE Security Context and
-  //    terminate the EDHOC session used to derive it (unless the same
+  //    purge the EDHOC session used to derive it (unless the same
   //    session is also used for other reasons).
   //  - The RS retains AUTH_CRED_C as still valid,
   //    and the AS knows about it.

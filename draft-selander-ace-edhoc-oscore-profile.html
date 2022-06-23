@@ -1949,13 +1949,13 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
 </li>
         <li id="section-5-30.2">With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.2" class="relref">Section 4.2.2</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>), specifying the CBOR byte string EXTENDED_NONCE as "context" argument. This results in updating the secret key PRK_OUT to be considered from here on for this EDHOC state.<a href="#section-5-30.2" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-30.3">With reference to the same EDHOC state as above, C and the RS update the secret key PRK_Exporter as per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In particular, the key PRK_OUT derived at step 3 is specified as "PRK_out" argument. This results in updating the secret key PRK_Exporter to be considered from here on for this EDHOC state.<a href="#section-5-30.3" class="pilcrow">¶</a>
+        <li id="section-5-30.3">With reference to the same EDHOC state as above, C and the RS update the secret key PRK_Exporter as per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-14#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span>. In particular, the key PRK_OUT derived at step 2 is specified as "PRK_out" argument. This results in updating the secret key PRK_Exporter to be considered from here on for this EDHOC state.<a href="#section-5-30.3" class="pilcrow">¶</a>
 </li>
         <li id="section-5-30.4">C and the RS establish a new OSCORE Security Context as defined in <a href="#edhoc-exec" class="xref">Section 4.3</a>, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.<a href="#section-5-30.4" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-30.5">The RS associates the posted access token with the OSCORE Security Context established at step 5. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.<a href="#section-5-30.5" class="pilcrow">¶</a>
+        <li id="section-5-30.5">The RS associates the posted access token with the OSCORE Security Context established at step 4. In case C has in fact re-posted a still valid access token, the RS also discards the old OSCORE Security Context previously associated with that access token.<a href="#section-5-30.5" class="pilcrow">¶</a>
 </li>
-        <li id="section-5-30.6">Hereafter, C and the RS use the OSCORE Security Context established at step 5 to protect their communications.<a href="#section-5-30.6" class="pilcrow">¶</a>
+        <li id="section-5-30.6">Hereafter, C and the RS use the OSCORE Security Context established at step 4 to protect their communications.<a href="#section-5-30.6" class="pilcrow">¶</a>
 </li>
       </ol>
 </section>

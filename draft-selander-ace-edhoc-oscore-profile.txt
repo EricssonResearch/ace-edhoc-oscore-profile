@@ -1455,7 +1455,7 @@ Table of Contents
    3.  With reference to the same EDHOC state as above, C and the RS
        update the secret key PRK_Exporter as per Section 4.2.1 of
        [I-D.ietf-lake-edhoc].  In particular, the key PRK_OUT derived at
-       step 3 is specified as "PRK_out" argument.  This results in
+       step 2 is specified as "PRK_out" argument.  This results in
        updating the secret key PRK_Exporter to be considered from here
        on for this EDHOC state.
 
@@ -1466,13 +1466,13 @@ Table of Contents
        i.e., their OSCORE Sender/Recipient IDs.
 
    5.  The RS associates the posted access token with the OSCORE
-       Security Context established at step 5.  In case C has in fact
+       Security Context established at step 4.  In case C has in fact
        re-posted a still valid access token, the RS also discards the
        old OSCORE Security Context previously associated with that
        access token.
 
    6.  Hereafter, C and the RS use the OSCORE Security Context
-       established at step 5 to protect their communications.
+       established at step 4 to protect their communications.
 
 6.  Secure Communication with the AS
 

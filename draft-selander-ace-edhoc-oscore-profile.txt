@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 25 December 2022                                      M. Tiloca
+Expires: 2 January 2023                                        M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                            23 June 2022
+                                                             1 July 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 December 2022.
+   This Internet-Draft will expire on 2 January 2023.
 
 Copyright Notice
 
@@ -125,8 +125,8 @@ Table of Contents
    in this profile a client (C) and a resource server (RS) use the
    Constrained Application Protocol (CoAP) [RFC7252] to communicate, and
    Object Security for Constrained RESTful Environments (OSCORE)
-   [RFC8613] to protect their communications.  Besides, the processing
-   of requests for specific protected resources is identical to what is
+   [RFC8613] to protect their communications.  Also, the processing of
+   requests for specific protected resources is identical to what is
    defined in the "coap_oscore" profile.
 
    When using this profile, C accesses protected resources hosted at the
@@ -137,23 +137,18 @@ Table of Contents
    recommended in [I-D.ietf-ace-oauth-authz], this document recommends
    the use of CBOR Web Tokens (CWTs) [RFC8392] as access tokens.
 
-   The authentication and authorization workflow requires C and the RS
+   The authentication and authorization processing requires C and the RS
    to have access to each other's authentication credentials.  In
    particular, C obtains both an access token and an authentication
    credential of the RS from the AS, while the RS can obtain the access
-   token for C (and the authentication credential of C included therin)
-   through different possible options.  If the RS successfully verifies
-   the access token, then C and the RS run the Ephemeral Diffie-Hellman
-   Over COSE (EDHOC) protocol [I-D.ietf-lake-edhoc], with each peer
-   using its own and the other peer's authentication credential.
+   token for C (and the associated authentication credential of C) in
+   different ways.  If the RS successfully verifies the access token,
+   then C and the RS run the Ephemeral Diffie-Hellman Over COSE (EDHOC)
+   protocol [I-D.ietf-lake-edhoc] using the authentication credentials.
 
-   Once completed the EDHOC execution, C and the RS are mutually
-   authenticated and establish an OSCORE Security Context to protect
-   following communications, while the RS achieves proof of possession
-   of the private key of C.  Instead, C achieves proof of possession of
-   the private key of the RS either once completed the EDHOC execution
-   (if an optional, fourth EDHOC message is sent by the RS) or after the
-   first message exchange using OSCORE.
+   Once the EDHOC execution is completed, C and the RS are mutually
+   authenticated and can derive an OSCORE Security Context to protect
+   subsequent communications.
 
    Authentication credentials can be a raw public key, e.g., encoded as
    a CWT Claims Set (CCS, [RFC8392]); or a public key certificate, e.g.,
@@ -164,23 +159,24 @@ Table of Contents
 
    The ACE protocol establishes what those authentication credentials
    are, and may transport the actual authentication credentials by value
-   or rather uniquely refer to them.  If an actual authentication
-   credential is pre-provisioned or can be obtained over less
-   constrained links, then it suffices that ACE provides a unique
-   reference such as a certificate hash (e.g., by using the COSE header
-   parameter "x5t", see [I-D.ietf-cose-x509]).  This is in the same
-   spirit as EDHOC, where the authentication credentials may be
-   transported or referenced in the ID_CRED_x message fields (see
-   Section 3.5.3 of [I-D.ietf-lake-edhoc]).
+   or uniquely refer to them.  If an authentication credential is pre-
+   provisioned or can be obtained over less constrained links, then it
+   suffices that ACE provides a unique reference such as a certificate
+   hash (e.g., by using the COSE header parameter "x5t", see
+   [I-D.ietf-cose-x509]).  This is in the same spirit as EDHOC, where
+   the authentication credentials may be transported or referenced in
+   the ID_CRED_x message fields (see Section 3.5.3 of
+   [I-D.ietf-lake-edhoc]).
 
-   Generally, the AS and RS are likely to have trusted access to each
+   In general, the AS and RS are likely to have trusted access to each
    other's authentication credentials, since the AS acts on behalf of
    the RS as per the trust model of ACE.  Also, the AS needs to have
    some information about C, including the respective authentication
    credential, in order to identify C when it requests an access token
    and to determine what access rights it can be granted.  However, the
    authentication credential of C may potentially be conveyed (or
-   uniquely referred to) within the request sent to the AS.
+   uniquely referred to) within the request for access which C makes to
+   the AS.
 
 1.1.  Terminology
 
@@ -206,7 +202,7 @@ Table of Contents
    [I-D.ietf-ace-oauth-params].
 
    Terminology for entities in the architecture is defined in OAuth 2.0
-   [RFC6749], such as client (C), resource server (RS), and
+   [RFC6749], such as the client (C), the resource server (RS), and the
    authorization server (AS).  It is assumed in this document that a
    given resource on a specific RS is associated to a unique AS.
 
@@ -312,17 +308,18 @@ Table of Contents
    Security Context for C, either by exchanging nonces and using the
    EDHOC-KeyUpdate function (see Section 5), or by re-running EDHOC.  In
    particular, when supporting this profile, both C and the RS MUST
-   support the EDHOC-KeyUpdate function, and they MUST use it if the
-   outcome of their previously completed EDHOC execution is still valid.
+   support the EDHOC-KeyUpdate function, and they MUST use it instead of
+   re-running EDHOC if the outcome of their previously completed EDHOC
+   execution is still valid.
 
-   After the whole message exchange has taken place, C can contact the
-   AS to request an update of its access rights, by sending a similar
-   request to the token endpoint.  This request also includes an
-   identifier, which allows the AS to find the correct data it has
-   previously shared with C.  This specific identifier, encoded as a
-   byte string, is assigned by the AS to a "token series" (see
-   Section 1.1).  Upon a successful update of access rights, the new
-   issued access token becomes the latest one of its token series.  When
+   After the whole procedure has completed and while the access token is
+   valid, C can contact the AS to request an update of its access
+   rights, by sending a similar request to the token endpoint.  This
+   request also includes an identifier, which allows the AS to find the
+   data it has previously shared with C.  This specific identifier,
+   encoded as a byte string, is assigned by the AS to a "token series"
+   (see Section 1.1).  Upon a successful update of access rights, the
+   new issued access token becomes the latest in its token series.  When
    the latest access token of a token series becomes invalid (e.g., when
    it expires or gets revoked), that token series ends.
 
@@ -374,16 +371,19 @@ Table of Contents
    and response to the token endpoint between C and the AS.
 
    In this exchange, the AS provides C with the access token, together
-   with a set of parameters that enable C to run EDHOC with the RS.
-   These especially include the authorization credential of the RS,
-   namely AUTH_CRED_RS, as transported by value or uniquely referred to.
+   with a set of parameters that enable C to run EDHOC with the RS.  In
+   particular, this include information about the authorization
+   credential of the RS, AUTH_CRED_RS, transported by value or uniquely
+   referred to.
 
-   The proof-of-possession key (PoP-key) bound to the access token and
-   specified therein, as transported by value or uniquely referred to,
-   MUST be the authentication credential of C, namely AUTH_CRED_C.  This
-   is provided by C to the AS in the POST request to the token endpoint,
-   as transported by value or uniquely referred to, by means of the
-   "req_cnf" parameter defined in [I-D.ietf-ace-oauth-params].
+   The access token is securely associated to the authentication
+   credential of C, AUTH_CRED_C, by transporting it or uniquely
+   referring to it in the access token.
+
+   AUTH_CRED_C is specified in the "req_cnf" parameter defined in
+   [I-D.ietf-ace-oauth-params] of the POST request to the token endpoint
+   from C to the AS, either transported by value or uniquely referred
+   to.
 
    The request to the token endpoint and the corresponding response can
    include EDHOC_Information, which is a CBOR map object defined in

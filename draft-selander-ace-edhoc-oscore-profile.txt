@@ -989,10 +989,10 @@ Table of Contents
    In either case, C and RS establish a new OSCORE Security Context that
    replaces the old one and will be used for protecting their
    communications from then on.  In particular, RS MUST associate the
-   new OSCORE Security Context with the current (just re-posted) access
-   token.  Note that, unless C and RS re-run the EDHOC protocol, they
-   preserve their same OSCORE identifiers, i.e., their OSCORE Sender/
-   Recipient IDs.
+   new OSCORE Security Context with the current (potentially re-posted)
+   access token.  Note that, unless C and RS re-run the EDHOC protocol,
+   they preserve their same OSCORE identifiers, i.e., their OSCORE
+   Sender/Recipient IDs.
 
    If C has already posted a valid access token, has already established
    an OSCORE Security Context with RS, and wants to update its access
@@ -1625,7 +1625,7 @@ Table of Contents
    RS to enforce wrong permissions.  If one of the access tokens expires
    earlier than others, the resulting permissions may offer insufficient
    protection.  Developers SHOULD avoid using multiple access tokens for
-   a same client.  Furthermore, RS MUST NOT store more than one access
+   a same client.  Furthermore, RS MUST NOT store more then one access
    token per client per PoP-key (i.e., per client's authentication
    credential).
 

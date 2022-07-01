@@ -1131,17 +1131,17 @@ Table of Contents
       example in Appendix A.2.
 
       In such a case, as per Section 3.8 of [I-D.ietf-lake-edhoc], C
-      adds the pair EAD_ACCESS_TOKEN = (ead_label, ead_value) to the
+      adds the EAD item EAD_ACCESS_TOKEN = (ead_label, ead_value) to the
       EAD_1 field.  In particular, ead_label is the integer value TBD
       registered in Section 10.8 of this document, while ead_value is a
       CBOR byte string with value the access token.  That is, the value
       of the CBOR byte string is the content of the "access_token" field
       of the access token response from AS (see Section 3.2).
 
-      If EDHOC message_1 includes the pair EAD_ACCESS_TOKEN within the
-      field EAD_1, then RS MUST process the access token carried out in
-      ead_value as specified in Section 4.2.  If such a process fails,
-      RS MUST reply to C as specified in Section 4.2, it MUST
+      If EDHOC message_1 includes the EAD item EAD_ACCESS_TOKEN within
+      the field EAD_1, then RS MUST process the access token carried out
+      in ead_value as specified in Section 4.2.  If such a process
+      fails, RS MUST reply to C as specified in Section 4.2, it MUST
       discontinue the EDHOC protocol, and it MUST NOT send an EDHOC
       error message (see Section 6 of [I-D.ietf-lake-edhoc]).  RS MUST
       have successfully completed the processing of the access token

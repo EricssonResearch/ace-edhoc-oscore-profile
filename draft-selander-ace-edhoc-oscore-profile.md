@@ -317,7 +317,7 @@ When issuing the first access token of a token series, AS can take either of the
 
 * AS does not provide the access token to C. Rather, AS uploads the access token to the authz-info endpoint at RS, exactly like C would do, and as defined in {{c-rs}} and {{rs-c}}. Then, when replying to C with the access token response as defined above, the response MUST NOT include the parameter "access\_token", and MUST include the parameter "token\_uploaded" encoding the CBOR simple value "true" (0xf5). This is shown by the example in {{example-without-optimization-as-posting}}.
 
-   Note that, in case C and RS have already completed an EDHOC execution leveraging a previous access token series, using this approach implies that C and RS have to re-run the EDHOC protocol. That is, they cannot more efficiently make use of the EDHOC-KeyUpdate function, as defined in {{edhoc-key-update}}.
+   Note that, in case C and RS have already completed an EDHOC execution leveraging a previous access token series, using this approach implies that C and RS have to re-run the EDHOC protocol. That is, they cannot more efficiently make use of the EDHOC-KeyUpdate function, as defined in {{edhoc-key-update}}, see {{c-rs-comm}}.
 
    Also note that this approach is not applicable when issuing access tokens following the first one in the same token series, i.e., when updating access rights.
 
@@ -498,7 +498,7 @@ In either case, following the uploading of the access token, C and RS run the ED
 
 Note that, by means of the respective authentication credentials, C and RS are mutually authenticated once they have successfully completed the execution of the EDHOC protocol.
 
-As to proof-of-possession, RS always gains knowledge that C has PRK\_out at the end of the successful EDHOC execution. Instead, C gains knowledge that RS has PRK\_out either when receiving and successfully verifying the optional EDHOC message\_4 from RS, or when successully verifying a response from RS protected with the generated OSCORE Security Context.
+As to proof-of-possession, RS always gains knowledge that C has PRK\_out at the end of the successful EDHOC execution. Conversely, C gains knowledge that RS has PRK\_out either when receiving and successfully verifying the optional EDHOC message\_4 from RS, or when successully verifying a response from RS protected with the generated OSCORE Security Context.
 
 ## C-to-RS: POST to authz-info endpoint # {#c-rs}
 
@@ -508,19 +508,19 @@ That is, C sends a POST request to the authz-info endpoint at RS, with the reque
 
 The communication with the authz-info endpoint does not have to be protected, except for the update of access rights case described below.
 
-Note that C may be required to re-POST the access token in order to complete an access request to a protected resource, since RS may delete a stored access token (and associated OSCORE Security Context) at any time, for example due to all storage space being consumed. This situation is detected by C when it receives an AS Request Creation Hints response from RS (see {{Section 5.3 of I-D.ietf-ace-oauth-authz}}).
+In case of initial access token provisioning to RS for this Client, the next steps are essentially: run EDHOC and derive OSCORE security context, as detailed later in this Section. In the following we outline some alternative processing, which occur when the provisioned access token or the established security context for various reasons is no longer available or sufficient. In the cases below it is assumed that the EDHOC session is still valid, otherwise the processing essentially falls back to the initial setting.
 
-After re-posting the same access token, C and RS MUST rely on the method leveraging the EDHOC-KeyUpdate function (see {{edhoc-key-update}}), unless the outcome of their previously completed EDHOC execution is not valid anymore (e.g., due to expiration of either authentication credential). In case they are fundamentally prevented from using the method based on the EDHOC-KeyUpdate function, C and RS run the EDHOC protocol again. In either case, C and RS will derive a new OSCORE Security Context to be used for protecting their communications from then on.
+1. C may be required to re-POST the access token, since RS may have deleted a stored access token (and associated OSCORE Security Context) at any time, for example due to all storage space being consumed. This situation can be detected by C when it receives the CoAP Response Code 4.01 (Unauthorized). After re-posting the same access token to the RS, C and RS rely on a method leveraging the EDHOC-KeyUpdate function (see {{edhoc-key-update}}) to derive a new OSCORE Security Context to be used for protecting their communications from then on.
 
-Also, C may want to update the OSCORE Security Context currently shared with RS. To this end, C can rely on either of the following options.
+2. C may have acquired an access token in a new series (because the old token series expired). Also in this case C and RS rely on the method leveraging the EDHOC-KeyUpdate function (see {{edhoc-key-update}}) to derive a new OSCORE Security Context.
 
-* Re-POST the access token, after which C and RS either rely on the method leveraging the EDHOC-KeyUpdate function and defined in {{edhoc-key-update}}, or run the EDHOC protocol again. As discussed above, C and RS MUST use the method based on the EDHOC-KeyUpdate function, unless fundamentally prevented from doing so. After that, C and RS derive a new OSCORE Security Context.
+3. The OSCORE security context may need to be updated, e.g. due to policy limiting its use in terms of time or amount of data.
+    * If KUDOS {{I-D.ietf-core-oscore-key-update}} is supported by both C and RS then that is a lightweight alternative independent of ACE, and does not require to re-post the current access token.
+    * If KUDOS in not supported, then the access token is re-posted, after which C and RS rely on the method leveraging the EDHOC-KeyUpdate function, {{edhoc-key-update}}.
 
-* Run the OSCORE key update protocol KUDOS defined in {{I-D.ietf-core-oscore-key-update}}, if it is supported by both C and RS. A successful execution of KUDOS also yields a new OSCORE Security Context. However, running the KUDOS protocol is lighter than relying on the previous approach, especially since it does not require to re-post the current access token.
+In either case, C and RS establish a new OSCORE Security Context that replaces the old one and will be used for protecting their communications from then on. In particular, RS MUST associate the new OSCORE Security Context with the current (just re-posted) access token. Note that, unless C and RS re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.
 
-In either case, C and RS have established a new OSCORE Security Context that replaces the current one and will be used for protecting their communications from then on. In particular, RS MUST associate the new OSCORE Security Context with the current (just re-posted) access token. Note that, unless C and RS re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.
-
-If C has already posted a valid access token, has already established an OSCORE Security Context with RS, and wants to update its access rights, then C can do so by posting a new access token to the /authz-info endpoint, as described above. The new access token contains the updated access rights for C to access protected resources at RS, and C has to obtain it from AS as a new access token in the same token series of the current one (see {{c-as}} and {{as-c}}). When posting the new access token to the authz-info endpoint, C MUST protect the POST request using the current OSCORE Security Context shared with RS. After successful verification (see {{rs-c}}), RS will replace the old access token with the new one, while preserving the same OSCORE Security Context. In particular, C and RS do not re-run the EDHOC protocol and they do not establish a new OSCORE Security Context.
+If C has already posted a valid access token, has already established an OSCORE Security Context with RS, and wants to update its access rights, then C can do so by posting a new access token to the /authz-info endpoint. The new access token contains the updated access rights for C to access protected resources at RS, and C has to obtain it from AS as a new access token in the same token series of the current one (see {{c-as}} and {{as-c}}). When posting the new access token to the authz-info endpoint, C MUST protect the POST request using the current OSCORE Security Context shared with RS. After successful verification (see {{rs-c}}), RS will replace the old access token with the new one, while preserving the same OSCORE Security Context. In particular, C and RS do not re-run the EDHOC protocol and they do not establish a new OSCORE Security Context.
 
 ## RS-to-C: 2.01 (Created) # {#rs-c}
 

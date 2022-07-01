@@ -494,11 +494,11 @@ In order to upload the access token to the RS, C can send a POST request to the 
 
 Alternatively, C can upload the access token while executing the EDHOC protocol, by transporting the access token in the EAD_1 field of the first EDHOC message sent to the RS. This is further discussed in {{edhoc-exec}}, and it is shown by the example in {{example-with-optimization}}.
 
-In either case, following the uploading of the access token, C and the RS run the EDHOC protocol to completion, by exchanging POST requests and related responses to a dedicated EDHOC resource at the RS (see {{edhoc-exec}}). Once completed the EDHOC execution, C and the RS have agreed on a common secret key PRK\_OUT (see {{Section 4.1.3 of I-D.ietf-lake-edhoc}}), from which they establish an OSCORE Security Context (see {{edhoc-exec}}). After that, C and the RS use the established OSCORE Security Context to protect their communications when accessing protected resources at the RS, as per the access rights specified in the access token (see {{access-rights-verif}}).
+In either case, following the uploading of the access token, C and the RS run the EDHOC protocol to completion, by exchanging POST requests and related responses to a dedicated EDHOC resource at the RS (see {{edhoc-exec}}). Once completed the EDHOC execution, C and the RS have agreed on a common secret key PRK\_out (see {{Section 4.1.3 of I-D.ietf-lake-edhoc}}), from which they establish an OSCORE Security Context (see {{edhoc-exec}}). After that, C and the RS use the established OSCORE Security Context to protect their communications when accessing protected resources at the RS, as per the access rights specified in the access token (see {{access-rights-verif}}).
 
 Note that, by means of the respective authentication credentials, C and the RS are mutually authenticated once they have successfully completed the execution of the EDHOC protocol.
 
-As to proof-of-possession, the RS always gains knowledge that C has PRK\_OUT at the end of the successful EDHOC execution. Instead, C gains knowledge that the RS has PRK\_OUT either when receiving and successfully verifying the optional EDHOC message\_4 from the RS, or when successully verifying a response from the RS protected with the generated OSCORE Security Context.
+As to proof-of-possession, the RS always gains knowledge that C has PRK\_out at the end of the successful EDHOC execution. Instead, C gains knowledge that the RS has PRK\_out either when receiving and successfully verifying the optional EDHOC message\_4 from the RS, or when successully verifying a response from the RS protected with the generated OSCORE Security Context.
 
 ## C-to-RS: POST to authz-info endpoint # {#c-rs}
 
@@ -552,7 +552,7 @@ As specified in {{Section 5.10.1 of I-D.ietf-ace-oauth-authz}}, when receiving a
 
 ## EDHOC Execution and Setup of OSCORE Security Context # {#edhoc-exec}
 
-In order to mutually authenticate and establish a long-term secret key PRK\_OUT with forward secrecy, C and the RS run the EDHOC protocol {{I-D.ietf-lake-edhoc}}. In particular, C acts as EDHOC Initiator thus sending EDHOC message_1, while the RS acts as EDHOC Responder.
+In order to mutually authenticate and establish a long-term secret key PRK\_out with forward secrecy, C and the RS run the EDHOC protocol {{I-D.ietf-lake-edhoc}}. In particular, C acts as EDHOC Initiator thus sending EDHOC message_1, while the RS acts as EDHOC Responder.
 
 As per {{Section A.2 of I-D.ietf-lake-edhoc}}, C sends EDHOC message_1 and EDHOC message_3 to an EDHOC resource at the RS, as CoAP POST requests. Also the RS sends EDHOC message_2 and (optionally) EDHOC message_4 as 2.04 (Changed) CoAP responses. If, in the access token response received from the AS (see {{c-as}}), the "uri_path" field of the EDHOC\_Information was included, then C MUST target the EDHOC resource at the RS with the URI path specified in the "uri_path" field.
 
@@ -576,7 +576,7 @@ In EDHOC message_2, the authentication credential CRED\_R indicated by the messa
 
 In EDHOC message_3, the authentication credential CRED\_I indicated by the message field ID\_CRED\_I is the authentication credential of C, namely AUTH\_CRED\_C, i.e., the PoP key bound to the access token and specified therein. The processing of EDHOC message_3 is defined in detail in {{Section 5.4 of I-D.ietf-lake-edhoc}}.
 
-Once successfully completed the EDHOC execution, C and the RS have both derived the long-term secret key PRK\_OUT (see {{Section 4.1.3 of I-D.ietf-lake-edhoc}}), from which they both derive the key PRK\_Exporter (see {{Section 4.2.1 of I-D.ietf-lake-edhoc}}). Then, C and the RS derive an OSCORE Security Context, as defined in {{Section A.1 of I-D.ietf-lake-edhoc}}. In addition, the following applies.
+Once successfully completed the EDHOC execution, C and the RS have both derived the long-term secret key PRK\_out (see {{Section 4.1.3 of I-D.ietf-lake-edhoc}}), from which they both derive the key PRK\_Exporter (see {{Section 4.2.1 of I-D.ietf-lake-edhoc}}). Then, C and the RS derive an OSCORE Security Context, as defined in {{Section A.1 of I-D.ietf-lake-edhoc}}. In addition, the following applies.
 
 * If, in the access token response received from the AS (see {{c-as}}) and in the access token, the "osc\_ms\_size" field of the EDHOC\_Information was included, then C and the RS MUST use the value specified in the "osc\_ms\_size" field as length in bytes of the OSCORE Master Secret. That is, the value of the "osc\_ms\_size" field MUST be used as value for the oscore\_key\_length parameter of the EDHOC-Exporter function when deriving the OSCORE Master Secret (see {{Section A.1 of I-D.ietf-lake-edhoc}}).
 
@@ -596,7 +596,7 @@ If OSCORE verification succeeds and the target resource requires authorization, 
 
 # Use of EDHOC-KeyUpdate # {#edhoc-key-update}
 
-Once successully completed an EDHOC execution, C and the RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and the RS, namely AUTH\_CRED\_C and AUTH\_CRED\_RS are valid. This especially consists in preserving the secret key PRK\_OUT attained at the end of the EDHOC execution.
+Once successully completed an EDHOC execution, C and the RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and the RS, namely AUTH\_CRED\_C and AUTH\_CRED\_RS are valid. This especially consists in preserving the secret key PRK\_out attained at the end of the EDHOC execution.
 
 In case C has to establish a new OSCORE Security Context with the RS, and as long as the outcome of their previously completed EDHOC execution is still valid, C and the RS MUST rely on the EDHOC-KeyUpdate function defined in {{Section 4.2.2 of I-D.ietf-lake-edhoc}} as further specified in the rest of this section, rather than re-running the EDHOC protocol. When supporting this profile, both C and the RS MUST support the EDHOC-KeyUpdate function.
 
@@ -711,9 +711,9 @@ Once computed the CBOR byte string CBOR\_STRING, both C and the RS perform the f
 
 1. C and the RS refer to the stored state of a completed EDHOC execution where the authentication credential AUTH\_CRED\_C was used as CRED\_I. In case of multiple matches, the state of the latest completed EDHOC execution is considered.
 
-2. With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see {{Section 4.2.2 of I-D.ietf-lake-edhoc}}), specifying the CBOR byte string EXTENDED\_NONCE as "context" argument. This results in updating the secret key PRK\_OUT to be considered from here on for this EDHOC state.
+2. With reference to the EDHOC state determined at the previous step, C and the RS invoke the EDHOC-KeyUpdate function (see {{Section 4.2.2 of I-D.ietf-lake-edhoc}}), specifying the CBOR byte string EXTENDED\_NONCE as "context" argument. This results in updating the secret key PRK\_out to be considered from here on for this EDHOC state.
 
-3. With reference to the same EDHOC state as above, C and the RS update the secret key PRK\_Exporter as per {{Section 4.2.1 of I-D.ietf-lake-edhoc}}. In particular, the key PRK\_OUT derived at step 2 is specified as "PRK\_out" argument. This results in updating the secret key PRK\_Exporter to be considered from here on for this EDHOC state.
+3. With reference to the same EDHOC state as above, C and the RS update the secret key PRK\_Exporter as per {{Section 4.2.1 of I-D.ietf-lake-edhoc}}. In particular, the key PRK\_out derived at step 2 is specified as "PRK\_out" argument. This results in updating the secret key PRK\_Exporter to be considered from here on for this EDHOC state.
 
 4. C and the RS establish a new OSCORE Security Context as defined in {{edhoc-exec}}, just like if they had completed an EDHOC execution. Note that, since C and the RS have not re-run the EDHOC protocol, they preserve their same OSCORE identifiers, i.e., their OSCORE Sender/Recipient IDs.
 
@@ -743,7 +743,7 @@ C MUST discard the current OSCORE Security Context shared with the RS when any o
 
 * C receives a nonce N2 in the 2.01 (Created) response to an unprotected POST request to the authz-info endpoint at the RS, when re-posting a still valid access token associated to the existing OSCORE Security context together with a nonce N1, in order to trigger the use of the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
 
-* The authentication credential of C (of the RS) becomes invalid (e.g., due to expiration or revocation), and it was used as CRED\_I (CRED\_R) in the EDHOC execution whose PRK\_OUT was used to establish the OSCORE Security Context.
+* The authentication credential of C (of the RS) becomes invalid (e.g., due to expiration or revocation), and it was used as CRED\_I (CRED\_R) in the EDHOC execution whose PRK\_out was used to establish the OSCORE Security Context.
 
 The RS MUST discard the current OSCORE Security Context shared with C when any of the following occurs:
 
@@ -753,7 +753,7 @@ The RS MUST discard the current OSCORE Security Context shared with C when any o
 
 * The current OSCORE Security Context shared with C has been successfully replaced  with a newer one, following an unprotected POST request to the authz-info endpoint at the RS that re-posted a still valid access token together with a nonce N1, in order to trigger the use of the EDHOC-KeyUpdate function (see {{edhoc-key-update}}).
 
-* The authentication credential of C (of the RS) becomes invalid (e.g., due to expiration or revocation), and it was used as CRED\_I (CRED\_R) in the EDHOC execution whose PRK\_OUT was used to establish the OSCORE Security Context.
+* The authentication credential of C (of the RS) becomes invalid (e.g., due to expiration or revocation), and it was used as CRED\_I (CRED\_R) in the EDHOC execution whose PRK\_out was used to establish the OSCORE Security Context.
 
 After a new access token is successfully uploaded to the RS, and a new OSCORE Security Context is established between C and the RS, messages still in transit that were protected with the previous OSCORE Security Context might not be successfully verified by the recipient, since the old OSCORE Security Context might have been discarded. This means that messages sent shortly before C has uploaded the new access token to the RS might not be successfully accepted by the recipient.
 
@@ -765,13 +765,13 @@ This document specifies a profile for the Authentication and Authorization for C
 
 Furthermore, the security considerations from OSCORE {{RFC8613}} and from EDHOC {{I-D.ietf-lake-edhoc}} also apply to this specific use of the OSCORE and EDHOC protocols.
 
-As previously stated, once completed the EDHOC execution, C and the RS are mutually authenticated through their respective authentication credentials, whose retrieval has been facilitated by the AS. Also once completed the EDHOC execution, C and the RS have established a long-term secret key PRK\_OUT enjoying forward secrecy. This is in turn used by C and the RS to establish an OSCORE Security Context.
+As previously stated, once completed the EDHOC execution, C and the RS are mutually authenticated through their respective authentication credentials, whose retrieval has been facilitated by the AS. Also once completed the EDHOC execution, C and the RS have established a long-term secret key PRK\_out enjoying forward secrecy. This is in turn used by C and the RS to establish an OSCORE Security Context.
 
-Furthermore, the RS achieves confirmation that C has PRK\_OUT (proof-of-possession) when completing the EDHOC execution. Rather, C achieves confirmation that the RS has PRK\_OUT (proof-of-possession) either when receiving the optional EDHOC message\_4 from the RS, or when successfully verifying a response from the RS protected with the established OSCORE Security Context.
+Furthermore, the RS achieves confirmation that C has PRK\_out (proof-of-possession) when completing the EDHOC execution. Rather, C achieves confirmation that the RS has PRK\_out (proof-of-possession) either when receiving the optional EDHOC message\_4 from the RS, or when successfully verifying a response from the RS protected with the established OSCORE Security Context.
 
 OSCORE is designed to secure point-to-point communication, providing a secure binding between a request and the corresponding response(s). Thus, the basic OSCORE protocol is not intended for use in point-to-multipoint communication (e.g., enforced via multicast or a publish-subscribe model). Implementers of this profile should make sure that their use case of OSCORE corresponds to the expected one, in order to prevent weakening the security assurances provided by OSCORE.
 
-As defined in {{edhoc-key-update}}, C can (re-)post an access token to the RS and contextually exchange two nonces N1 and N2, in order to efficiently use the EDHOC-KeyUpdate function rather than re-running the EDHOC protocol with the RS. The use of nonces guarantees uniqueness of the new PRK\_OUT derived by running EDHOC\_KeyUpdate. Consequently, it ensures uniqueness of the AEAD (nonce, key) pairs later used by C and the RS, when protecting their communications with the OSCORE Security Context established after updating PRK\_OUT. Thus, it is REQUIRED that the exchanged nonces are not reused with the same pair of authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS), even in case of reboot. When using this profile, it is RECOMMENDED to use a 64-bit long random numbers as a nonce's value. Considering the birthday paradox, the average collision for each nonce will happen after 2^32 messages, which amounts to considerably more issued access token than it would be expected for intended applications. If applications use something else, such as a counter, they need to guarantee that reboot and loss of state on either node does not yield reuse of nonces. If that is not guaranteed, nodes are susceptible to reuse of AEAD (nonce, key) pairs, especially since an on-path attacker can cause the use of a previously exchanged nonce N1 by replaying the corresponding C-to-RS message.
+As defined in {{edhoc-key-update}}, C can (re-)post an access token to the RS and contextually exchange two nonces N1 and N2, in order to efficiently use the EDHOC-KeyUpdate function rather than re-running the EDHOC protocol with the RS. The use of nonces guarantees uniqueness of the new PRK\_out derived by running EDHOC\_KeyUpdate. Consequently, it ensures uniqueness of the AEAD (nonce, key) pairs later used by C and the RS, when protecting their communications with the OSCORE Security Context established after updating PRK\_out. Thus, it is REQUIRED that the exchanged nonces are not reused with the same pair of authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS), even in case of reboot. When using this profile, it is RECOMMENDED to use a 64-bit long random numbers as a nonce's value. Considering the birthday paradox, the average collision for each nonce will happen after 2^32 messages, which amounts to considerably more issued access token than it would be expected for intended applications. If applications use something else, such as a counter, they need to guarantee that reboot and loss of state on either node does not yield reuse of nonces. If that is not guaranteed, nodes are susceptible to reuse of AEAD (nonce, key) pairs, especially since an on-path attacker can cause the use of a previously exchanged nonce N1 by replaying the corresponding C-to-RS message.
 
 When using this profile, it is RECOMMENDED that the RS stores only one access token per client. The use of multiple access tokens for a single client increases the strain on the RS, since it must consider every access token associated with the client and calculate the actual permissions that that client has. Also, access tokens indicating different or disjoint permissions from each other may lead the RS to enforce wrong permissions.  If one of the access tokens expires earlier than others, the resulting permissions may offer insufficient protection. Developers SHOULD avoid using multiple access tokens for a same client. Furthermore, the RS MUST NOT store more than one access token per client per PoP-key (i.e., per client's authentication credential).
 

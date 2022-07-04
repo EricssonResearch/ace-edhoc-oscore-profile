@@ -15,22 +15,22 @@ It utilizes Ephemeral Diffie-Hellman Over COSE (EDHOC) for achieving mutual auth
 EDHOC also establishes an Object Security for Constrained RESTful Environments (OSCORE) Security Context, which is used to secure communications when accessing protected resources according to the authorization information indicated in the access token.
 A resource-constrained server can use this profile to delegate management of authorization information to a trusted host with less severe limitations regarding processing power and memory. 
     " name="description">
-<meta content="xml2rfc 3.12.10" name="generator">
+<meta content="xml2rfc 3.13.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-selander-ace-edhoc-oscore-profile-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.12.10
+  xml2rfc 3.13.0
     Python 3.10.4
     appdirs 1.4.4
     ConfigArgParse 1.5.3
-    google-i18n-address 2.5.1
+    google-i18n-address 2.5.2
     html5lib 1.1
     intervaltree 3.1.0
-    Jinja2 2.11.3
+    Jinja2 3.1.2
     kitchen 1.2.6
-    lxml 4.8.0
-    MarkupSafe 2.0.1
-    pycountry 20.7.3
+    lxml 4.9.1
+    MarkupSafe 2.1.1
+    pycountry 22.3.5
     pyflakes 2.4.0
     PyYAML 6.0
     requests 2.27.1
@@ -1036,7 +1036,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Selander, et al.</td>
-<td class="center">Expires 2 January 2023</td>
+<td class="center">Expires 5 January 2023</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1049,12 +1049,12 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-selander-ace-edhoc-oscore-profile-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2022-07-01" class="published">1 July 2022</time>
+<time datetime="2022-07-04" class="published">4 July 2022</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2023-01-02">2 January 2023</time></dd>
+<dd class="expires"><time datetime="2023-01-05">5 January 2023</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1114,7 +1114,7 @@ A resource-constrained server can use this profile to delegate management of aut
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 2 January 2023.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 5 January 2023.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1384,7 +1384,7 @@ storage (latest)/               |                         |
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-client-as-communication" class="section-name selfRef">Client-AS Communication</a>
       </h2>
 <p id="section-3-1">The following subsections describe the details of the POST request and response to the token endpoint between C and AS.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">In this exchange, AS provides C with the access token, together with a set of parameters that enable C to run EDHOC with RS. In particular, this include information about the authorization credential of RS, AUTH_CRED_RS, transported by value or uniquely referred to.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<p id="section-3-2">In this exchange, AS provides C with the access token, together with a set of parameters that enable C to run EDHOC with RS. In particular, these include information about the authorization credential of RS, AUTH_CRED_RS, transported by value or uniquely referred to.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <p id="section-3-3">The access token is securely associated to the authentication credential of C, AUTH_CRED_C, by transporting it or uniquely referring to it in the access token.<a href="#section-3-3" class="pilcrow">¶</a></p>
 <p id="section-3-4">AUTH_CRED_C is specified in the "req_cnf" parameter defined in <span>[<a href="#I-D.ietf-ace-oauth-params" class="xref">I-D.ietf-ace-oauth-params</a>]</span> of the POST request to the token endpoint from C to AS, either transported by value or uniquely referred to.<a href="#section-3-4" class="pilcrow">¶</a></p>
 <p id="section-3-5">The request to the token endpoint and the corresponding response can include EDHOC_Information, which is a CBOR map object defined in <a href="#edhoc-parameters-object" class="xref">Section 3.3</a>. This object is transported in the "edhoc_info" parameter registered in <a href="#iana-oauth-params" class="xref">Section 10.2</a> and <a href="#iana-oauth-cbor-mappings" class="xref">Section 10.3</a>.<a href="#section-3-5" class="pilcrow">¶</a></p>
@@ -1738,7 +1738,7 @@ EDHOC_Information = {
 <p id="section-4.1-1">The access token can be uploaded to RS by using the authz-info endpoint at RS. To this end, C MUST use CoAP <span>[<a href="#RFC7252" class="xref">RFC7252</a>]</span> and the Authorization Information endpoint described in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.10.1" class="relref">Section 5.10.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span> in order to transport the access token.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2">That is, C sends a POST request to the authz-info endpoint at RS, with the request payload conveying the access token without any CBOR wrapping. As per <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-5.10.1" class="relref">Section 5.10.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>, the Content-Format of the POST request has to reflect the format of the transported access token. In particular, if the access token is a CWT, the content-format MUST be "application/cwt".<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.1-3">The communication with the authz-info endpoint does not have to be protected, except for the update of access rights case described below.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
-<p id="section-4.1-4">In case of initial access token provisioning to RS for this Client, the next steps are essentially: run EDHOC and derive OSCORE security context, as detailed later in this Section. In the following we outline some alternative processing, which occur when the provisioned access token or the established security context for various reasons is no longer available or sufficient. In the cases below it is assumed that the EDHOC session is still valid, otherwise the processing essentially falls back to the initial setting.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.1-4">In case of initial access token provisioning to RS for this Client, the next steps are essentially: run the EDHOC protocol and derive a OSCORE Security Context, as detailed later in this section. In the following we outline some alternative processing, which occur when the provisioned access token or the established security context for various reasons is no longer available or sufficient. In the cases below it is assumed that the EDHOC session is still valid, otherwise the processing essentially falls back to the initial setting.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-4.1-5">
 <li id="section-4.1-5.1">C may be required to re-POST the access token, since RS may have deleted a stored access token (and associated OSCORE Security Context) at any time, for example due to all storage space being consumed. This situation can be detected by C when it receives the CoAP Response Code 4.01 (Unauthorized). After re-posting the same access token to the RS, C and RS rely on a method leveraging the EDHOC-KeyUpdate function (see <a href="#edhoc-key-update" class="xref">Section 5</a>) to derive a new OSCORE Security Context to be used for protecting their communications from then on.<a href="#section-4.1-5.1" class="pilcrow">¶</a>
 </li>
@@ -2024,7 +2024,7 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
 <p id="section-8-4">Furthermore, RS achieves confirmation that C has PRK_out (proof-of-possession) when completing the EDHOC execution. Rather, C achieves confirmation that RS has PRK_out (proof-of-possession) either when receiving the optional EDHOC message_4 from RS, or when successfully verifying a response from RS protected with the established OSCORE Security Context.<a href="#section-8-4" class="pilcrow">¶</a></p>
 <p id="section-8-5">OSCORE is designed to secure point-to-point communication, providing a secure binding between a request and the corresponding response(s). Thus, the basic OSCORE protocol is not intended for use in point-to-multipoint communication (e.g., enforced via multicast or a publish-subscribe model). Implementers of this profile should make sure that their use case of OSCORE corresponds to the expected one, in order to prevent weakening the security assurances provided by OSCORE.<a href="#section-8-5" class="pilcrow">¶</a></p>
 <p id="section-8-6">As defined in <a href="#edhoc-key-update" class="xref">Section 5</a>, C can (re-)post an access token to RS and contextually exchange two nonces N1 and N2, in order to efficiently use the EDHOC-KeyUpdate function rather than re-running the EDHOC protocol with RS. The use of nonces guarantees uniqueness of the new PRK_out derived by running EDHOC_KeyUpdate. Consequently, it ensures uniqueness of the AEAD (nonce, key) pairs later used by C and RS, when protecting their communications with the OSCORE Security Context established after updating PRK_out. Thus, it is REQUIRED that the exchanged nonces are not reused with the same pair of authentication credentials (AUTH_CRED_C, AUTH_CRED_RS), even in case of reboot. When using this profile, it is RECOMMENDED to use a 64-bit long random numbers as a nonce's value. Considering the birthday paradox, the average collision for each nonce will happen after 2^32 messages, which amounts to considerably more issued access token than it would be expected for intended applications. If applications use something else, such as a counter, they need to guarantee that reboot and loss of state on either node does not yield reuse of nonces. If that is not guaranteed, nodes are susceptible to reuse of AEAD (nonce, key) pairs, especially since an on-path attacker can cause the use of a previously exchanged nonce N1 by replaying the corresponding C-to-RS message.<a href="#section-8-6" class="pilcrow">¶</a></p>
-<p id="section-8-7">When using this profile, it is RECOMMENDED that RS stores only one access token per client. The use of multiple access tokens for a single client increases the strain on RS, since it must consider every access token associated with the client and calculate the actual permissions that that client has. Also, access tokens indicating different or disjoint permissions from each other may lead RS to enforce wrong permissions.  If one of the access tokens expires earlier than others, the resulting permissions may offer insufficient protection. Developers SHOULD avoid using multiple access tokens for a same client. Furthermore, RS MUST NOT store more then one access token per client per PoP-key (i.e., per client's authentication credential).<a href="#section-8-7" class="pilcrow">¶</a></p>
+<p id="section-8-7">When using this profile, it is RECOMMENDED that RS stores only one access token per client. The use of multiple access tokens for a single client increases the strain on RS, since it must consider every access token associated with the client and calculate the actual permissions that that client has. Also, access tokens indicating different or disjoint permissions from each other may lead RS to enforce wrong permissions.  If one of the access tokens expires earlier than others, the resulting permissions may offer insufficient protection. Developers SHOULD avoid using multiple access tokens for a same client. Furthermore, RS MUST NOT store more than one access token per client per PoP-key (i.e., per client's authentication credential).<a href="#section-8-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="privacy-considerations">

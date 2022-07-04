@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 2 January 2023                                        M. Tiloca
+Expires: 5 January 2023                                        M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                             1 July 2022
+                                                             4 July 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 January 2023.
+   This Internet-Draft will expire on 5 January 2023.
 
 Copyright Notice
 
@@ -371,7 +371,7 @@ Table of Contents
 
    In this exchange, AS provides C with the access token, together with
    a set of parameters that enable C to run EDHOC with RS.  In
-   particular, this include information about the authorization
+   particular, these include information about the authorization
    credential of RS, AUTH_CRED_RS, transported by value or uniquely
    referred to.
 
@@ -951,13 +951,13 @@ Table of Contents
    below.
 
    In case of initial access token provisioning to RS for this Client,
-   the next steps are essentially: run EDHOC and derive OSCORE security
-   context, as detailed later in this Section.  In the following we
-   outline some alternative processing, which occur when the provisioned
-   access token or the established security context for various reasons
-   is no longer available or sufficient.  In the cases below it is
-   assumed that the EDHOC session is still valid, otherwise the
-   processing essentially falls back to the initial setting.
+   the next steps are essentially: run the EDHOC protocol and derive a
+   OSCORE Security Context, as detailed later in this section.  In the
+   following we outline some alternative processing, which occur when
+   the provisioned access token or the established security context for
+   various reasons is no longer available or sufficient.  In the cases
+   below it is assumed that the EDHOC session is still valid, otherwise
+   the processing essentially falls back to the initial setting.
 
    1.  C may be required to re-POST the access token, since RS may have
        deleted a stored access token (and associated OSCORE Security
@@ -1625,7 +1625,7 @@ Table of Contents
    RS to enforce wrong permissions.  If one of the access tokens expires
    earlier than others, the resulting permissions may offer insufficient
    protection.  Developers SHOULD avoid using multiple access tokens for
-   a same client.  Furthermore, RS MUST NOT store more then one access
+   a same client.  Furthermore, RS MUST NOT store more than one access
    token per client per PoP-key (i.e., per client's authentication
    credential).
 

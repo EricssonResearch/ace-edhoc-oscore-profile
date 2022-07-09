@@ -505,7 +505,7 @@ In either case, following the uploading of the access token, C and RS run the ED
 
 Note that, by means of the respective authentication credentials, C and RS are mutually authenticated once they have successfully completed the execution of the EDHOC protocol.
 
-As to proof-of-possession, RS always gains knowledge that C has PRK\_out at the end of the successful EDHOC execution. Conversely, C gains knowledge that RS has PRK\_out either when receiving and successfully verifying the optional EDHOC message\_4 from RS, or when successully verifying a response from RS protected with the generated OSCORE Security Context.
+As to proof-of-possession, RS always gains knowledge that C has PRK\_out at the end of the successful EDHOC execution. Conversely, C gains knowledge that RS has PRK\_out either when receiving and successfully verifying the optional EDHOC message\_4 from RS, or when successfully verifying a response from RS protected with the generated OSCORE Security Context.
 
 ## C-to-RS: POST to /authz-info endpoint # {#c-rs}
 
@@ -613,9 +613,44 @@ If OSCORE verification succeeds and the target resource requires authorization, 
 
 Once successully completed an EDHOC execution, C and RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and RS, namely AUTH\_CRED\_C and AUTH\_CRED\_RS are valid. This especially consists in preserving the secret key PRK\_out attained at the end of the EDHOC execution.
 
-In case C has to establish a new OSCORE Security Context with RS, and as long as the outcome of their previously completed EDHOC execution is still valid, C and RS MUST rely on the EDHOC-KeyUpdate function defined in {{Section 4.2.2 of I-D.ietf-lake-edhoc}} as further specified in the rest of this section, rather than re-running the EDHOC protocol. When supporting this profile, both C and RS MUST support the EDHOC-KeyUpdate function.
+In case C has to establish a new OSCORE Security Context with RS, and as long as the outcome of their previously completed EDHOC execution is still valid, C and RS MUST rely on the EDHOC-KeyUpdate function defined in {{Section 4.2.2 of I-D.ietf-lake-edhoc}} as further specified in the rest of this section, rather than re-running the EDHOC protocol. When supporting this profile, both C and RS MUST support the EDHOC-KeyUpdate function. The procedure is sketched in {{key-update-procedure}}.
 
-Establishing a new OSCORE Security Context by levaraging the EDHOC-KeyUpdate function is possible in the following cases.
+~~~~~~~~~~~~~~~~~~~~~~~
+   C                            RS
+   |                            |
+   |                            |
+   | ---- POST /authz-info ---> |
+   |     (access_token, N1)     |
+   |                            |
+   | <--- 2.01 Created (N2) --- |
+   |                            |
+
+  /Apply EDHOC-KeyUpdate with
+   concatenated nonces as input,
+   derive OSCORE Security Context/
+
+   |                            |
+   | ---- OSCORE Request -----> |
+   |                            |
+   |            /Proof-of-possession
+   |    and Security Context storage/
+   |                            |
+   | <--- OSCORE Response ----- |
+   |                            |
+/Proof-of-possession            |
+ and Security Context storage/  |
+   |                            |
+   | ---- OSCORE Request -----> |
+   |                            |
+   | <--- OSCORE Response ----- |
+   |                            |
+   |           ...              |
+~~~~~~~~~~~~~~~~~~~~~~~
+{: #key-update-procedure title="Updated OSCORE Security Context using EDHOC-KeyUpdate" artwork-align="center"}
+
+
+
+Establishing a new OSCORE Security Context by leveraging the EDHOC-KeyUpdate function is possible in the following cases.
 
 * C has to upload to RS the newly obtained, first access token of a new token series, as an unprotected POST request to the /authz-info endpoint at RS. This is the case after the latest access token of the previous token series has become invalid (e.g., it expired or got revoked), and thus RS has deleted it together with the associated OSCORE Security Context (see {{discard-context}}).
 

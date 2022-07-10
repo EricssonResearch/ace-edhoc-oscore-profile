@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 10 January 2023                                       M. Tiloca
+Expires: 11 January 2023                                       M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                             9 July 2022
+                                                            10 July 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 10 January 2023.
+   This Internet-Draft will expire on 11 January 2023.
 
 Copyright Notice
 
@@ -203,7 +203,7 @@ Table of Contents
    Terminology for entities in the architecture is defined in OAuth 2.0
    [RFC6749], such as the client (C), the resource server (RS), and the
    authorization server (AS).  It is assumed in this document that a
-   given resource on a specific RS is associated to a unique AS.
+   given resource on a specific RS is associated with a unique AS.
 
    Note that the term "endpoint" is used here, as in
    [I-D.ietf-ace-oauth-authz], following its OAuth definition, which is
@@ -228,7 +228,7 @@ Table of Contents
 
    *  issued together with the same authentication credential of RS
 
-   *  associated to the same authentication credential of C
+   *  associated with the same authentication credential of C
 
    When an access token becomes invalid (e.g., due to its expiration or
    revocation), the token series it belongs to ends.
@@ -271,7 +271,7 @@ Table of Contents
    in Section 5 of [I-D.ietf-ace-oauth-authz] MAY alternatively be used,
    such as TLS [RFC8446] or DTLS [RFC9147].
 
-   If C has retrieved an access token there are two different options
+   If C has retrieved an access token, there are two different options
    for C to upload it to RS, as further detailed in this document.
 
    1.  C posts the access token to the /authz-info endpoint by using the
@@ -378,7 +378,7 @@ Table of Contents
    credential of RS, AUTH_CRED_RS, transported by value or uniquely
    referred to.
 
-   The access token is securely associated to the authentication
+   The access token is securely associated with the authentication
    credential of C, AUTH_CRED_C, by including it or uniquely referring
    to it in the access token.
 
@@ -959,10 +959,10 @@ Table of Contents
    below.
 
    In case of initial access token provisioning to RS for this Client,
-   or other case without a valid EDHOC session, the uploading of the
-   access token is followed by the EDHOC protocol (or combined using EAD
-   as described in Section 4.3) and the derivation of an OSCORE Security
-   Context, as detailed later in this section.
+   or in other cases without a valid EDHOC session, the uploading of the
+   access token is followed by the execution of the EDHOC protocol (or
+   combined using EAD as described in Section 4.3) and by the derivation
+   of an OSCORE Security Context, as detailed later in this section.
 
    In the following, we outline some alternative processing, which occur
    when the provisioned access token or the established OSCORE Security
@@ -986,17 +986,17 @@ Table of Contents
    3.  C may need to update the OSCORE Security Context, e.g., due to a
        policy limiting its use in terms of time or amount of processed
        data, or to the imminent exhaustion of the OSCORE Sender Sequence
-       Number space.  The OSCORE Security Context can be updated by
+       Number space.  The OSCORE Security Context can be updated by:
 
-       a. using the KUDOS key update protocol
-       [I-D.ietf-core-oscore-key-update] if supported by both C and RS,
+       a. using the KUDOS key update protocol specified in
+       [I-D.ietf-core-oscore-key-update], if supported by both C and RS;
        or
 
-       b. re-posting the access token using the same procedure as in 1
-       and 2.
+       b. re-posting the access token using the same procedure as in
+       case 1 above.
 
-   In cases 1, 2, and 3b, C and RS rely on a protocol similar to the
-   coap_oscore profile [I-D.ietf-ace-oscore-profile] but leveraging the
+   In cases 1, 2 and 3b, C and RS rely on a protocol similar to the
+   coap_oscore profile [I-D.ietf-ace-oscore-profile], but leveraging the
    EDHOC-KeyUpdate function (see Section 5) before deriving a new OSCORE
    Security Context.
 
@@ -1264,35 +1264,35 @@ Table of Contents
    support the EDHOC-KeyUpdate function.  The procedure is sketched in
    Figure 8.
 
-                      C                            RS
-                      |                            |
-                      |                            |
-                      | ---- POST /authz-info ---> |
-                      |     (access_token, N1)     |
-                      |                            |
-                      | <--- 2.01 Created (N2) --- |
-                      |                            |
+                     C                            RS
+                     |                            |
+                     |                            |
+                     | ---- POST /authz-info ---> |
+                     |     (access_token, N1)     |
+                     |                            |
+                     | <--- 2.01 Created (N2) --- |
+                     |                            |
 
-                     /Apply EDHOC-KeyUpdate with
-                      concatenated nonces as input,
-                      derive OSCORE Security Context/
+                    /Apply EDHOC-KeyUpdate with
+                     concatenated nonces as input,
+                     derive OSCORE Security Context/
 
-                      |                            |
-                      | ---- OSCORE Request -----> |
-                      |                            |
-                      |            /Proof-of-possession
-                      |    and Security Context storage/
-                      |                            |
-                      | <--- OSCORE Response ----- |
-                      |                            |
-                   /Proof-of-possession            |
-                    and Security Context storage/  |
-                      |                            |
-                      | ---- OSCORE Request -----> |
-                      |                            |
-                      | <--- OSCORE Response ----- |
-                      |                            |
-                      |           ...              |
+                     |                            |
+                     | ---- OSCORE Request -----> |
+                     |                            |
+                     |        /Proof-of-possession and
+                     |         Security Context storage/
+                     |                            |
+                     | <--- OSCORE Response ----- |
+                     |                            |
+                  /Proof-of-possession and        |
+                   Security Context storage/      |
+                     |                            |
+                     | ---- OSCORE Request -----> |
+                     |                            |
+                     | <--- OSCORE Response ----- |
+                     |                            |
+                     |           ...              |
 
       Figure 8: Updated OSCORE Security Context using EDHOC-KeyUpdate
 
@@ -1484,8 +1484,8 @@ Table of Contents
      Figure 12: Example of EXTENDED_NONCE construction, with N1 and N2
                               encoded in JSON
 
-   Once computed the CBOR byte string CBOR_STRING, both C and RS perform
-   the following steps.
+   Once computed the CBOR byte string EXTENDED_NONCE, both C and RS
+   perform the following steps.
 
    1.  C and RS refer to the stored state of a completed EDHOC execution
        where the authentication credential AUTH_CRED_C was used as
@@ -1567,7 +1567,7 @@ Table of Contents
 
    *  C receives a nonce N2 in the 2.01 (Created) response to an
       unprotected POST request to the /authz-info endpoint at RS, when
-      re-posting a still valid access token associated to the existing
+      re-posting a still valid access token associated with the existing
       OSCORE Security context together with a nonce N1, in order to
       trigger the use of the EDHOC-KeyUpdate function (see Section 5).
 

@@ -332,7 +332,7 @@ When CWTs are used as access tokens, EDHOC\_Information MUST be transported in t
 
 Since the access token does not contain secret information, only its integrity and source authentication are strictly necessary to ensure. Therefore, AS can protect the access token with either of the means discussed in {{Section 6.1 of I-D.ietf-ace-oauth-authz}}. Nevertheless, when using this profile, it is RECOMMENDED that the access token is a CBOR web token (CWT) protected with COSE_Encrypt/COSE_Encrypt0 as specified in {{RFC8392}}.
 
-{{fig-token-response}} shows an example of an AS response. The "rs_cnf" parameter specifies the authentication credential of RS, as an X.509 certificate tranported by value in the "x5chain" field. The access token and the authentication credential of RS have been truncated for readability.
+{{fig-token-response}} shows an example of an AS response. The "rs_cnf" parameter specifies the authentication credential of RS, as an X.509 certificate transported by value in the "x5chain" field. The access token and the authentication credential of RS have been truncated for readability.
 
 ~~~~~~~~~~~~~~~~~~~~~~~
    Header: Created (Code=2.01)
@@ -356,7 +356,7 @@ Since the access token does not contain secret information, only its integrity a
 ~~~~~~~~~~~~~~~~~~~~~~~
 {: #fig-token-response title="Example of AS-to-C Access Token response with EDHOC and OSCORE profile."}
 
-{{fig-token}} shows an example CWT Claims Set, including the relevant EDHOC parameters in the "edhoc\_info" claim. The "cnf" claim specifies the authentication credential of C, as an X.509 certificate tranported by value in the "x5chain" field. The authentication credential of C has been truncated for readability.
+{{fig-token}} shows an example CWT Claims Set, including the relevant EDHOC parameters in the "edhoc\_info" claim. The "cnf" claim specifies the authentication credential of C, as an X.509 certificate transported by value in the "x5chain" field. The authentication credential of C has been truncated for readability.
 
 ~~~~~~~~~~~~~~~~~~~~~~~
    {
@@ -611,7 +611,7 @@ If OSCORE verification succeeds and the target resource requires authorization, 
 
 # Use of EDHOC-KeyUpdate # {#edhoc-key-update}
 
-Once successully completed an EDHOC execution, C and RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and RS, namely AUTH\_CRED\_C and AUTH\_CRED\_RS are valid. This especially consists in preserving the secret key PRK\_out attained at the end of the EDHOC execution.
+Once successfully completed an EDHOC execution, C and RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and RS, namely AUTH\_CRED\_C and AUTH\_CRED\_RS are valid. This especially consists in preserving the secret key PRK\_out attained at the end of the EDHOC execution.
 
 In case C has to establish a new OSCORE Security Context with RS, and as long as the outcome of their previously completed EDHOC execution is still valid, C and RS MUST rely on the EDHOC-KeyUpdate function defined in {{Section 4.2.2 of I-D.ietf-lake-edhoc}} as further specified in the rest of this section, rather than re-running the EDHOC protocol. When supporting this profile, both C and RS MUST support the EDHOC-KeyUpdate function. The procedure is sketched in {{key-update-procedure}}.
 
@@ -821,7 +821,7 @@ OSCORE is designed to secure point-to-point communication, providing a secure bi
 
 As defined in {{edhoc-key-update}}, C can (re-)post an access token to RS and contextually exchange two nonces N1 and N2, in order to efficiently use the EDHOC-KeyUpdate function rather than re-running the EDHOC protocol with RS. The use of nonces guarantees uniqueness of the new PRK\_out derived by running EDHOC\_KeyUpdate. Consequently, it ensures uniqueness of the AEAD (nonce, key) pairs later used by C and RS, when protecting their communications with the OSCORE Security Context established after updating PRK\_out. Thus, it is REQUIRED that the exchanged nonces are not reused with the same pair of authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS), even in case of reboot. When using this profile, it is RECOMMENDED to use a 64-bit long random numbers as a nonce's value. Considering the birthday paradox, the average collision for each nonce will happen after 2^32 messages, which amounts to considerably more issued access token than it would be expected for intended applications. If applications use something else, such as a counter, they need to guarantee that reboot and loss of state on either node does not yield reuse of nonces. If that is not guaranteed, nodes are susceptible to reuse of AEAD (nonce, key) pairs, especially since an on-path attacker can cause the use of a previously exchanged nonce N1 by replaying the corresponding C-to-RS message.
 
-When using this profile, it is RECOMMENDED that RS stores only one access token per client. The use of multiple access tokens for a single client increases the strain on RS, since it must consider every access token associated with the client and calculate the actual permissions that that client has. Also, access tokens indicating different or disjoint permissions from each other may lead RS to enforce wrong permissions.  If one of the access tokens expires earlier than others, the resulting permissions may offer insufficient protection. Developers SHOULD avoid using multiple access tokens for a same client. Furthermore, RS MUST NOT store more than one access token per client per PoP-key (i.e., per client's authentication credential).
+When using this profile, it is RECOMMENDED that RS stores only one access token per client. The use of multiple access tokens for a single client increases the strain on RS, since it must consider every access token associated with the client and calculate the actual permissions that client has. Also, access tokens indicating different or disjoint permissions from each other may lead RS to enforce wrong permissions.  If one of the access tokens expires earlier than others, the resulting permissions may offer insufficient protection. Developers SHOULD avoid using multiple access tokens for a same client. Furthermore, RS MUST NOT store more than one access token per client per PoP-key (i.e., per client's authentication credential).
 
 # Privacy Considerations
 
@@ -963,7 +963,7 @@ IANA is asked to add the following entries to the "JWT Confirmation Methods" reg
 &nbsp;
 
 * Confirmation Method Value: "c5u"
-* Confirmation Method Description: URI pointing to a COSE_C509 containing an ordere chain of certificates
+* Confirmation Method Description: URI pointing to a COSE_C509 containing an ordered chain of certificates
 * Change Controller: IESG
 * Specification Document(s): {{&SELF}}
 
@@ -1058,7 +1058,7 @@ IANA is asked to add the following entries to the "CWT Confirmation Methods" reg
 &nbsp;
 
 * Confirmation Method Name: c5u
-* Confirmation Method Description: URI pointing to a COSE_C509 containing an ordere chain of certificates
+* Confirmation Method Description: URI pointing to a COSE_C509 containing an ordered chain of certificates
 * JWT Confirmation Method Name: "c5u"
 * Confirmation Key: TBD
 * Confirmation Value Type(s): uri
@@ -1552,7 +1552,7 @@ M12 |<----------------------------------------------------------------|
  // The Client and RS first run EDHOC-KeyUpdate(N1 | N2), and
  // then EDHOC-Exporter() to derive a new OSCORE Master Secret and
  // OSCORE Master Salt, from which a new OSCORE Security Context is
- // derived. The Sender/Recipiend IDs are the same C_I and C_R from
+ // derived. The Sender/Recipient IDs are the same C_I and C_R from
  // the previous EDHOC execution
 
     |                                  |                              |

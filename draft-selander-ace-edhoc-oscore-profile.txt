@@ -681,7 +681,7 @@ Table of Contents
 
    Figure 4 shows an example of an AS response.  The "rs_cnf" parameter
    specifies the authentication credential of RS, as an X.509
-   certificate tranported by value in the "x5chain" field.  The access
+   certificate transported by value in the "x5chain" field.  The access
    token and the authentication credential of RS have been truncated for
    readability.
 
@@ -710,7 +710,7 @@ Table of Contents
    Figure 5 shows an example CWT Claims Set, including the relevant
    EDHOC parameters in the "edhoc_info" claim.  The "cnf" claim
    specifies the authentication credential of C, as an X.509 certificate
-   tranported by value in the "x5chain" field.  The authentication
+   transported by value in the "x5chain" field.  The authentication
    credential of C has been truncated for readability.
 
       {
@@ -1249,7 +1249,7 @@ Table of Contents
 
 5.  Use of EDHOC-KeyUpdate
 
-   Once successully completed an EDHOC execution, C and RS are expected
+   Once successfully completed an EDHOC execution, C and RS are expected
    to preserve the EDHOC state of such an execution, as long as the
    authentication credentials of both C and RS, namely AUTH_CRED_C and
    AUTH_CRED_RS are valid.  This especially consists in preserving the
@@ -1670,9 +1670,9 @@ Table of Contents
    access token per client.  The use of multiple access tokens for a
    single client increases the strain on RS, since it must consider
    every access token associated with the client and calculate the
-   actual permissions that that client has.  Also, access tokens
-   indicating different or disjoint permissions from each other may lead
-   RS to enforce wrong permissions.  If one of the access tokens expires
+   actual permissions that client has.  Also, access tokens indicating
+   different or disjoint permissions from each other may lead RS to
+   enforce wrong permissions.  If one of the access tokens expires
    earlier than others, the resulting permissions may offer insufficient
    protection.  Developers SHOULD avoid using multiple access tokens for
    a same client.  Furthermore, RS MUST NOT store more than one access
@@ -1902,7 +1902,7 @@ Table of Contents
    *  Confirmation Method Value: "c5u"
 
    *  Confirmation Method Description: URI pointing to a COSE_C509
-      containing an ordere chain of certificates
+      containing an ordered chain of certificates
 
    *  Change Controller: IESG
 
@@ -2047,7 +2047,7 @@ Table of Contents
    *  Confirmation Method Name: c5u
 
    *  Confirmation Method Description: URI pointing to a COSE_C509
-      containing an ordere chain of certificates
+      containing an ordered chain of certificates
 
    *  JWT Confirmation Method Name: "c5u"
 
@@ -2794,7 +2794,7 @@ A.2.  Workflow with Optimizations
   // The Client and RS first run EDHOC-KeyUpdate(N1 | N2), and
   // then EDHOC-Exporter() to derive a new OSCORE Master Secret and
   // OSCORE Master Salt, from which a new OSCORE Security Context is
-  // derived. The Sender/Recipiend IDs are the same C_I and C_R from
+  // derived. The Sender/Recipient IDs are the same C_I and C_R from
   // the previous EDHOC execution
 
      |                                  |                              |

@@ -1537,7 +1537,7 @@ Also note that this approach is not applicable when issuing access tokens follow
         </ul>
 <p id="section-3.2-15">When CWTs are used as access tokens, EDHOC_Information MUST be transported in the "edhoc_info" claim, defined in <a href="#iana-token-cwt-claims" class="xref">Section 10.5</a>.<a href="#section-3.2-15" class="pilcrow">¶</a></p>
 <p id="section-3.2-16">Since the access token does not contain secret information, only its integrity and source authentication are strictly necessary to ensure. Therefore, AS can protect the access token with either of the means discussed in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-authz-46#section-6.1" class="relref">Section 6.1</a> of [<a href="#I-D.ietf-ace-oauth-authz" class="xref">I-D.ietf-ace-oauth-authz</a>]</span>. Nevertheless, when using this profile, it is RECOMMENDED that the access token is a CBOR web token (CWT) protected with COSE_Encrypt/COSE_Encrypt0 as specified in <span>[<a href="#RFC8392" class="xref">RFC8392</a>]</span>.<a href="#section-3.2-16" class="pilcrow">¶</a></p>
-<p id="section-3.2-17"><a href="#fig-token-response" class="xref">Figure 4</a> shows an example of an AS response. The "rs_cnf" parameter specifies the authentication credential of RS, as an X.509 certificate tranported by value in the "x5chain" field. The access token and the authentication credential of RS have been truncated for readability.<a href="#section-3.2-17" class="pilcrow">¶</a></p>
+<p id="section-3.2-17"><a href="#fig-token-response" class="xref">Figure 4</a> shows an example of an AS response. The "rs_cnf" parameter specifies the authentication credential of RS, as an X.509 certificate transported by value in the "x5chain" field. The access token and the authentication credential of RS have been truncated for readability.<a href="#section-3.2-17" class="pilcrow">¶</a></p>
 <span id="name-example-of-as-to-c-access-t"></span><div id="fig-token-response">
 <figure id="figure-4">
           <div class="alignLeft art-text artwork" id="section-3.2-18.1">
@@ -1566,7 +1566,7 @@ Also note that this approach is not applicable when issuing access tokens follow
 <a href="#name-example-of-as-to-c-access-t" class="selfRef">Example of AS-to-C Access Token response with EDHOC and OSCORE profile.</a>
           </figcaption></figure>
 </div>
-<p id="section-3.2-19"><a href="#fig-token" class="xref">Figure 5</a> shows an example CWT Claims Set, including the relevant EDHOC parameters in the "edhoc_info" claim. The "cnf" claim specifies the authentication credential of C, as an X.509 certificate tranported by value in the "x5chain" field. The authentication credential of C has been truncated for readability.<a href="#section-3.2-19" class="pilcrow">¶</a></p>
+<p id="section-3.2-19"><a href="#fig-token" class="xref">Figure 5</a> shows an example CWT Claims Set, including the relevant EDHOC parameters in the "edhoc_info" claim. The "cnf" claim specifies the authentication credential of C, as an X.509 certificate transported by value in the "x5chain" field. The authentication credential of C has been truncated for readability.<a href="#section-3.2-19" class="pilcrow">¶</a></p>
 <span id="name-example-of-cwt-claims-set-w"></span><div id="fig-token">
 <figure id="figure-5">
           <div class="alignLeft art-text artwork" id="section-3.2-20.1">
@@ -1847,7 +1847,7 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
       <h2 id="name-use-of-edhoc-keyupdate">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-use-of-edhoc-keyupdate" class="section-name selfRef">Use of EDHOC-KeyUpdate</a>
       </h2>
-<p id="section-5-1">Once successully completed an EDHOC execution, C and RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and RS, namely AUTH_CRED_C and AUTH_CRED_RS are valid. This especially consists in preserving the secret key PRK_out attained at the end of the EDHOC execution.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-1">Once successfully completed an EDHOC execution, C and RS are expected to preserve the EDHOC state of such an execution, as long as the authentication credentials of both C and RS, namely AUTH_CRED_C and AUTH_CRED_RS are valid. This especially consists in preserving the secret key PRK_out attained at the end of the EDHOC execution.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <p id="section-5-2">In case C has to establish a new OSCORE Security Context with RS, and as long as the outcome of their previously completed EDHOC execution is still valid, C and RS MUST rely on the EDHOC-KeyUpdate function defined in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-lake-edhoc-15#section-4.2.2" class="relref">Section 4.2.2</a> of [<a href="#I-D.ietf-lake-edhoc" class="xref">I-D.ietf-lake-edhoc</a>]</span> as further specified in the rest of this section, rather than re-running the EDHOC protocol. When supporting this profile, both C and RS MUST support the EDHOC-KeyUpdate function. The procedure is sketched in <a href="#key-update-procedure" class="xref">Figure 8</a>.<a href="#section-5-2" class="pilcrow">¶</a></p>
 <span id="name-updated-oscore-security-con"></span><div id="key-update-procedure">
 <figure id="figure-8">
@@ -2072,7 +2072,7 @@ Note that the EAD_1 field of EDHOC message_1 cannot carry an access token for th
 <p id="section-8-4">Furthermore, RS achieves confirmation that C has PRK_out (proof-of-possession) when completing the EDHOC execution. Rather, C achieves confirmation that RS has PRK_out (proof-of-possession) either when receiving the optional EDHOC message_4 from RS, or when successfully verifying a response from RS protected with the established OSCORE Security Context.<a href="#section-8-4" class="pilcrow">¶</a></p>
 <p id="section-8-5">OSCORE is designed to secure point-to-point communication, providing a secure binding between a request and the corresponding response(s). Thus, the basic OSCORE protocol is not intended for use in point-to-multipoint communication (e.g., enforced via multicast or a publish-subscribe model). Implementers of this profile should make sure that their use case of OSCORE corresponds to the expected one, in order to prevent weakening the security assurances provided by OSCORE.<a href="#section-8-5" class="pilcrow">¶</a></p>
 <p id="section-8-6">As defined in <a href="#edhoc-key-update" class="xref">Section 5</a>, C can (re-)post an access token to RS and contextually exchange two nonces N1 and N2, in order to efficiently use the EDHOC-KeyUpdate function rather than re-running the EDHOC protocol with RS. The use of nonces guarantees uniqueness of the new PRK_out derived by running EDHOC_KeyUpdate. Consequently, it ensures uniqueness of the AEAD (nonce, key) pairs later used by C and RS, when protecting their communications with the OSCORE Security Context established after updating PRK_out. Thus, it is REQUIRED that the exchanged nonces are not reused with the same pair of authentication credentials (AUTH_CRED_C, AUTH_CRED_RS), even in case of reboot. When using this profile, it is RECOMMENDED to use a 64-bit long random numbers as a nonce's value. Considering the birthday paradox, the average collision for each nonce will happen after 2^32 messages, which amounts to considerably more issued access token than it would be expected for intended applications. If applications use something else, such as a counter, they need to guarantee that reboot and loss of state on either node does not yield reuse of nonces. If that is not guaranteed, nodes are susceptible to reuse of AEAD (nonce, key) pairs, especially since an on-path attacker can cause the use of a previously exchanged nonce N1 by replaying the corresponding C-to-RS message.<a href="#section-8-6" class="pilcrow">¶</a></p>
-<p id="section-8-7">When using this profile, it is RECOMMENDED that RS stores only one access token per client. The use of multiple access tokens for a single client increases the strain on RS, since it must consider every access token associated with the client and calculate the actual permissions that that client has. Also, access tokens indicating different or disjoint permissions from each other may lead RS to enforce wrong permissions.  If one of the access tokens expires earlier than others, the resulting permissions may offer insufficient protection. Developers SHOULD avoid using multiple access tokens for a same client. Furthermore, RS MUST NOT store more than one access token per client per PoP-key (i.e., per client's authentication credential).<a href="#section-8-7" class="pilcrow">¶</a></p>
+<p id="section-8-7">When using this profile, it is RECOMMENDED that RS stores only one access token per client. The use of multiple access tokens for a single client increases the strain on RS, since it must consider every access token associated with the client and calculate the actual permissions that client has. Also, access tokens indicating different or disjoint permissions from each other may lead RS to enforce wrong permissions.  If one of the access tokens expires earlier than others, the resulting permissions may offer insufficient protection. Developers SHOULD avoid using multiple access tokens for a same client. Furthermore, RS MUST NOT store more than one access token per client per PoP-key (i.e., per client's authentication credential).<a href="#section-8-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="privacy-considerations">
@@ -2304,7 +2304,7 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 <ul class="normal">
 <li class="normal" id="section-10.6-16.1">Confirmation Method Value: "c5u"<a href="#section-10.6-16.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-10.6-16.2">Confirmation Method Description: URI pointing to a COSE_C509 containing an ordere chain of certificates<a href="#section-10.6-16.2" class="pilcrow">¶</a>
+          <li class="normal" id="section-10.6-16.2">Confirmation Method Description: URI pointing to a COSE_C509 containing an ordered chain of certificates<a href="#section-10.6-16.2" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-10.6-16.3">Change Controller: IESG<a href="#section-10.6-16.3" class="pilcrow">¶</a>
 </li>
@@ -2464,7 +2464,7 @@ authorization in a constrained environment by establishing an OSCORE Security Co
 <ul class="normal">
 <li class="normal" id="section-10.7-16.1">Confirmation Method Name: c5u<a href="#section-10.7-16.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-10.7-16.2">Confirmation Method Description: URI pointing to a COSE_C509 containing an ordere chain of certificates<a href="#section-10.7-16.2" class="pilcrow">¶</a>
+          <li class="normal" id="section-10.7-16.2">Confirmation Method Description: URI pointing to a COSE_C509 containing an ordered chain of certificates<a href="#section-10.7-16.2" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-10.7-16.3">JWT Confirmation Method Name: "c5u"<a href="#section-10.7-16.3" class="pilcrow">¶</a>
 </li>
@@ -3137,7 +3137,7 @@ M12 |&lt;----------------------------------------------------------------|
  // The Client and RS first run EDHOC-KeyUpdate(N1 | N2), and
  // then EDHOC-Exporter() to derive a new OSCORE Master Secret and
  // OSCORE Master Salt, from which a new OSCORE Security Context is
- // derived. The Sender/Recipiend IDs are the same C_I and C_R from
+ // derived. The Sender/Recipient IDs are the same C_I and C_R from
  // the previous EDHOC execution
 
     |                                  |                              |

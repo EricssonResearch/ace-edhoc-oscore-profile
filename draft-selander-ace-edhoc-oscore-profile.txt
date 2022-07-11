@@ -5,10 +5,10 @@
 ACE Working Group                                            G. Selander
 Internet-Draft                                         J. Preuß Mattsson
 Intended status: Standards Track                                Ericsson
-Expires: 11 January 2023                                       M. Tiloca
+Expires: 12 January 2023                                       M. Tiloca
                                                               R. Höglund
                                                                     RISE
-                                                            10 July 2022
+                                                            11 July 2022
 
 
    Ephemeral Diffie-Hellman Over COSE (EDHOC) and Object Security for
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 January 2023.
+   This Internet-Draft will expire on 12 January 2023.
 
 Copyright Notice
 
@@ -284,7 +284,7 @@ Table of Contents
 
    2.  C initiates the EDHOC protocol by sending EDHOC message_1 to RS,
        specifying the access token as External Authorization Data (EAD)
-       in the EAD_1 field of EDHOC message_1 (see Section 3.8
+       in the EAD_1 field of EDHOC message_1 (see Section 3.8 of
        [I-D.ietf-lake-edhoc]).  If the access token is valid and the
        processing of EDHOC message_1 is successful, RS responds with
        EDHOC message_2, thus continuing the EDHOC protocol.  This
@@ -1412,7 +1412,7 @@ Table of Contents
    RECOMMENDED to use a 64-bit long random number as the nonce's value.
    Then, RS MUST reply to the POST request with a 2.01 (Created)
    response, for which RS MUST use the Content-Format "application/
-   ace+cbor" defined in Section 8.14 of [I-D.ietf-ace-oauth-authz].  The
+   ace+cbor" defined in Section 8.16 of [I-D.ietf-ace-oauth-authz].  The
    payload of the response MUST be a CBOR map, which MUST specify N2
    using the "nonce2" parameter defined in Section 4.2.1 of
    [I-D.ietf-ace-oscore-profile].
@@ -1522,7 +1522,7 @@ Table of Contents
 
 6.  Secure Communication with AS
 
-   As specified in the ACE framework (see Section 5.9 of
+   As specified in the ACE framework (see Sections 5.8 and 5.9 of
    [I-D.ietf-ace-oauth-authz]), the requesting entity (RS and/or C) and
    AS communicates via the /introspect or /token endpoint.  When using
    this profile, the use of CoAP [RFC7252] and OSCORE [RFC8613] for this
@@ -2094,7 +2094,8 @@ Table of Contents
 10.8.  EDHOC External Authorization Data Registry
 
    IANA is asked to add the following entry to the "EDHOC External
-   Authorization Data" defined in Section 9.5 of [I-D.ietf-lake-edhoc].
+   Authorization Data" registry defined in Section 9.5 of
+   [I-D.ietf-lake-edhoc].
 
    *  Label: TBD
 
@@ -2229,9 +2230,9 @@ Table of Contents
               Mattsson, J. P., Selander, G., Raza, S., Höglund, J., and
               M. Furuhed, "CBOR Encoded X.509 Certificates (C509
               Certificates)", Work in Progress, Internet-Draft, draft-
-              ietf-cose-cbor-encoded-cert-03, 10 January 2022,
+              ietf-cose-cbor-encoded-cert-04, 10 July 2022,
               <https://datatracker.ietf.org/doc/html/draft-ietf-cose-
-              cbor-encoded-cert-03>.
+              cbor-encoded-cert-04>.
 
    [I-D.ietf-cose-x509]
               Schaad, J., "CBOR Object Signing and Encryption (COSE):
@@ -2244,9 +2245,9 @@ Table of Contents
    [I-D.ietf-lake-edhoc]
               Selander, G., Mattsson, J. P., and F. Palombini,
               "Ephemeral Diffie-Hellman Over COSE (EDHOC)", Work in
-              Progress, Internet-Draft, draft-ietf-lake-edhoc-14, 18 May
-              2022, <https://datatracker.ietf.org/doc/html/draft-ietf-
-              lake-edhoc-14>.
+              Progress, Internet-Draft, draft-ietf-lake-edhoc-15, 10
+              July 2022, <https://datatracker.ietf.org/doc/html/draft-
+              ietf-lake-edhoc-15>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,

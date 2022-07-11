@@ -190,7 +190,7 @@ Table of Contents
    Authentication Code (MAC)", "Hash-based Message Authentication Code
    (HMAC)", and "verify" are taken from [RFC4949].
 
-   RESTful terminology follows HTTP [RFC7231].
+   RESTful terminology follows HTTP [RFC9110].
 
    Readers are expected to be familiar with the terms and concepts
    defined in CoAP [RFC7252], OSCORE [RFC8613] and EDHOC
@@ -2323,14 +2323,14 @@ Table of Contents
               FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
               <https://www.rfc-editor.org/rfc/rfc4949>.
 
-   [RFC7231]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
-              Protocol (HTTP/1.1): Semantics and Content", RFC 7231,
-              DOI 10.17487/RFC7231, June 2014,
-              <https://www.rfc-editor.org/rfc/rfc7231>.
-
    [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
               <https://www.rfc-editor.org/rfc/rfc8446>.
+
+   [RFC9110]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
 
    [RFC9147]  Rescorla, E., Tschofenig, H., and N. Modadugu, "The
               Datagram Transport Layer Security (DTLS) Protocol Version

@@ -65,8 +65,8 @@ normative:
 
 informative:
   RFC4949:
-  RFC7231:
   RFC8446:
+  RFC9110:
   RFC9147:
   I-D.ietf-core-oscore-key-update:
 
@@ -107,7 +107,7 @@ In general, AS and RS are likely to have trusted access to each other's authenti
 
 Certain security-related terms such as "authentication", "authorization", "confidentiality", "(data) integrity", "Message Authentication Code (MAC)", "Hash-based Message Authentication Code (HMAC)", and "verify" are taken from {{RFC4949}}.
 
-RESTful terminology follows HTTP {{RFC7231}}.
+RESTful terminology follows HTTP {{RFC9110}}.
 
 Readers are expected to be familiar with the terms and concepts defined in CoAP {{RFC7252}}, OSCORE {{RFC8613}} and EDHOC {{I-D.ietf-lake-edhoc}}.
 

@@ -65,8 +65,8 @@ normative:
 
 informative:
   RFC4949:
-  RFC7231:
   RFC8446:
+  RFC9110:
   RFC9147:
   I-D.ietf-core-oscore-key-update:
 
@@ -107,7 +107,7 @@ In general, AS and RS are likely to have trusted access to each other's authenti
 
 Certain security-related terms such as "authentication", "authorization", "confidentiality", "(data) integrity", "Message Authentication Code (MAC)", "Hash-based Message Authentication Code (HMAC)", and "verify" are taken from {{RFC4949}}.
 
-RESTful terminology follows HTTP {{RFC7231}}.
+RESTful terminology follows HTTP {{RFC9110}}.
 
 Readers are expected to be familiar with the terms and concepts defined in CoAP {{RFC7252}}, OSCORE {{RFC8613}} and EDHOC {{I-D.ietf-lake-edhoc}}.
 
@@ -138,13 +138,13 @@ This section gives an overview of how to use the ACE framework {{I-D.ietf-ace-oa
 
 RS maintains a collection of authentication credentials. These are related to OSCORE Security Contexts associated with authorization information for all the clients that RS is communicating with. The authorization information is maintained as policy that is used as input to the processing of requests from those clients.
 
-This profile specifies how C requests an access token from AS for the resources it wants to access on an RS, by sending an access token request to the /token endpoint, as specified in Section 5.8 of {{I-D.ietf-ace-oauth-authz}}. The access token request and response MUST be confidentiality protected and ensure authenticity. The use of EDHOC and OSCORE between C and AS is RECOMMENDED in this profile, in order to reduce the number of libraries that C has to support. However, other protocols fulfilling the security requirements defined in Section 5 of {{I-D.ietf-ace-oauth-authz}} MAY alternatively be used, such as TLS {{RFC8446}} or DTLS {{RFC9147}}.
+This profile specifies how C requests an access token from AS for the resources it wants to access on an RS, by sending an access token request to the /token endpoint, as specified in {{Section 5.8 of I-D.ietf-ace-oauth-authz}}. The access token request and response MUST be confidentiality protected and ensure authenticity. The use of EDHOC and OSCORE between C and AS is RECOMMENDED in this profile, in order to reduce the number of libraries that C has to support. However, other protocols fulfilling the security requirements defined in {{Section 5 of I-D.ietf-ace-oauth-authz}} MAY alternatively be used, such as TLS {{RFC8446}} or DTLS {{RFC9147}}.
 
 If C has retrieved an access token, there are two different options for C to upload it to RS, as further detailed in this document.
 
-1. C posts the access token to the /authz-info endpoint by using the mechanisms specified in Section 5.8 of {{I-D.ietf-ace-oauth-authz}}. If the access token is valid, RS responds to the request with a 2.01 (Created) response, after which C initiates the EDHOC protocol by sending EDHOC message_1 to RS. The communication with the /authz-info endpoint is not protected, except for the update of access rights.
+1. C posts the access token to the /authz-info endpoint by using the mechanisms specified in {{Section 5.8 of I-D.ietf-ace-oauth-authz}}. If the access token is valid, RS responds to the request with a 2.01 (Created) response, after which C initiates the EDHOC protocol by sending EDHOC message_1 to RS. The communication with the /authz-info endpoint is not protected, except for the update of access rights.
 
-2. C initiates the EDHOC protocol by sending EDHOC message_1 to RS, specifying the access token as External Authorization Data (EAD) in the EAD_1 field of EDHOC message_1 (see Section 3.8 {{I-D.ietf-lake-edhoc}}). If the access token is valid and the processing of EDHOC message_1 is successful, RS responds with EDHOC message_2, thus continuing the EDHOC protocol. This alternative cannot be used for the update of access rights.
+2. C initiates the EDHOC protocol by sending EDHOC message_1 to RS, specifying the access token as External Authorization Data (EAD) in the EAD_1 field of EDHOC message_1 (see {{Section 3.8 of I-D.ietf-lake-edhoc}}). If the access token is valid and the processing of EDHOC message_1 is successful, RS responds with EDHOC message_2, thus continuing the EDHOC protocol. This alternative cannot be used for the update of access rights.
 
 When running the EDHOC protocol, C uses the authentication credential of RS specified by AS together with the access token, while RS uses the authentication credential of C bound to and specified within the access token. If C and RS complete the EDHOC execution successfully, they are mutually authenticated and they derive an OSCORE Security Context as per {{Section A.1 of I-D.ietf-lake-edhoc}}. Also, RS associates the two used authentication credentials and the completed EDHOC execution with the derived Security Context. The latter is in turn associated with the access token and the access rights of C specified therein.
 
@@ -214,7 +214,7 @@ The client-to-AS request is specified in {{Section 5.8.1 of I-D.ietf-ace-oauth-a
 
 The client must send this POST request to the /token endpoint over a secure channel that guarantees authentication, message integrity and confidentiality (see {{secure-comm-as}}).
 
-Editor's note: This formulation overlaps with 3rd para in Section 2, which has normative language. Preferable to keep normative language here.
+Editor's note: This formulation overlaps with 3rd para in {{overview}}, which has normative language. Preferable to keep normative language here.
 
 An example of such a request is shown in {{token-request}}. In this example, C specifies its own authentication credential by reference, as the hash of an X.509 certificate carried in the "x5t" field of the "req\_cnf" parameter. In fact, it is expected that C can typically specify its own authentication credential by reference, since AS is expected to obtain the actual authentication credential during an early client registration process or during a previous secure association establishment with C.
 
@@ -236,7 +236,7 @@ An example of such a request is shown in {{token-request}}. In this example, C s
 
 If C wants to update its access rights without changing an existing OSCORE Security Context, it MUST include EDHOC\_Information in its POST request to the /token endpoint. In turn, EDHOC\_Information MUST include the "id" field, carrying a CBOR byte string containing the identifier of the token series to which the current, still valid access token shared with RS belongs to. This POST request MUST omit the "req_cnf" parameter.
 
-This identifier is assigned by AS as discussed in {{as-c}}, and, together with other information such as audience (see Section 5.8.1 of {{I-D.ietf-ace-oauth-authz}}), can be used by AS to determine the token series to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH\_CRED\_C, AUTH\_CRED\_RS) associated with a still valid access token previously issued for C and RS by AS.
+This identifier is assigned by AS as discussed in {{as-c}}, and, together with other information such as audience (see {{Section 5.8.1 of I-D.ietf-ace-oauth-authz}}), can be used by AS to determine the token series to which the new requested access token has to be added. Therefore, the identifier MUST identify the pair (AUTH\_CRED\_C, AUTH\_CRED\_RS) associated with a still valid access token previously issued for C and RS by AS.
 
 AS MUST verify that the received value identifies a token series to which a still valid access token issued for C and RS belongs to. If that is not the case, the Client-to-AS request MUST be declined with the error code "invalid_request" as defined in {{Section 5.8.3 of I-D.ietf-ace-oauth-authz}}.
 
@@ -696,7 +696,7 @@ If the access token is valid but it is associated with claims that RS cannot pro
 
 If RS does not find the stored state of a completed EDHOC execution where the authentication credential AUTH\_CRED\_C was used as CRED\_I, then RS MUST respond with an error response code equivalent to the CoAP code 4.00 (Bad Request). RS may provide additional information in the payload of the error response, in order to clarify what went wrong.
 
-Otherwise, if all the steps above are successful, RS stores the access token and MUST generate a nonce N2 very unlikely to have been previously used with the same pair of authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS). When using this profile, it is RECOMMENDED to use a 64-bit long random number as the nonce's value. Then, RS MUST reply to the POST request with a 2.01 (Created) response, for which RS MUST use the Content-Format "application/ace+cbor" defined in {{Section 8.14 of I-D.ietf-ace-oauth-authz}}. The payload of the response MUST be a CBOR map, which MUST specify N2 using the "nonce2" parameter defined in {{Section 4.2.1 of I-D.ietf-ace-oscore-profile}}.
+Otherwise, if all the steps above are successful, RS stores the access token and MUST generate a nonce N2 very unlikely to have been previously used with the same pair of authentication credentials (AUTH\_CRED\_C, AUTH\_CRED\_RS). When using this profile, it is RECOMMENDED to use a 64-bit long random number as the nonce's value. Then, RS MUST reply to the POST request with a 2.01 (Created) response, for which RS MUST use the Content-Format "application/ace+cbor" defined in {{Section 8.16 of I-D.ietf-ace-oauth-authz}}. The payload of the response MUST be a CBOR map, which MUST specify N2 using the "nonce2" parameter defined in {{Section 4.2.1 of I-D.ietf-ace-oscore-profile}}.
 
 {{fig-rs-c-edhoc-key-update}} shows an example of the response sent by RS to C.
 
@@ -771,7 +771,7 @@ Once computed the CBOR byte string EXTENDED\_NONCE, both C and RS perform the fo
 
 # Secure Communication with AS # {#secure-comm-as}
 
-As specified in the ACE framework (see {{Section 5.9 of I-D.ietf-ace-oauth-authz}}), the requesting entity (RS and/or C) and AS communicates via the /introspect or /token endpoint. When using this profile, the use of CoAP {{RFC7252}} and OSCORE {{RFC8613}} for this communication is RECOMMENDED. Other protocols fulfilling the security requirements defined in {{Section 5 of I-D.ietf-ace-oauth-authz}} (such as HTTP and DTLS or TLS) MAY be used instead.
+As specified in the ACE framework (see {{Sections 5.8 and 5.9 of I-D.ietf-ace-oauth-authz}}), the requesting entity (RS and/or C) and AS communicates via the /introspect or /token endpoint. When using this profile, the use of CoAP {{RFC7252}} and OSCORE {{RFC8613}} for this communication is RECOMMENDED. Other protocols fulfilling the security requirements defined in {{Section 5 of I-D.ietf-ace-oauth-authz}} (such as HTTP and DTLS or TLS) MAY be used instead.
 
 If OSCORE is used, the requesting entity and AS need to have a OSCORE Security Context in place. While this can be pre-installed, the requesting entity and AS can establish such an OSCORE Security Context, for example, by running the EDHOC protocol, as shown between C and AS by the examples in {{example-without-optimization}}, {{example-with-optimization}} and {{example-without-optimization-as-posting}}. The requesting entity and AS communicate through the /introspect endpoint as specified in {{Section 5.9 of I-D.ietf-ace-oauth-authz}} and through the /token endpoint as specified in {{Section 5.8 of I-D.ietf-ace-oauth-authz}}.
 
@@ -1087,7 +1087,7 @@ IANA is asked to add the following entries to the "CWT Confirmation Methods" reg
 
 ## EDHOC External Authorization Data Registry # {#iana-edhoc-ead}
 
-IANA is asked to add the following entry to the "EDHOC External Authorization Data" defined in {{Section 9.5 of I-D.ietf-lake-edhoc}}.
+IANA is asked to add the following entry to the "EDHOC External Authorization Data" registry defined in {{Section 9.5 of I-D.ietf-lake-edhoc}}.
 
 * Label: TBD
 * Message: EDHOC message\_1
